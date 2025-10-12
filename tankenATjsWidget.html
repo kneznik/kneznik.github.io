@@ -59,7 +59,7 @@
     }
 
     .station-list {
-      margin-top: 10px;
+      margin-top: 0px;
       display: flex;
       flex-direction: column;
       gap: 6px;
@@ -191,11 +191,11 @@
       }
 
       const stations = data.filter(s => Array.isArray(s.prices) && s.prices.length > 0);
-      stations.sort((a, b) => a.prices[0].amount - b.prices[0].amount);
+      //stations.sort((a, b) => a.prices[0].amount - b.prices[0].amount);
 
       if (!stations.length) {
         errDiv.hidden = false;
-        errDiv.textContent = "Keine gültigen Tankstellen gefunden.";
+        errDiv.textContent = "Keine Tankstellen gefunden.";
         return;
       }
 
