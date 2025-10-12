@@ -26,7 +26,7 @@
       justify-content: space-between;
       max-width: 90%;
       width: auto;
-      min-width: 80%;
+      min-width: 800px;
       box-sizing: border-box;
     }
 
@@ -134,8 +134,6 @@
       return "Tankstellen in der Nähe"; 
     }
     
-    //function __wweb2WaitMillisecondsToWidgetIsReady(currentDelayMs) { return 1500; }
-
     const fuelType = "DIE";
 
     async function getLocation() {
@@ -194,8 +192,7 @@
       }
 
       const stations = data.filter(s => Array.isArray(s.prices) && s.prices.length > 0);
-      //stations.sort((a, b) => a.prices[0].amount - b.prices[0].amount);
-
+     
       if (!stations.length) {
         errDiv.hidden = false;
         errDiv.textContent = "Keine Tankstellen gefunden.";
