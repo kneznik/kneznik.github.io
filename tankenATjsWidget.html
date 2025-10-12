@@ -218,7 +218,11 @@
         stationsEls[i].container.style.display = "none";
       }
 
-      timeEl.textContent = new Date().toLocaleString();
+      const now = new Date();
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      
+      timeEl.textContent = `${hours}:${minutes}`
     }
 
     createWidget();
