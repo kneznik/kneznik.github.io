@@ -6,87 +6,79 @@
   <title>Tankstellen in der Nähe</title>
 
   <style>
-    :root {
-      --bg1: #FFFFFF;
-      --bg2: #EEEEEE;
-      --text: #000000;
-      --text-grey: #555555;
-      --shadow: rgba(0,0,0,0.15);
-    }
-
-    body {
-      font-family: "SF Pro", system-ui, sans-serif;
+    html, body {
       margin: 0;
       padding: 0;
-      background: linear-gradient(var(--bg1), var(--bg2));
-      color: var(--text);
+      height: 100%;
+      background: transparent;
+      font-family: "SF Pro", system-ui, sans-serif;
       display: flex;
-      align-items: center;
       justify-content: center;
-      height: 100vh;
-      transition: all 0.3s ease;
+      align-items: center;
+      color: #FFFFFF;
     }
 
     .widget {
-      width: 800px;
-      height: 800px;
-      padding: 24px;
-      border-radius: 20px;
-      box-shadow: 0 4px 20px var(--shadow);
-      background: linear-gradient(var(--bg1), var(--bg2));
+      padding: 10px; /* small padding */
+      background: transparent;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
+      max-width: 90%;
+      width: auto;
+      min-width: 280px;
       box-sizing: border-box;
     }
 
     .title {
       text-align: center;
-      font-size: 36px;
+      font-size: 2rem;
       font-weight: 700;
-      margin-bottom: 20px;
+      margin-bottom: 10px;
     }
 
     .station-main {
       text-align: center;
-      margin-bottom: 20px;
+      margin-bottom: 10px;
     }
 
     .station-main .price {
       font-family: monospace;
-      font-size: 64px;
+      font-size: 2.5rem;
       font-weight: bold;
     }
 
     .station-main .name {
       font-weight: 600;
-      margin-top: 6px;
-      font-size: 32px;
+      margin-top: 4px;
+      font-size: 1.25rem;
     }
 
     .station-main .address {
-      font-size: 20px;
-      color: var(--text-grey);
+      font-size: 0.875rem;
     }
 
     .station-list {
-      margin-top: 16px;
+      margin-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
     }
 
     .station {
       display: flex;
       align-items: center;
-      margin-bottom: 10px;
-      font-size: 20px;
-      color: var(--text-grey);
+      font-size: 0.875rem;
       text-decoration: none;
-      padding: 8px 0;
+      color: #FFFFFF;
+      gap: 8px;
     }
 
     .station .price {
       font-family: monospace;
-      width: 120px;
-      font-size: 28px;
+      font-size: 1rem;
+      width: 60px;
+      flex-shrink: 0;
     }
 
     .station .info {
@@ -94,18 +86,11 @@
       flex-direction: column;
     }
 
-    .update-time {
+    .update-time, .error {
       text-align: center;
-      font-size: 16px;
-      color: var(--text-grey);
-      margin-top: 20px;
-    }
-
-    .error {
-      text-align: center;
-      font-size: 20px;
-      color: var(--text-grey);
-      margin-top: 20px;
+      font-size: 0.75rem;
+      margin-top: 10px;
+      color: #FFFFFF;
     }
   </style>
 </head>
@@ -145,25 +130,15 @@
   </div>
 
   <script>
-    // JS-Widget required functions
-    function __wweb2JsWidgetTitle() {
-      return "Tankstellen in der Nähe";
-    }
-
-    // Allow short delay for async data
-    function __wweb2WaitMillisecondsToWidgetIsReady(currentDelayMs) {
-      return 1500;
-    }
+    function __wweb2JsWidgetTitle() { return "Tankstellen in der Nähe"; }
+    function __wweb2WaitMillisecondsToWidgetIsReady(currentDelayMs) { return 1500; }
 
     const fuelType = "DIE";
 
     async function getLocation() {
       return new Promise((resolve, reject) => {
         navigator.geolocation.getCurrentPosition(
-          pos => resolve({
-            latitude: pos.coords.latitude,
-            longitude: pos.coords.longitude
-          }),
+          pos => resolve({ latitude: pos.coords.latitude, longitude: pos.coords.longitude }),
           err => reject(err)
         );
       });
@@ -183,9 +158,7 @@
         const url = `https://api.e-control.at/sprit/1.0/search/gas-stations/by-address?latitude=${location.latitude.toFixed(3)}&longitude=${location.longitude.toFixed(3)}&fuelType=${fuelType}&includeClosed=false`;
         const res = await fetch(url);
         const data = await res.json();
-        if (!Array.isArray(data) || data.length === 0) {
-          return { error: true, message: "Keine Tankstellen in der Nähe gefunden." };
-        }
+        if (!Array.isArray(data) || data.length === 0) return { error: true, message: "Keine Tankstellen in der Nähe gefunden." };
         return data;
       } catch {
         return { error: true, message: "Standort oder Daten konnten nicht geladen werden." };
@@ -200,14 +173,12 @@
         name: document.getElementById("main-name"),
         address: document.getElementById("main-address"),
       };
-
       const stationsEls = [1, 2].map(i => ({
         container: document.getElementById(`station-${i}`),
         price: document.getElementById(`price-${i}`),
         name: document.getElementById(`name-${i}`),
         address: document.getElementById(`address-${i}`)
       }));
-
       const timeEl = document.getElementById("update-time");
       const data = await loadStations();
 
@@ -253,7 +224,6 @@
       timeEl.textContent = "Stand: " + new Date().toLocaleString();
     }
 
-    // Process widget action when user taps
     function handleAction() {
       let queryString = window.location.hash;
       if (queryString.startsWith("#")) queryString = queryString.substring(1);
@@ -263,6 +233,7 @@
       const lng = urlParams.get("lng");
 
       if (action && lat && lng && action.startsWith("navigate")) {
+        // Open Waze app
         window.location.href = `waze://?ll=${lat},${lng}&navigate=yes`;
       }
     }
