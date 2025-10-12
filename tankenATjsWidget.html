@@ -204,7 +204,7 @@
       const rest = stations.slice(1, 3);
 
       // Haupttankstelle – direkter Waze-Link
-      //main.link.href = `waze://?ll=${top.location.latitude},${top.location.longitude}&navigate=yes`;
+      main.link.href = `waze://?ll=${top.location.latitude},${top.location.longitude}&navigate=yes`;
       main.price.innerHTML = formatValue(top.prices[0].amount);
       main.name.textContent = top.name || "Unbekannte Tankstelle";
       main.address.textContent = top.location.address || "Keine Adresse";
@@ -212,7 +212,7 @@
       // Weitere Tankstellen – direkter Waze-Link
       rest.forEach((st, i) => {
         const el = stationsEls[i];
-        //el.container.href = `waze://?ll=${st.location.latitude},${st.location.longitude}&navigate=yes`;
+        el.container.href = `waze://?ll=${st.location.latitude},${st.location.longitude}&navigate=yes`;
         el.price.innerHTML = formatValue(st.prices[0].amount);
         el.name.textContent = st.name || "Unbekannte Tankstelle";
         el.address.textContent = st.location.address || "Keine Adresse";
