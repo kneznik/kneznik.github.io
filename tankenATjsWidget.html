@@ -28,7 +28,6 @@
       max-width: 90%;
       width: auto;
       min-width: 90%;
-      box-sizing: border-box;
     }
 
     .station-main {
@@ -218,7 +217,7 @@
         stationsEls[i].container.style.display = "none";
       }
 
-      timeEl.textContent = "Stand: " + new Date().toLocaleString();
+      timeEl.textContent = new Date().toLocaleString();
     }
 
     createWidget();
