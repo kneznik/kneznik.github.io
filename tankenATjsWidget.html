@@ -3,8 +3,8 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <meta name="js-widget-title" content="Tankstellen in der Nähe">
-  <title>Tankstellen in der Nähe</title>
+  <meta name="js-widget-title" content="Tanken AT">
+  <title>Tanken AT</title>
 
   <style>
     html, body {
@@ -31,13 +31,6 @@
       box-sizing: border-box;
     }
 
-    .title {
-      text-align: center;
-      font-size: 2rem;
-      font-weight: 700;
-      margin-bottom: 10px;
-    }
-
     .station-main {
       text-align: center;
       margin-bottom: 10px;
@@ -60,7 +53,7 @@
     }
 
     .station-list {
-      margin-top: 0px;
+      margin-top: 5px;
       display: flex;
       flex-direction: column;
       gap: 6px;
@@ -102,8 +95,6 @@
 
 <body>
   <div class="widget">
-    <div class="title">⛽ Tankstellen in der Nähe</div>
-
     <div id="error" class="error" hidden></div>
 
     <div class="station-main" id="main-station">
@@ -136,7 +127,7 @@
 
   <script>
     function __wweb2JsWidgetTitle() {
-      return "Tankstellen in der Nähe"; 
+      return "Tanken AT"; 
     }
 
     const fuelType = "DIE";
