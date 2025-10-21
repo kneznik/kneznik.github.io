@@ -2,6 +2,7 @@
 <html lang="de">
 <head>
   <meta charset="utf-8" />
+  <meta  name="js-widget-title" content="TankenAT">
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
     :root {
@@ -33,16 +34,19 @@
     }
 
     .app {
-      width: 600px;
-      height: 600px;
+      max-width: 600px;
+      max-height: 600px;
       display: flex;
       flex-direction: column;
-      
       margin: 18px auto;
       padding: 14px;
       border-radius: 12px;
       background: linear-gradient(180deg, rgba(255,255,255,0.03), transparent);
       box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+    }
+
+    .status {
+        text-align: center;
     }
 
     .list {
@@ -115,7 +119,7 @@
 </head>
 <body>
   <div class="app">
-    <div id="status"></div>
+    <div id="status" class="status"></div>
     <div id="list" class="list" aria-live="polite"></div>
     <div id="fallbackMsg" class="fallback-msg"></div>
     <div id="time" class="timestamp"></div>
@@ -126,6 +130,7 @@
     const FUEL_TYPE = 'DIE';
     const FALLBACK_LOCATION = { latitude: 48.290, longitude: 14.285 };
     const el = id => document.getElementById(id);
+    let latestStations = [];
 
     /* ---------------- Helper Functions ---------------- */
     function formatValue(value) {
@@ -148,7 +153,6 @@
       return [address, postalCode, city].filter(Boolean).join(', ');
     }
 
-    /* ---------------- Event Handlers ---------------- */
     async function copyAddressAndRefresh(station) {
       if (station?.location) {
         const { address = '', city = '', postalCode = '' } = station.location;
@@ -159,11 +163,11 @@
           console.warn('Clipboard error', e);
         }
       }
-      loadStations(); // reload widget silently
     }
 
-    /* ---------------- Render Functions ---------------- */
+    /* ---------------- Render ---------------- */
     function renderStations(data) {
+      latestStations = data;
       const list = el('list');
       list.innerHTML = '';
 
@@ -173,46 +177,30 @@
       }
 
       const stations = data.filter(s => Array.isArray(s.prices) && s.prices.length > 0);
-      const top = stations.slice(0,5);
+      const top = stations.slice(0, 5);
 
       top.forEach((station, i) => {
         const price = station.prices?.[0]?.amount ?? null;
         const fullAddress = formatFullAddress(station.location);
-
         const item = document.createElement('a');
-        item.href = '#';
+        item.href = `#action=copyAddressAndRefresh&index=${i}`;
         item.className = i === 0 ? 'item big' : 'item';
-        item.onclick = e => { e.preventDefault(); copyAddressAndRefresh(station); };
+        item.onclick = e => { e.preventDefault(); handleAction('copyAddressAndRefresh', i); };
 
         if (i === 0) {
-          const priceEl = document.createElement('div');
-          priceEl.className = 'price';
-          priceEl.textContent = formatValue(price);
-
-          const meta = document.createElement('div');
-          meta.className = 'meta';
-          meta.innerHTML = `
-            <div class="name">${station.name || 'Kein Name'}</div>
-            <div class="addr">${fullAddress}</div>
-          `;
-
-          item.appendChild(priceEl);
-          item.appendChild(meta);
+          item.innerHTML = `
+            <div class="price">${formatValue(price)}</div>
+            <div class="meta">
+              <div class="name">${station.name || 'Kein Name'}</div>
+              <div class="addr">${fullAddress}</div>
+            </div>`;
         } else {
-          const priceEl = document.createElement('div');
-          priceEl.className = 'smallPrice';
-          priceEl.textContent = formatValue(price);
-
-          const right = document.createElement('div');
-          right.style.flex = '1';
-          right.style.marginLeft = '8px';
-          right.innerHTML = `
-            <div class="name">${station.name || 'Kein Name'}</div>
-            <div class="addr">${fullAddress}</div>
-          `;
-
-          item.appendChild(priceEl);
-          item.appendChild(right);
+          item.innerHTML = `
+            <div class="smallPrice">${formatValue(price)}</div>
+            <div style="flex:1; margin-left:18px;">
+              <div class="name">${station.name || 'Kein Name'}</div>
+              <div class="addr">${fullAddress}</div>
+            </div>`;
         }
 
         list.appendChild(item);
@@ -222,6 +210,30 @@
       el('time').textContent =
         now.toLocaleDateString('de-AT') + ' ' +
         now.toLocaleTimeString('de-AT', {hour:'2-digit', minute:'2-digit'});
+    }
+
+    /* ---------------- Action Handling ---------------- */
+    function handleAction(action, index) {
+      switch (action) {
+        case 'copyAddressAndRefresh':
+          if (latestStations[index]) copyAddressAndRefresh(latestStations[index]);
+          break;
+      }
+    }
+
+    /* ---------------- Hash Action Processor ---------------- */
+    (function processWidgetActions() {
+      let queryString = window.location.hash;
+      if (queryString.startsWith("#")) queryString = queryString.substring(1);
+      const urlParams = new URLSearchParams(queryString);
+      const actionParam = urlParams.get('action');
+      const index = parseInt(urlParams.get('index') || "0", 10);
+      if (actionParam) handleAction(actionParam, index);
+    })();
+
+    /* ---------------- Widget Ready ---------------- */
+    function __wweb2WaitMillisecondsToWidgetIsReady(currentDelayMs) {
+      return 3000;
     }
 
     /* ---------------- API Fetch ---------------- */
@@ -239,18 +251,15 @@
         if (pos?.coords) {
           lat = pos.coords.latitude.toFixed(3);
           lon = pos.coords.longitude.toFixed(3);
-        } else {
-          fallbackUsed = true;
-        }
+        } else fallbackUsed = true;
       } catch {
         fallbackUsed = true;
       }
 
-      if (fallbackUsed) {
-        setFallbackMsg('Der Standardstandort "Eichendorffstraße, Linz" wird verwendet.');
-      } else {
+      if (fallbackUsed)
+        setFallbackMsg('Der Standardstandort wird verwendet.');
+      else
         setFallbackMsg('');
-      }
 
       try {
         const apiURL = `https://api.e-control.at/sprit/1.0/search/gas-stations/by-address?latitude=${lat}&longitude=${lon}&fuelType=${FUEL_TYPE}&includeClosed=false`;
@@ -265,7 +274,7 @@
       }
     }
 
-    /* ---------------- Initialization ---------------- */
+    /* ---------------- Init ---------------- */
     loadStations();
   </script>
 </body>
