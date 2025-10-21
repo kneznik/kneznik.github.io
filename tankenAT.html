@@ -26,7 +26,8 @@
     h1{font-size:16px;margin:0 0 12px;text-align:center}
     button{padding:8px 12px;border-radius:8px;border:0;background:var(--accent);color:#fff;cursor:pointer;display:block;margin:0 auto}
     .list{display:flex;flex-direction:column;gap:10px;margin-top:14px}
-    .item{padding:10px;border-radius:10px;background:rgba(0,0,0,0.03);display:flex;flex-direction:row;align-items:center;justify-content:space-between}
+    .item{padding:10px;border-radius:10px;background:rgba(0,0,0,0.03);display:flex;flex-direction:row;align-items:center;justify-content:space-between;cursor:pointer;transition:background 0.2s}
+    .item:hover{background:rgba(0,0,0,0.08)}
     .item.big{padding:14px;flex-direction:column;align-items:center}
     .price{font-family:Menlo,monospace;font-size:22px}
     .smallPrice{font-family:Menlo,monospace;font-size:12px;color:var(--muted)}
@@ -34,8 +35,8 @@
     .name{font-weight:600}
     .addr{font-size:12px;color:var(--muted)}
     .timestamp{font-size:11px;color:var(--muted);text-align:center;margin-top:8px}
+    .copied{font-size:12px;color:var(--accent);text-align:center;margin-top:6px}
     .error{color:#b00020;background:rgba(176,0,32,0.06);padding:8px;border-radius:8px;text-align:center}
-    a.item-link{color:inherit;text-decoration:none}
     footer{font-size:12px;color:var(--muted);text-align:center;margin-top:10px}
   </style>
 </head>
@@ -45,6 +46,7 @@
     <button id="refreshBtn">Aktualisieren</button>
     <div id="status"></div>
     <div id="list" class="list" aria-live="polite"></div>
+    <div id="copyMsg" class="copied"></div>
     <div id="time" class="timestamp"></div>
     <footer>Hinweis: Standortzugriff nötig. API kann CORS erzwingen — siehe Hinweise unten.</footer>
     <div style="margin-top:10px;font-size:12px;color:var(--muted)">
@@ -54,7 +56,7 @@
 
   <script>
     const FUEL_TYPE = 'DIE';
-    const FALLBACK_LOCATION = { latitude: 48.290, longitude: 14.285, name: "Eichendorffstraße 6, Linz" };
+    const FALLBACK_LOCATION = { latitude: 48.290, longitude: 14.285 }; // Linz, Eichendorffstraße 6
     const el = id => document.getElementById(id);
 
     function formatValue(value){
@@ -62,10 +64,6 @@
       const str = String(value).trim();
       if (!str) return "--";
       return str + '€';
-    }
-
-    function toWazeUrl(lat, lon){
-      return `waze://?ll=${lat},${lon}&navigate=yes`;
     }
 
     function showStatus(msg, isError=false){
@@ -78,6 +76,22 @@
       s.appendChild(div);
     }
 
+    function showCopyMessage(text){
+      const c = el('copyMsg');
+      c.textContent = text;
+      c.style.opacity = 1;
+      setTimeout(()=>{ c.style.opacity = 0; }, 1500);
+    }
+
+    function copyToClipboard(text){
+      if(!text) return;
+      navigator.clipboard.writeText(text).then(()=>{
+        showCopyMessage('Adresse kopiert!');
+      }).catch(()=>{
+        showCopyMessage('Kopieren fehlgeschlagen.');
+      });
+    }
+
     function renderStations(data){
       const list = el('list');
       list.innerHTML = '';
@@ -88,18 +102,15 @@
       const stations = data.filter(s => Array.isArray(s.prices) && s.prices.length > 0);
       stations.sort((a,b)=> (a.position ?? 0) - (b.position ?? 0));
       const top = stations.slice(0,3);
+
       top.forEach((station, i) => {
         const price = station.prices?.[0]?.amount ?? null;
-        const lat = station.location?.latitude;
-        const lon = station.location?.longitude;
-        const link = (lat && lon) ? toWazeUrl(lat, lon) : '#';
+        const address = station.location?.address || 'Keine Adresse';
 
         if(i === 0){
-          const item = document.createElement('a');
-          item.href = link;
-          item.className = 'item big item-link';
-          item.target = '_blank';
-          item.rel = 'noopener';
+          const item = document.createElement('div');
+          item.className = 'item big';
+          item.onclick = () => copyToClipboard(address);
 
           const priceEl = document.createElement('div');
           priceEl.className = 'price';
@@ -108,17 +119,15 @@
           const meta = document.createElement('div');
           meta.className = 'meta';
           meta.innerHTML = `<div class="name">${station.name || 'Kein Name'}</div>`+
-                           `<div class="addr">${station.location?.address || 'Keine Adresse'}</div>`;
+                           `<div class="addr">${address}</div>`;
 
           item.appendChild(priceEl);
           item.appendChild(meta);
           list.appendChild(item);
         } else {
-          const item = document.createElement('a');
-          item.href = link;
-          item.className = 'item item-link';
-          item.target = '_blank';
-          item.rel = 'noopener';
+          const item = document.createElement('div');
+          item.className = 'item';
+          item.onclick = () => copyToClipboard(address);
 
           const priceEl = document.createElement('div');
           priceEl.className = 'smallPrice';
@@ -127,7 +136,7 @@
           const right = document.createElement('div');
           right.style.flex = '1';
           right.style.marginLeft = '8px';
-          right.innerHTML = `<div class="name">${station.name || 'Kein Name'}</div><div class="addr">${station.location?.address || 'Keine Adresse'}</div>`;
+          right.innerHTML = `<div class="name">${station.name || 'Kein Name'}</div><div class="addr">${address}</div>`;
 
           item.appendChild(priceEl);
           item.appendChild(right);
@@ -141,20 +150,20 @@
 
     async function loadStations(){
       showStatus('Standort ermitteln...');
-      let lat, lon;
+      let lat = FALLBACK_LOCATION.latitude;
+      let lon = FALLBACK_LOCATION.longitude;
+
       try{
         const pos = await new Promise((resolve, reject) => {
-          if(!navigator.geolocation) return reject(new Error('Geolocation wird von diesem Browser nicht unterstützt.'));
+          if(!navigator.geolocation) return reject();
           navigator.geolocation.getCurrentPosition(resolve, reject, {maximumAge:60000,timeout:10000});
         });
-        if(!pos || !pos.coords) throw new Error('Standortdaten konnten nicht abgerufen werden.');
-        lat = pos.coords.latitude.toFixed(3);
-        lon = pos.coords.longitude.toFixed(3);
+        if(pos && pos.coords){
+          lat = pos.coords.latitude.toFixed(3);
+          lon = pos.coords.longitude.toFixed(3);
+        }
       }catch(e){
-        console.warn('Standortfehler:', e.message);
-        showStatus(`Standort konnte nicht ermittelt werden – zeige Daten für ${FALLBACK_LOCATION.name}.`, true);
-        lat = FALLBACK_LOCATION.latitude;
-        lon = FALLBACK_LOCATION.longitude;
+        console.warn('Geolocation nicht verfügbar, verwende Standardstandort.');
       }
 
       try{
