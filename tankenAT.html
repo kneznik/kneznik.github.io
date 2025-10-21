@@ -107,20 +107,12 @@
       text-align: center;
       margin-top: 18px;
     }
-
-    .fallback-msg {
-      font-size: 12px;
-      color: var(--accent);
-      text-align: center;
-      margin-top: 26px;
-    }
   </style>
 </head>
 <body>
   <div class="app">
     <div id="status" class="status"></div>
     <div id="list" class="list" aria-live="polite"></div>
-    <div id="fallbackMsg" class="fallback-msg"></div>
     <div id="time" class="timestamp"></div>
   </div>
 
@@ -140,10 +132,6 @@
 
     function showStatus(msg) {
       el('status').textContent = msg || '';
-    }
-
-    function setFallbackMsg(msg) {
-      el('fallbackMsg').textContent = msg || '';
     }
 
     function formatFullAddress(location) {
@@ -256,9 +244,9 @@
       }
 
       if (fallbackUsed)
-        setFallbackMsg('Der Standardstandort wird verwendet.');
+        showStatus('Der Standardstandort wird verwendet.');
       else
-        setFallbackMsg('');
+        showStatus('');
 
       try {
         const apiURL = `https://api.e-control.at/sprit/1.0/search/gas-stations/by-address?latitude=${lat}&longitude=${lon}&fuelType=${FUEL_TYPE}&includeClosed=false`;
