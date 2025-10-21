@@ -64,6 +64,7 @@
   }
   .item {
     display: flex;
+    flex-direction: column;
     justify-content: space-between;
     width: 300px;
     padding: 8px 12px;
@@ -72,6 +73,11 @@
     text-decoration: none;
     color: inherit;
     font-size: 16px;
+  }
+  .item .row {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
   }
   .smallPrice {
     font-family: Menlo, monospace;
@@ -147,7 +153,13 @@ function renderStations(data){
     const item = document.createElement('a');
     item.href='#'; item.className='item';
     item.onclick = e => { e.preventDefault(); copyAddressAndRefresh(s); };
-    item.innerHTML = `<span class="name">${s.name||'Kein Name'}</span><span class="smallPrice">${formatValue(priceVal)}</span>`;
+    item.innerHTML = `
+      <div class="row">
+        <span class="name">${s.name||'Kein Name'}</span>
+        <span class="smallPrice">${formatValue(priceVal)}</span>
+      </div>
+      <div class="addr">${addr}</div>
+    `;
     listDiv.appendChild(item);
   });
 
