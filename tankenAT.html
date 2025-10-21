@@ -54,6 +54,7 @@
 
   <script>
     const FUEL_TYPE = 'DIE';
+    const FALLBACK_LOCATION = { latitude: 48.290, longitude: 14.285, name: "Eichendorffstraße 6, Linz" };
     const el = id => document.getElementById(id);
 
     function formatValue(value){
@@ -140,17 +141,24 @@
 
     async function loadStations(){
       showStatus('Standort ermitteln...');
+      let lat, lon;
       try{
         const pos = await new Promise((resolve, reject) => {
           if(!navigator.geolocation) return reject(new Error('Geolocation wird von diesem Browser nicht unterstützt.'));
           navigator.geolocation.getCurrentPosition(resolve, reject, {maximumAge:60000,timeout:10000});
         });
         if(!pos || !pos.coords) throw new Error('Standortdaten konnten nicht abgerufen werden.');
+        lat = pos.coords.latitude.toFixed(3);
+        lon = pos.coords.longitude.toFixed(3);
+      }catch(e){
+        console.warn('Standortfehler:', e.message);
+        showStatus(`Standort konnte nicht ermittelt werden – zeige Daten für ${FALLBACK_LOCATION.name}.`, true);
+        lat = FALLBACK_LOCATION.latitude;
+        lon = FALLBACK_LOCATION.longitude;
+      }
 
-        const lat = pos.coords.latitude.toFixed(3);
-        const lon = pos.coords.longitude.toFixed(3);
+      try{
         showStatus('Lade Tankstellen...');
-
         const apiURL = `https://api.e-control.at/sprit/1.0/search/gas-stations/by-address?latitude=${lat}&longitude=${lon}&fuelType=${FUEL_TYPE}&includeClosed=false`;
 
         const resp = await fetch(apiURL);
@@ -160,7 +168,7 @@
         renderStations(data);
       }catch(e){
         console.error(e);
-        showStatus(e.message || 'Fehler beim Laden der Tankstellen oder Standortzugriff verweigert.', true);
+        showStatus(e.message || 'Fehler beim Laden der Tankstellen.', true);
       }
     }
 
