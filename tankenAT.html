@@ -3,7 +3,6 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Sprit-Widget (HTML + JS)</title>
   <style>
     :root{
       --bg1: #ffffff;
@@ -143,9 +142,11 @@
       showStatus('Standort ermitteln...');
       try{
         const pos = await new Promise((resolve, reject) => {
-          if(!navigator.geolocation) return reject(new Error('Geolocation nicht verfügbar'));
+          if(!navigator.geolocation) return reject(new Error('Geolocation wird von diesem Browser nicht unterstützt.'));
           navigator.geolocation.getCurrentPosition(resolve, reject, {maximumAge:60000,timeout:10000});
         });
+        if(!pos || !pos.coords) throw new Error('Standortdaten konnten nicht abgerufen werden.');
+
         const lat = pos.coords.latitude.toFixed(3);
         const lon = pos.coords.longitude.toFixed(3);
         showStatus('Lade Tankstellen...');
@@ -159,7 +160,7 @@
         renderStations(data);
       }catch(e){
         console.error(e);
-        showStatus('Fehler beim Laden der Tankstellen oder Standortzugriff verweigert.', true);
+        showStatus(e.message || 'Fehler beim Laden der Tankstellen oder Standortzugriff verweigert.', true);
       }
     }
 
@@ -168,4 +169,3 @@
   </script>
 </body>
 </html>
-
