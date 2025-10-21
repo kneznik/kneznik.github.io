@@ -1,197 +1,268 @@
 <!doctype html>
 <html lang="de">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="js-widget-title" content="tankenAT">
-<style>
-  :root{
-    --bg1:#ffffff; --bg2:#eeeeee; --text:#000; --muted:#666; --accent:#2b8cff;
-    font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
-  }
-  @media (prefers-color-scheme:dark){
-    :root{--bg1:#111;--bg2:#222;--text:#ededed;--muted:#bbb;--accent:#4da3ff;}
-  }
-  html, body {
-    margin:0; padding:0;
-    width:800px; height:800px;
-    background: linear-gradient(180deg, var(--bg1), var(--bg2));
-    color: var(--text);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  .app {
-    width: 100%; height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.06);
-    background: linear-gradient(180deg, rgba(255,255,255,0.03), transparent);
-    text-align: center;
-  }
-  .top-station {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 30px;
-  }
-  .price {
-    font-family: Menlo, monospace;
-    font-size: 48px;
-    font-weight: bold;
-    margin-bottom: 10px;
-  }
-  .name {
-    font-size: 20px;
-    font-weight: 600;
-    margin-bottom: 5px;
-  }
-  .addr {
-    font-size: 14px;
-    color: var(--muted);
-  }
-  .list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    align-items: center;
-    max-height: 250px;
-    overflow-y: auto;
-  }
-  .item {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    width: 300px;
-    padding: 8px 12px;
-    background: var(--bg2);
-    border-radius: 8px;
-    text-decoration: none;
-    color: inherit;
-    font-size: 16px;
-  }
-  .item .row {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-  }
-  .smallPrice {
-    font-family: Menlo, monospace;
-    font-size: 16px;
-    font-weight: bold;
-  }
-  .timestamp {
-    margin-top: 20px;
-    font-size: 12px;
-    color: var(--muted);
-  }
-  .fallback-msg {
-    margin-top: 10px;
-    font-size: 12px;
-    color: var(--accent);
-  }
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    :root {
+      --bg1: #ffffff;
+      --bg2: #eeeeee;
+      --bg3: #fafafa;
+      --text: #000000;
+      --muted: #666666;
+      --accent: #2b8cff;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg1: #111111;
+        --bg2: #222222;
+        --bg3: #212121;
+        --text: #ededed;
+        --muted: #bbbbbb;
+        --accent: #4da3ff;
+      }
+    }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      background: linear-gradient(180deg, var(--bg1), var(--bg2));
+      color: var(--text);
+    }
+
+    .app {
+      max-width: 520px;
+      margin: 18px auto;
+      padding: 14px;
+      border-radius: 12px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), transparent);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+    }
+
+    .list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    a.item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      text-decoration: none;
+      color: inherit;
+      background: var(--bg3);
+      padding: 10px;
+      border-radius: 10px;
+      transition: background 0.2s;
+    }
+
+    a.item:hover {
+      background: rgba(0,0,0,0.08);
+    }
+
+    a.item.big {
+      flex-direction: column;
+      align-items: center;
+      padding: 14px;
+    }
+
+    .price {
+      font-family: Menlo, monospace;
+      font-size: 22px;
+    }
+
+    .smallPrice {
+      font-family: Menlo, monospace;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .meta {
+      text-align: center;
+    }
+
+    .name {
+      font-weight: 600;
+    }
+
+    .addr {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .timestamp {
+      font-size: 11px;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 8px;
+    }
+
+    .fallback-msg {
+      font-size: 12px;
+      color: var(--accent);
+      text-align: center;
+      margin-top: 6px;
+    }
+  </style>
 </head>
 <body>
-<div class="app">
-  <div id="top" class="top-station"></div>
-  <div id="list" class="list"></div>
-  <div id="fallbackMsg" class="fallback-msg"></div>
-  <div id="time" class="timestamp"></div>
-</div>
+  <div class="app">
+    <div id="status"></div>
+    <div id="list" class="list" aria-live="polite"></div>
+    <div id="fallbackMsg" class="fallback-msg"></div>
+    <div id="time" class="timestamp"></div>
+  </div>
 
-<script>
-const FUEL_TYPE = 'DIE';
-const FALLBACK_LOCATION = { latitude: 48.290, longitude: 14.285 };
-const el = id => document.getElementById(id);
+  <script>
+    /* ---------------- Constants ---------------- */
+    const FUEL_TYPE = 'DIE';
+    const FALLBACK_LOCATION = { latitude: 48.290, longitude: 14.285 };
+    const el = id => document.getElementById(id);
 
-function formatValue(value){ return value==null?"--":String(value).trim()+"€"; }
-function setFallbackMsg(msg){ el('fallbackMsg').textContent = msg||''; }
+    /* ---------------- Helper Functions ---------------- */
+    function formatValue(value) {
+      if (value == null) return "--";
+      const str = String(value).trim();
+      return str ? str + '€' : "--";
+    }
 
-async function copyAddressAndRefresh(station){
-  if(station?.location){
-    const { address='', city='', postalCode='' } = station.location;
-    const textToCopy = [address, postalCode, city].filter(Boolean).join(', ');
-    try { await navigator.clipboard.writeText(textToCopy); } catch(e){}
-  }
-  loadStations();
-}
+    function showStatus(msg) {
+      el('status').textContent = msg || '';
+    }
 
-function renderStations(data){
-  const topDiv = el('top');
-  const listDiv = el('list');
-  topDiv.innerHTML=''; listDiv.innerHTML='';
+    function setFallbackMsg(msg) {
+      el('fallbackMsg').textContent = msg || '';
+    }
 
-  if(!Array.isArray(data)||data.length===0){
-    topDiv.textContent = 'Keine Stationen gefunden';
-    return;
-  }
+    function formatFullAddress(location) {
+      if (!location) return 'Keine Adresse';
+      const { address = '', postalCode = '', city = '' } = location;
+      return [address, postalCode, city].filter(Boolean).join(', ');
+    }
 
-  const stations = data.filter(s => Array.isArray(s.prices) && s.prices.length>0);
-  if(stations.length===0){ topDiv.textContent='Keine Preise verfügbar'; return; }
+    /* ---------------- Event Handlers ---------------- */
+    async function copyAddressAndRefresh(station) {
+      if (station?.location) {
+        const { address = '', city = '', postalCode = '' } = station.location;
+        const textToCopy = [address, postalCode, city].filter(Boolean).join(', ');
+        try {
+          await navigator.clipboard.writeText(textToCopy);
+        } catch(e) {
+          console.warn('Clipboard error', e);
+        }
+      }
+      loadStations(); // reload widget silently
+    }
 
-  // Top station
-  const topStation = stations[0];
-  const price = topStation.prices[0].amount;
-  const fullAddress = [topStation.location?.address, topStation.location?.postalCode, topStation.location?.city].filter(Boolean).join(', ');
+    /* ---------------- Render Functions ---------------- */
+    function renderStations(data) {
+      const list = el('list');
+      list.innerHTML = '';
 
-  topDiv.innerHTML = `
-    <div class="price">${formatValue(price)}</div>
-    <div class="name">${topStation.name||'Kein Name'}</div>
-    <div class="addr">${fullAddress}</div>
-  `;
-  topDiv.onclick = () => copyAddressAndRefresh(topStation);
+      if (!Array.isArray(data) || data.length === 0) {
+        showStatus('Keine Stationen gefunden.');
+        return;
+      }
 
-  // Remaining stations
-  stations.slice(1,5).forEach(s => {
-    const priceVal = s.prices[0].amount;
-    const addr = [s.location?.address,s.location?.postalCode,s.location?.city].filter(Boolean).join(', ');
-    const item = document.createElement('a');
-    item.href='#'; item.className='item';
-    item.onclick = e => { e.preventDefault(); copyAddressAndRefresh(s); };
-    item.innerHTML = `
-      <div class="row">
-        <span class="name">${s.name||'Kein Name'}</span>
-        <span class="smallPrice">${formatValue(priceVal)}</span>
-      </div>
-      <div class="addr">${addr}</div>
-    `;
-    listDiv.appendChild(item);
-  });
+      const stations = data.filter(s => Array.isArray(s.prices) && s.prices.length > 0);
+      const top = stations.slice(0,3);
 
-  const now = new Date();
-  el('time').textContent = now.toLocaleDateString('de-AT') + ' ' + now.toLocaleTimeString('de-AT',{hour:'2-digit',minute:'2-digit'});
-}
+      top.forEach((station, i) => {
+        const price = station.prices?.[0]?.amount ?? null;
+        const fullAddress = formatFullAddress(station.location);
 
-async function loadStations(){
-  let lat=FALLBACK_LOCATION.latitude, lon=FALLBACK_LOCATION.longitude, fallbackUsed=false;
-  try{
-    const pos = await new Promise((resolve,reject)=>{
-      if(!navigator.geolocation) return reject();
-      navigator.geolocation.getCurrentPosition(resolve,reject,{maximumAge:60000,timeout:10000});
-    });
-    if(pos?.coords){ lat=pos.coords.latitude.toFixed(3); lon=pos.coords.longitude.toFixed(3); } 
-    else { fallbackUsed=true; }
-  } catch { fallbackUsed=true; }
+        const item = document.createElement('a');
+        item.href = '#';
+        item.className = i === 0 ? 'item big' : 'item';
+        item.onclick = e => { e.preventDefault(); copyAddressAndRefresh(station); };
 
-  if(fallbackUsed){ setFallbackMsg('Der Standardstandort "Eichendorffstraße, Linz" wird verwendet.'); }
-  else { setFallbackMsg(''); }
+        if (i === 0) {
+          const priceEl = document.createElement('div');
+          priceEl.className = 'price';
+          priceEl.textContent = formatValue(price);
 
-  try{
-    const apiURL=`https://api.e-control.at/sprit/1.0/search/gas-stations/by-address?latitude=${lat}&longitude=${lon}&fuelType=${FUEL_TYPE}&includeClosed=false`;
-    const resp = await fetch(apiURL);
-    if(!resp.ok) throw new Error('API Fehler');
-    const data = await resp.json();
-    renderStations(data);
-    if(typeof __wweb2WaitMillisecondsToWidgetIsReady === 'function') __wweb2WaitMillisecondsToWidgetIsReady(0);
-  } catch(e) { el('top').textContent='Fehler beim Laden der Tankstellen'; }
-}
+          const meta = document.createElement('div');
+          meta.className = 'meta';
+          meta.innerHTML = `
+            <div class="name">${station.name || 'Kein Name'}</div>
+            <div class="addr">${fullAddress}</div>
+          `;
 
-loadStations();
-</script>
+          item.appendChild(priceEl);
+          item.appendChild(meta);
+        } else {
+          const priceEl = document.createElement('div');
+          priceEl.className = 'smallPrice';
+          priceEl.textContent = formatValue(price);
+
+          const right = document.createElement('div');
+          right.style.flex = '1';
+          right.style.marginLeft = '8px';
+          right.innerHTML = `
+            <div class="name">${station.name || 'Kein Name'}</div>
+            <div class="addr">${fullAddress}</div>
+          `;
+
+          item.appendChild(priceEl);
+          item.appendChild(right);
+        }
+
+        list.appendChild(item);
+      });
+
+      const now = new Date();
+      el('time').textContent =
+        now.toLocaleDateString('de-AT') + ' ' +
+        now.toLocaleTimeString('de-AT', {hour:'2-digit', minute:'2-digit'});
+    }
+
+    /* ---------------- API Fetch ---------------- */
+    async function loadStations() {
+      let lat = FALLBACK_LOCATION.latitude;
+      let lon = FALLBACK_LOCATION.longitude;
+      let fallbackUsed = false;
+
+      try {
+        const pos = await new Promise((resolve, reject) => {
+          if (!navigator.geolocation) return reject();
+          navigator.geolocation.getCurrentPosition(resolve, reject, { maximumAge: 60000, timeout: 10000 });
+        });
+
+        if (pos?.coords) {
+          lat = pos.coords.latitude.toFixed(3);
+          lon = pos.coords.longitude.toFixed(3);
+        } else {
+          fallbackUsed = true;
+        }
+      } catch {
+        fallbackUsed = true;
+      }
+
+      if (fallbackUsed) {
+        setFallbackMsg('Der Standardstandort "Eichendorffstraße, Linz" wird verwendet.');
+      } else {
+        setFallbackMsg('');
+      }
+
+      try {
+        const apiURL = `https://api.e-control.at/sprit/1.0/search/gas-stations/by-address?latitude=${lat}&longitude=${lon}&fuelType=${FUEL_TYPE}&includeClosed=false`;
+        const resp = await fetch(apiURL);
+        if (!resp.ok) throw new Error('Fehler beim Laden der API');
+        const data = await resp.json();
+        showStatus('');
+        renderStations(data);
+      } catch(e) {
+        console.error(e);
+        showStatus('Fehler beim Laden der Tankstellen.');
+      }
+    }
+
+    /* ---------------- Initialization ---------------- */
+    loadStations();
+  </script>
 </body>
 </html>
