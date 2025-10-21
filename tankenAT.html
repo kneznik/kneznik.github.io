@@ -65,9 +65,9 @@
       transition: background 0.2s;
     }
 
-    a.item:hover {
+    /* a.item:hover {
       background: rgba(0,0,0,0.08);
-    }
+    } */
 
     a.item.big {
       flex-direction: column;
@@ -215,11 +215,6 @@
       const index = parseInt(urlParams.get('index') || "0", 10);
       if (actionParam) handleAction(actionParam, index);
     })();
-
-    /* ---------------- Widget Ready ---------------- */
-    // function __wweb2WaitMillisecondsToWidgetIsReady(currentDelayMs) {
-    //   return 3000;
-    // }
 
     /* ---------------- API Fetch ---------------- */
     async function loadStations() {
