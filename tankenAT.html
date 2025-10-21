@@ -1,1 +1,171 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sprit-Widget (HTML + JS)</title>
+  <style>
+    :root{
+      --bg1: #ffffff;
+      --bg2: #eeeeee;
+      --text: #000000;
+      --muted: #666666;
+      --accent: #2b8cff;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    @media (prefers-color-scheme: dark){
+      :root{
+        --bg1: #111111;
+        --bg2: #222222;
+        --text: #ededed;
+        --muted: #bbbbbb;
+        --accent: #4da3ff;
+      }
+    }
+    html,body{height:100%;margin:0;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:var(--text)}
+    .app{max-width:520px;margin:18px auto;padding:14px;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,0.06);background:linear-gradient(180deg,rgba(255,255,255,0.03),transparent)}
+    h1{font-size:16px;margin:0 0 12px;text-align:center}
+    button{padding:8px 12px;border-radius:8px;border:0;background:var(--accent);color:#fff;cursor:pointer;display:block;margin:0 auto}
+    .list{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+    .item{padding:10px;border-radius:10px;background:rgba(0,0,0,0.03);display:flex;flex-direction:row;align-items:center;justify-content:space-between}
+    .item.big{padding:14px;flex-direction:column;align-items:center}
+    .price{font-family:Menlo,monospace;font-size:22px}
+    .smallPrice{font-family:Menlo,monospace;font-size:12px;color:var(--muted)}
+    .meta{text-align:center}
+    .name{font-weight:600}
+    .addr{font-size:12px;color:var(--muted)}
+    .timestamp{font-size:11px;color:var(--muted);text-align:center;margin-top:8px}
+    .error{color:#b00020;background:rgba(176,0,32,0.06);padding:8px;border-radius:8px;text-align:center}
+    a.item-link{color:inherit;text-decoration:none}
+    footer{font-size:12px;color:var(--muted);text-align:center;margin-top:10px}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <h1>Sprit-Widget — Top 3 Zapfsäulen</h1>
+    <button id="refreshBtn">Aktualisieren</button>
+    <div id="status"></div>
+    <div id="list" class="list" aria-live="polite"></div>
+    <div id="time" class="timestamp"></div>
+    <footer>Hinweis: Standortzugriff nötig. API kann CORS erzwingen — siehe Hinweise unten.</footer>
+    <div style="margin-top:10px;font-size:12px;color:var(--muted)">
+      <strong>Hinweis:</strong> Diese Seite benötigt HTTPS für Geolocation. Wenn die externe API CORS blockiert, nutze einen CORS-Proxy oder lade die Datei lokal und verwende ein lokales Proxy-Tool.
+    </div>
+  </div>
+
+  <script>
+    const FUEL_TYPE = 'DIE';
+    const el = id => document.getElementById(id);
+
+    function formatValue(value){
+      if (value === null || value === undefined) return "--";
+      const str = String(value).trim();
+      if (!str) return "--";
+      return str + '€';
+    }
+
+    function toWazeUrl(lat, lon){
+      return `waze://?ll=${lat},${lon}&navigate=yes`;
+    }
+
+    function showStatus(msg, isError=false){
+      const s = el('status');
+      s.innerHTML = '';
+      if(!msg) return;
+      const div = document.createElement('div');
+      div.textContent = msg;
+      if(isError) div.className = 'error';
+      s.appendChild(div);
+    }
+
+    function renderStations(data){
+      const list = el('list');
+      list.innerHTML = '';
+      if(!Array.isArray(data) || data.length === 0){
+        showStatus('Keine Stationen gefunden.');
+        return;
+      }
+      const stations = data.filter(s => Array.isArray(s.prices) && s.prices.length > 0);
+      stations.sort((a,b)=> (a.position ?? 0) - (b.position ?? 0));
+      const top = stations.slice(0,3);
+      top.forEach((station, i) => {
+        const price = station.prices?.[0]?.amount ?? null;
+        const lat = station.location?.latitude;
+        const lon = station.location?.longitude;
+        const link = (lat && lon) ? toWazeUrl(lat, lon) : '#';
+
+        if(i === 0){
+          const item = document.createElement('a');
+          item.href = link;
+          item.className = 'item big item-link';
+          item.target = '_blank';
+          item.rel = 'noopener';
+
+          const priceEl = document.createElement('div');
+          priceEl.className = 'price';
+          priceEl.innerHTML = `<span>${formatValue(price)}</span>`;
+
+          const meta = document.createElement('div');
+          meta.className = 'meta';
+          meta.innerHTML = `<div class="name">${station.name || 'Kein Name'}</div>`+
+                           `<div class="addr">${station.location?.address || 'Keine Adresse'}</div>`;
+
+          item.appendChild(priceEl);
+          item.appendChild(meta);
+          list.appendChild(item);
+        } else {
+          const item = document.createElement('a');
+          item.href = link;
+          item.className = 'item item-link';
+          item.target = '_blank';
+          item.rel = 'noopener';
+
+          const priceEl = document.createElement('div');
+          priceEl.className = 'smallPrice';
+          priceEl.textContent = formatValue(price);
+
+          const right = document.createElement('div');
+          right.style.flex = '1';
+          right.style.marginLeft = '8px';
+          right.innerHTML = `<div class="name">${station.name || 'Kein Name'}</div><div class="addr">${station.location?.address || 'Keine Adresse'}</div>`;
+
+          item.appendChild(priceEl);
+          item.appendChild(right);
+          list.appendChild(item);
+        }
+      });
+
+      const now = new Date();
+      el('time').textContent = now.toLocaleDateString('de-AT') + ' ' + now.toLocaleTimeString('de-AT', {hour:'2-digit',minute:'2-digit'});
+    }
+
+    async function loadStations(){
+      showStatus('Standort ermitteln...');
+      try{
+        const pos = await new Promise((resolve, reject) => {
+          if(!navigator.geolocation) return reject(new Error('Geolocation nicht verfügbar'));
+          navigator.geolocation.getCurrentPosition(resolve, reject, {maximumAge:60000,timeout:10000});
+        });
+        const lat = pos.coords.latitude.toFixed(3);
+        const lon = pos.coords.longitude.toFixed(3);
+        showStatus('Lade Tankstellen...');
+
+        const apiURL = `https://api.e-control.at/sprit/1.0/search/gas-stations/by-address?latitude=${lat}&longitude=${lon}&fuelType=${FUEL_TYPE}&includeClosed=false`;
+
+        const resp = await fetch(apiURL);
+        if(!resp.ok) throw new Error('Fehler beim Laden der API');
+        const data = await resp.json();
+        showStatus('');
+        renderStations(data);
+      }catch(e){
+        console.error(e);
+        showStatus('Fehler beim Laden der Tankstellen oder Standortzugriff verweigert.', true);
+      }
+    }
+
+    document.getElementById('refreshBtn').addEventListener('click', loadStations);
+    loadStations();
+  </script>
+</body>
+</html>
 
