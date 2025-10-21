@@ -57,6 +57,12 @@
       loadStations(); // reload widget silently
     }
 
+    function formatFullAddress(location){
+      if(!location) return 'Keine Adresse';
+      const { address = '', postalCode = '', city = '' } = location;
+      return [address, postalCode, city].filter(Boolean).join(', ');
+    }
+
     function renderStations(data){
       const list = el('list');
       list.innerHTML = '';
@@ -70,6 +76,8 @@
 
       top.forEach((station, i) => {
         const price = station.prices?.[0]?.amount ?? null;
+        const fullAddress = formatFullAddress(station.location);
+
         const item = document.createElement('a');
         item.href = '#';
         item.className = i === 0 ? 'item big' : 'item';
@@ -83,7 +91,7 @@
           const meta = document.createElement('div');
           meta.className = 'meta';
           meta.innerHTML = `<div class="name">${station.name || 'Kein Name'}</div>
-                            <div class="addr">${station.location?.address || 'Keine Adresse'}</div>`;
+                            <div class="addr">${fullAddress}</div>`;
 
           item.appendChild(priceEl);
           item.appendChild(meta);
@@ -96,7 +104,7 @@
           right.style.flex = '1';
           right.style.marginLeft = '8px';
           right.innerHTML = `<div class="name">${station.name || 'Kein Name'}</div>
-                             <div class="addr">${station.location?.address || 'Keine Adresse'}</div>`;
+                             <div class="addr">${fullAddress}</div>`;
 
           item.appendChild(priceEl);
           item.appendChild(right);
