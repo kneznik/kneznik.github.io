@@ -129,7 +129,6 @@
       }
 
       try{
-        showStatus('Lade Tankstellen...');
         const apiURL = `https://api.e-control.at/sprit/1.0/search/gas-stations/by-address?latitude=${lat}&longitude=${lon}&fuelType=${FUEL_TYPE}&includeClosed=false`;
 
         const resp = await fetch(apiURL);
