@@ -216,6 +216,11 @@
       if (actionParam) handleAction(actionParam, index);
     })();
 
+    /* ---------------- Widget Ready ---------------- */
+    function __wweb2WaitMillisecondsToWidgetIsReady(currentDelayMs) {
+      return 3000;
+    }
+
     /* ---------------- API Fetch ---------------- */
     async function loadStations() {
       let lat = FALLBACK_LOCATION.latitude;
