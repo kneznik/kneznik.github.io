@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
   <meta charset="utf-8" />
-  <meta  name="js-widget-title" content="TankenAT">
+  <meta name="js-widget-title" content="TankenAT">
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
     :root {
@@ -40,6 +40,8 @@
       border-radius: 12px;
       background: linear-gradient(180deg, rgba(255,255,255,0.03), transparent);
       box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+      max-width: 400px;
+      padding: 10px;
     }
 
     .status {
@@ -64,10 +66,6 @@
       border-radius: 10px;
       transition: background 0.2s;
     }
-
-    /* a.item:hover {
-      background: rgba(0,0,0,0.08);
-    } */
 
     a.item.big {
       flex-direction: column;
@@ -105,12 +103,55 @@
       text-align: center;
       margin-top: 18px;
     }
+
+    .hidden {
+      display: none !important;
+    }
   </style>
 </head>
 <body>
   <div class="app">
     <div id="status" class="status"></div>
-    <div id="list" class="list" aria-live="polite"></div>
+
+    <!-- Predefined station slots (no runtime creation) -->
+    <div id="list" class="list">
+      <a class="item big">
+        <div class="price"></div>
+        <div class="meta">
+          <div class="name"></div>
+          <div class="addr"></div>
+        </div>
+      </a>
+      <a class="item">
+        <div class="smallPrice"></div>
+        <div style="flex:1; margin-left:18px;">
+          <div class="name"></div>
+          <div class="addr"></div>
+        </div>
+      </a>
+      <a class="item">
+        <div class="smallPrice"></div>
+        <div style="flex:1; margin-left:18px;">
+          <div class="name"></div>
+          <div class="addr"></div>
+        </div>
+      </a>
+      <a class="item">
+        <div class="smallPrice"></div>
+        <div style="flex:1; margin-left:18px;">
+          <div class="name"></div>
+          <div class="addr"></div>
+        </div>
+      </a>
+      <a class="item">
+        <div class="smallPrice"></div>
+        <div style="flex:1; margin-left:18px;">
+          <div class="name"></div>
+          <div class="addr"></div>
+        </div>
+      </a>
+    </div>
+
     <div id="time" class="timestamp"></div>
   </div>
 
@@ -119,9 +160,10 @@
     const FUEL_TYPE = 'DIE';
     const FALLBACK_LOCATION = { latitude: 48.290, longitude: 14.285 };
     const el = id => document.getElementById(id);
+    const items = Array.from(document.querySelectorAll('#list .item'));
     let latestStations = [];
 
-    /* ---------------- Helper Functions ---------------- */
+    /* ---------------- Helpers ---------------- */
     function formatValue(value) {
       if (value == null) return "--";
       const str = String(value).trim();
@@ -153,75 +195,45 @@
     /* ---------------- Render ---------------- */
     function renderStations(data) {
       latestStations = data;
-      const list = el('list');
-      list.innerHTML = '';
-
       if (!Array.isArray(data) || data.length === 0) {
         showStatus('Keine Stationen gefunden.');
+        items.forEach(item => item.classList.add('hidden'));
         return;
       }
 
       const stations = data.filter(s => Array.isArray(s.prices) && s.prices.length > 0);
-      const top = stations.slice(0, 5);
+      const top = stations.slice(0, items.length);
 
-      top.forEach((station, i) => {
+      items.forEach((item, i) => {
+        const station = top[i];
+        if (!station) {
+          item.classList.add('hidden');
+          return;
+        }
+        item.classList.remove('hidden');
         const price = station.prices?.[0]?.amount ?? null;
-        const fullAddress = formatFullAddress(station.location);
-        const item = document.createElement('a');
-        item.href = `#action=copyAddressAndRefresh&index=${i}`;
-        item.className = i === 0 ? 'item big' : 'item';
-        item.onclick = e => { e.preventDefault(); handleAction('copyAddressAndRefresh', i); };
+        const addr = formatFullAddress(station.location);
 
         if (i === 0) {
-          item.innerHTML = `
-            <div class="price">${formatValue(price)}</div>
-            <div class="meta">
-              <div class="name">${station.name || 'Kein Name'}</div>
-              <div class="addr">${fullAddress}</div>
-            </div>`;
+          item.querySelector('.price').textContent = formatValue(price);
+          item.querySelector('.name').textContent = station.name || 'Kein Name';
+          item.querySelector('.addr').textContent = addr;
         } else {
-          item.innerHTML = `
-            <div class="smallPrice">${formatValue(price)}</div>
-            <div style="flex:1; margin-left:18px;">
-              <div class="name">${station.name || 'Kein Name'}</div>
-              <div class="addr">${fullAddress}</div>
-            </div>`;
+          item.querySelector('.smallPrice').textContent = formatValue(price);
+          item.querySelector('.name').textContent = station.name || 'Kein Name';
+          item.querySelector('.addr').textContent = addr;
         }
 
-        list.appendChild(item);
+        item.onclick = e => { e.preventDefault(); copyAddressAndRefresh(station); };
       });
 
       const now = new Date();
       el('time').textContent =
         now.toLocaleDateString('de-AT') + ' ' +
-        now.toLocaleTimeString('de-AT', {hour:'2-digit', minute:'2-digit'});
+        now.toLocaleTimeString('de-AT', { hour: '2-digit', minute: '2-digit' });
     }
 
-    /* ---------------- Action Handling ---------------- */
-    function handleAction(action, index) {
-      switch (action) {
-        case 'copyAddressAndRefresh':
-          if (latestStations[index]) copyAddressAndRefresh(latestStations[index]);
-          break;
-      }
-    }
-
-    /* ---------------- Hash Action Processor ---------------- */
-    (function processWidgetActions() {
-      let queryString = window.location.hash;
-      if (queryString.startsWith("#")) queryString = queryString.substring(1);
-      const urlParams = new URLSearchParams(queryString);
-      const actionParam = urlParams.get('action');
-      const index = parseInt(urlParams.get('index') || "0", 10);
-      if (actionParam) handleAction(actionParam, index);
-    })();
-
-    /* ---------------- Widget Ready ---------------- */
-    function __wweb2WaitMillisecondsToWidgetIsReady(currentDelayMs) {
-      return 0;
-    }
-
-    /* ---------------- API Fetch ---------------- */
+    /* ---------------- Fetch ---------------- */
     async function loadStations() {
       let lat = FALLBACK_LOCATION.latitude;
       let lon = FALLBACK_LOCATION.longitude;
@@ -241,10 +253,7 @@
         fallbackUsed = true;
       }
 
-      if (fallbackUsed)
-        showStatus('Der Standardstandort wird verwendet.');
-      else
-        showStatus('');
+      showStatus(fallbackUsed ? 'Der Standardstandort wird verwendet.' : '');
 
       try {
         const apiURL = `https://api.e-control.at/sprit/1.0/search/gas-stations/by-address?latitude=${lat}&longitude=${lon}&fuelType=${FUEL_TYPE}&includeClosed=false`;
@@ -253,7 +262,7 @@
         const data = await resp.json();
         showStatus('');
         renderStations(data);
-      } catch(e) {
+      } catch (e) {
         console.error(e);
         showStatus('Fehler beim Laden der Tankstellen.');
       }
