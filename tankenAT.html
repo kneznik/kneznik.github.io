@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
   <meta charset="utf-8" />
-  <meta name="js-widget-title" content="TankenAT">
+  <meta name="js-widget-title" content="TankenAT" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
     :root {
@@ -14,7 +14,6 @@
       --accent: #2b8cff;
       font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
     }
-
     @media (prefers-color-scheme: dark) {
       :root {
         --bg1: #111111;
@@ -25,14 +24,12 @@
         --accent: #4da3ff;
       }
     }
-
     html, body {
       height: 100%;
       margin: 0;
       background: linear-gradient(180deg, var(--bg1), var(--bg2));
       color: var(--text);
     }
-
     .app {
       display: flex;
       flex-direction: column;
@@ -43,18 +40,15 @@
       max-width: 400px;
       padding: 10px;
     }
-
     .status {
       text-align: center;
     }
-
     .list {
       display: flex;
       flex-direction: column;
       gap: 10px;
       margin-top: 5px;
     }
-
     a.item {
       display: flex;
       align-items: center;
@@ -66,44 +60,36 @@
       border-radius: 10px;
       transition: background 0.2s;
     }
-
     a.item.big {
       flex-direction: column;
       align-items: center;
       padding: 14px;
     }
-
     .price {
       font-family: Menlo, monospace;
       font-size: 22px;
     }
-
     .smallPrice {
       font-family: Menlo, monospace;
       font-size: 12px;
       color: var(--muted);
     }
-
     .meta {
       text-align: center;
     }
-
     .name {
       font-weight: 600;
     }
-
     .addr {
       font-size: 12px;
       color: var(--muted);
     }
-
     .timestamp {
       font-size: 11px;
       color: var(--muted);
       text-align: center;
       margin-top: 18px;
     }
-
     .hidden {
       display: none !important;
     }
@@ -113,37 +99,37 @@
   <div class="app">
     <div id="status" class="status"></div>
 
-    <!-- Predefined station slots (no runtime creation) -->
+    <!-- Predefined <a> elements (no creation at runtime) -->
     <div id="list" class="list">
-      <a class="item big">
+      <a class="item big" href="#action=copy0">
         <div class="price"></div>
         <div class="meta">
           <div class="name"></div>
           <div class="addr"></div>
         </div>
       </a>
-      <a class="item">
+      <a class="item" href="#action=copy1">
         <div class="smallPrice"></div>
         <div style="flex:1; margin-left:18px;">
           <div class="name"></div>
           <div class="addr"></div>
         </div>
       </a>
-      <a class="item">
+      <a class="item" href="#action=copy2">
         <div class="smallPrice"></div>
         <div style="flex:1; margin-left:18px;">
           <div class="name"></div>
           <div class="addr"></div>
         </div>
       </a>
-      <a class="item">
+      <a class="item" href="#action=copy3">
         <div class="smallPrice"></div>
         <div style="flex:1; margin-left:18px;">
           <div class="name"></div>
           <div class="addr"></div>
         </div>
       </a>
-      <a class="item">
+      <a class="item" href="#action=copy4">
         <div class="smallPrice"></div>
         <div style="flex:1; margin-left:18px;">
           <div class="name"></div>
@@ -156,120 +142,125 @@
   </div>
 
   <script>
-    /* ---------------- Constants ---------------- */
     const FUEL_TYPE = 'DIE';
     const FALLBACK_LOCATION = { latitude: 48.290, longitude: 14.285 };
     const el = id => document.getElementById(id);
     const items = Array.from(document.querySelectorAll('#list .item'));
     let latestStations = [];
 
-    /* ---------------- Helpers ---------------- */
     function formatValue(value) {
       if (value == null) return "--";
       const str = String(value).trim();
       return str ? str + '€' : "--";
     }
-
     function showStatus(msg) {
       el('status').textContent = msg || '';
     }
-
-    function formatFullAddress(location) {
-      if (!location) return 'Keine Adresse';
-      const { address = '', postalCode = '', city = '' } = location;
+    function formatFullAddress(loc) {
+      if (!loc) return 'Keine Adresse';
+      const { address = '', postalCode = '', city = '' } = loc;
       return [address, postalCode, city].filter(Boolean).join(', ');
     }
+    async function copyAddress(index) {
+      const station = latestStations[index];
+      if (!station || !station.location) return;
+      const { address = '', postalCode = '', city = '' } = station.location;
+      const text = [address, postalCode, city].filter(Boolean).join(', ');
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch (e) {
+        console.warn('Clipboard error', e);
+      }
+      // Optionally, you could reload or re-render after copy, or show a message
+    }
 
-    async function copyAddressAndRefresh(station) {
-      if (station?.location) {
-        const { address = '', city = '', postalCode = '' } = station.location;
-        const textToCopy = [address, postalCode, city].filter(Boolean).join(', ');
-        try {
-          await navigator.clipboard.writeText(textToCopy);
-        } catch(e) {
-          console.warn('Clipboard error', e);
+    function handleHashAction() {
+      let qs = window.location.hash;
+      if (qs.startsWith('#')) qs = qs.substring(1);
+      const params = new URLSearchParams(qs);
+      const act = params.get('action');
+      if (act && act.startsWith('copy')) {
+        const idx = parseInt(act.substring(4), 10);
+        if (!isNaN(idx)) {
+          copyAddress(idx);
         }
       }
     }
 
-    /* ---------------- Render ---------------- */
     function renderStations(data) {
-      latestStations = data;
-      if (!Array.isArray(data) || data.length === 0) {
+      latestStations = data.filter(s => Array.isArray(s.prices) && s.prices.length > 0);
+      if (latestStations.length === 0) {
         showStatus('Keine Stationen gefunden.');
-        items.forEach(item => item.classList.add('hidden'));
-        return;
+        items.forEach(it => it.classList.add('hidden'));
+      } else {
+        showStatus('');
+        const top = latestStations.slice(0, items.length);
+        items.forEach((item, i) => {
+          const st = top[i];
+          if (!st) {
+            item.classList.add('hidden');
+            return;
+          }
+          item.classList.remove('hidden');
+          const price = st.prices?.[0]?.amount ?? null;
+          const addr = formatFullAddress(st.location);
+          if (i === 0) {
+            item.querySelector('.price').textContent = formatValue(price);
+            item.querySelector('.name').textContent = st.name || 'Kein Name';
+            item.querySelector('.addr').textContent = addr;
+          } else {
+            item.querySelector('.smallPrice').textContent = formatValue(price);
+            item.querySelector('.name').textContent = st.name || 'Kein Name';
+            item.querySelector('.addr').textContent = addr;
+          }
+        });
       }
-
-      const stations = data.filter(s => Array.isArray(s.prices) && s.prices.length > 0);
-      const top = stations.slice(0, items.length);
-
-      items.forEach((item, i) => {
-        const station = top[i];
-        if (!station) {
-          item.classList.add('hidden');
-          return;
-        }
-        item.classList.remove('hidden');
-        const price = station.prices?.[0]?.amount ?? null;
-        const addr = formatFullAddress(station.location);
-
-        if (i === 0) {
-          item.querySelector('.price').textContent = formatValue(price);
-          item.querySelector('.name').textContent = station.name || 'Kein Name';
-          item.querySelector('.addr').textContent = addr;
-        } else {
-          item.querySelector('.smallPrice').textContent = formatValue(price);
-          item.querySelector('.name').textContent = station.name || 'Kein Name';
-          item.querySelector('.addr').textContent = addr;
-        }
-
-        item.onclick = e => { e.preventDefault(); copyAddressAndRefresh(station); };
-      });
-
       const now = new Date();
       el('time').textContent =
         now.toLocaleDateString('de-AT') + ' ' +
-        now.toLocaleTimeString('de-AT', { hour: '2-digit', minute: '2-digit' });
+        now.toLocaleTimeString('de-AT', { hour:'2-digit', minute:'2-digit' });
     }
 
-    /* ---------------- Fetch ---------------- */
     async function loadStations() {
       let lat = FALLBACK_LOCATION.latitude;
       let lon = FALLBACK_LOCATION.longitude;
-      let fallbackUsed = false;
-
+      let fallback = false;
       try {
-        const pos = await new Promise((resolve, reject) => {
-          if (!navigator.geolocation) return reject();
-          navigator.geolocation.getCurrentPosition(resolve, reject, { maximumAge: 60000, timeout: 10000 });
+        const pos = await new Promise((res, rej) => {
+          if (!navigator.geolocation) return rej();
+          navigator.geolocation.getCurrentPosition(res, rej, { maximumAge:60000, timeout:10000 });
         });
-
         if (pos?.coords) {
           lat = pos.coords.latitude.toFixed(3);
           lon = pos.coords.longitude.toFixed(3);
-        } else fallbackUsed = true;
-      } catch {
-        fallbackUsed = true;
+        } else {
+          fallback = true;
+        }
+      } catch (e) {
+        fallback = true;
       }
-
-      showStatus(fallbackUsed ? 'Der Standardstandort wird verwendet.' : '');
-
+      showStatus(fallback ? 'Der Standardstandort wird verwendet.' : '');
       try {
-        const apiURL = `https://api.e-control.at/sprit/1.0/search/gas-stations/by-address?latitude=${lat}&longitude=${lon}&fuelType=${FUEL_TYPE}&includeClosed=false`;
-        const resp = await fetch(apiURL);
-        if (!resp.ok) throw new Error('Fehler beim Laden der API');
-        const data = await resp.json();
-        showStatus('');
-        renderStations(data);
+        const url = `https://api.e-control.at/sprit/1.0/search/gas-stations/by-address?latitude=${lat}&longitude=${lon}&fuelType=${FUEL_TYPE}&includeClosed=false`;
+        const resp = await fetch(url);
+        if (!resp.ok) throw new Error('Fetch failed');
+        const json = await resp.json();
+        renderStations(json);
       } catch (e) {
         console.error(e);
         showStatus('Fehler beim Laden der Tankstellen.');
+        items.forEach(it => it.classList.add('hidden'));
       }
     }
 
-    /* ---------------- Init ---------------- */
+    // Called early to catch hash
+    handleHashAction();
     loadStations();
+
+    // Optionally define title via function (already meta is set)
+    function __wweb2JsWidgetTitle() {
+      return "TankenAT";
+    }
   </script>
 </body>
 </html>
