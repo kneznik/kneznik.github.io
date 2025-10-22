@@ -88,7 +88,7 @@
   <div class="app">
     <div id="status" class="status"></div>
 
-    <!-- Predefined <a> elements (no creation at runtime) -->
+    <!-- Predefined <a> elements -->
     <div id="list" class="list">
       <a class="item big" href="#action=copy0">
         <div class="price"></div>
@@ -97,34 +97,10 @@
           <div class="addr"></div>
         </div>
       </a>
-      <a class="item" href="#action=copy1">
-        <div class="smallPrice"></div>
-        <div style="flex:1; margin-left:18px;">
-          <div class="name"></div>
-          <div class="addr"></div>
-        </div>
-      </a>
-      <a class="item" href="#action=copy2">
-        <div class="smallPrice"></div>
-        <div style="flex:1; margin-left:18px;">
-          <div class="name"></div>
-          <div class="addr"></div>
-        </div>
-      </a>
-      <a class="item" href="#action=copy3">
-        <div class="smallPrice"></div>
-        <div style="flex:1; margin-left:18px;">
-          <div class="name"></div>
-          <div class="addr"></div>
-        </div>
-      </a>
-      <a class="item" href="#action=copy4">
-        <div class="smallPrice"></div>
-        <div style="flex:1; margin-left:18px;">
-          <div class="name"></div>
-          <div class="addr"></div>
-        </div>
-      </a>
+      <a class="item" href="#action=copy1"><div class="smallPrice"></div><div style="flex:1;margin-left:18px;"><div class="name"></div><div class="addr"></div></div></a>
+      <a class="item" href="#action=copy2"><div class="smallPrice"></div><div style="flex:1;margin-left:18px;"><div class="name"></div><div class="addr"></div></div></a>
+      <a class="item" href="#action=copy3"><div class="smallPrice"></div><div style="flex:1;margin-left:18px;"><div class="name"></div><div class="addr"></div></div></a>
+      <a class="item" href="#action=copy4"><div class="smallPrice"></div><div style="flex:1;margin-left:18px;"><div class="name"></div><div class="addr"></div></div></a>
     </div>
 
     <div id="time" class="timestamp"></div>
@@ -134,33 +110,52 @@
     const FUEL_TYPE = 'DIE';
     const FALLBACK_LOCATION = { latitude: 48.290, longitude: 14.285 };
     const CACHE_KEY = "stations_cache_v1";
+    const CACHE_DAYS = 1; // wie lange Cache behalten (1 Tag)
+
     const el = id => document.getElementById(id);
     const items = Array.from(document.querySelectorAll('#list .item'));
     let latestStations = [];
 
+    // --- Cookie Helpers ---
+    function setCookie(c_name, value, exdays) {
+      var exdate = new Date();
+      exdate.setDate(exdate.getDate() + exdays);
+      var c_value = escape(value) + ((exdays == null) ? "" : "; expires=" + exdate.toUTCString());
+      document.cookie = c_name + "=" + c_value + "; path=/";
+    }
+
+    function getCookie(c_name) {
+      var i, x, y, ARRcookies = document.cookie.split(";");
+      for (i = 0; i < ARRcookies.length; i++) {
+        x = ARRcookies[i].substr(0, ARRcookies[i].indexOf("="));
+        y = ARRcookies[i].substr(ARRcookies[i].indexOf("=") + 1);
+        x = x.replace(/^\s+|\s+$/g, "");
+        if (x == c_name) return unescape(y);
+      }
+    }
+
+    // --- UI ---
     function formatValue(value) {
       if (value == null) return "--";
       const str = String(value).trim();
       return str ? str + '€' : "--";
     }
-    function showStatus(msg) {
-      el('status').textContent = msg || '';
-    }
+
+    function showStatus(msg) { el('status').textContent = msg || ''; }
+
     function formatFullAddress(loc) {
       if (!loc) return 'Keine Adresse';
       const { address = '', postalCode = '', city = '' } = loc;
       return [address, postalCode, city].filter(Boolean).join(', ');
     }
+
     async function copyAddress(index) {
       const station = latestStations[index];
       if (!station || !station.location) return;
       const { address = '', postalCode = '', city = '' } = station.location;
       const text = [address, postalCode, city].filter(Boolean).join(', ');
-      try {
-        await navigator.clipboard.writeText(text);
-      } catch (e) {
-        console.warn('Clipboard error', e);
-      }
+      try { await navigator.clipboard.writeText(text); } 
+      catch (e) { console.warn('Clipboard error', e); }
     }
 
     function handleHashAction() {
@@ -180,6 +175,7 @@
         showStatus('Keine Stationen gefunden.');
         items.forEach(it => it.classList.add('hidden'));
       } else {
+        showStatus('');
         const top = latestStations.slice(0, items.length);
         items.forEach((item, i) => {
           const st = top[i];
@@ -207,10 +203,10 @@
         now.toLocaleTimeString('de-AT', { hour:'2-digit', minute:'2-digit' });
     }
 
-    // 🔹 Show cached data immediately
+    // --- Show cached stations instantly ---
     (function loadCached() {
       try {
-        const cached = localStorage.getItem(CACHE_KEY);
+        const cached = getCookie(CACHE_KEY);
         if (cached) {
           const parsed = JSON.parse(cached);
           renderStations(parsed);
@@ -222,7 +218,7 @@
       }
     })();
 
-    // 🔹 Load live data asynchronously and refresh cache
+    // --- Load new data and refresh cookie ---
     async function loadStations() {
       let lat = FALLBACK_LOCATION.latitude;
       let lon = FALLBACK_LOCATION.longitude;
@@ -245,7 +241,7 @@
         if (!resp.ok) throw new Error('Fetch failed');
         const json = await resp.json();
         renderStations(json);
-        localStorage.setItem(CACHE_KEY, JSON.stringify(json));
+        setCookie(CACHE_KEY, JSON.stringify(json), CACHE_DAYS);
       } catch (e) {
         console.error(e);
         showStatus('Fehler beim Laden der Tankstellen.');
@@ -255,9 +251,7 @@
     handleHashAction();
     loadStations();
 
-    function __wweb2JsWidgetTitle() {
-      return "TankenAT";
-    }
+    function __wweb2JsWidgetTitle() { return "TankenAT"; }
   </script>
 </body>
 </html>
