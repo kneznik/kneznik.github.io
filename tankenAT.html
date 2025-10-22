@@ -63,23 +63,12 @@
       align-items: center;
       padding: 14px;
     }
-    .price {
-      font-family: Menlo, monospace;
-      font-size: 22px;
-    }
-    .smallPrice {
-      font-family: Menlo, monospace;
-      font-size: 12px;
-      color: var(--muted);
-    }
+    .price { font-family: Menlo, monospace; font-size: 22px; }
+    .smallPrice { font-family: Menlo, monospace; font-size: 12px; color: var(--muted); }
     .meta { text-align: center; }
     .name { font-weight: 600; }
     .addr { font-size: 12px; color: var(--muted); }
-    .timestamp {
-      font-size: 11px;
-      color: var(--muted);
-      text-align: center;
-    }
+    .timestamp { font-size: 11px; color: var(--muted); text-align: center;}
     .hidden { display: none !important; }
   </style>
 </head>
@@ -87,15 +76,8 @@
   <div class="app">
     <div id="status" class="status"></div>
     <div id="time" class="timestamp"></div>
-    <!-- Predefined <a> elements -->
     <div id="list" class="list">
-      <a class="item big" href="#action=copy0">
-        <div class="price"></div>
-        <div class="meta">
-          <div class="name"></div>
-          <div class="addr"></div>
-        </div>
-      </a>
+      <a class="item big" href="#action=copy0"><div class="price"></div><div class="meta"><div class="name"></div><div class="addr"></div></div></a>
       <a class="item" href="#action=copy1"><div class="smallPrice"></div><div style="flex:1;margin-left:18px;"><div class="name"></div><div class="addr"></div></div></a>
       <a class="item" href="#action=copy2"><div class="smallPrice"></div><div style="flex:1;margin-left:18px;"><div class="name"></div><div class="addr"></div></div></a>
       <a class="item" href="#action=copy3"><div class="smallPrice"></div><div style="flex:1;margin-left:18px;"><div class="name"></div><div class="addr"></div></div></a>
@@ -107,13 +89,13 @@
     const FUEL_TYPE = 'DIE';
     const FALLBACK_LOCATION = { latitude: 48.290, longitude: 14.285 };
     const CACHE_KEY = "stations_cache_v1";
-    const CACHE_DAYS = 1; // wie lange Cache behalten (1 Tag)
+    const CACHE_DAYS = 1;
 
     const el = id => document.getElementById(id);
     const items = Array.from(document.querySelectorAll('#list .item'));
     let latestStations = [];
 
-    // --- Cookie Helpers ---
+    /* ----- Cookie helpers ----- */
     function setCookie(c_name, value, exdays) {
       var exdate = new Date();
       exdate.setDate(exdate.getDate() + exdays);
@@ -131,7 +113,7 @@
       }
     }
 
-    // --- UI ---
+    /* ----- Helpers ----- */
     function formatValue(value) {
       if (value == null) return "--";
       const str = String(value).trim();
@@ -146,42 +128,26 @@
       return [address, postalCode, city].filter(Boolean).join(', ');
     }
 
-    async function copyAddress(index) {
-      const station = latestStations[index];
-      if (!station || !station.location) return;
-      const { address = '', postalCode = '', city = '' } = station.location;
-      const text = [address, postalCode, city].filter(Boolean).join(', ');
-      try { await navigator.clipboard.writeText(text); } 
-      catch (e) { console.warn('Clipboard error', e); }
-    }
-
-    function handleHashAction() {
-      let qs = window.location.hash;
-      if (qs.startsWith('#')) qs = qs.substring(1);
-      const params = new URLSearchParams(qs);
-      const act = params.get('action');
-      if (act && act.startsWith('copy')) {
-        const idx = parseInt(act.substring(4), 10);
-        if (!isNaN(idx)) copyAddress(idx);
-      }
-    }
-
     function renderStations(data) {
-      latestStations = data.filter(s => Array.isArray(s.prices) && s.prices.length > 0);
+      latestStations = data.filter(function(s) {
+        return Array.isArray(s.prices) && s.prices.length > 0;
+      });
+
       if (latestStations.length === 0) {
         showStatus('Keine Stationen gefunden.');
         items.forEach(it => it.classList.add('hidden'));
       } else {
+        showStatus('');
         const top = latestStations.slice(0, items.length);
-        items.forEach((item, i) => {
-          const st = top[i];
+        items.forEach(function(item, i) {
+          var st = top[i];
           if (!st) {
             item.classList.add('hidden');
             return;
           }
           item.classList.remove('hidden');
-          const price = st.prices?.[0]?.amount ?? null;
-          const addr = formatFullAddress(st.location);
+          var price = st.prices && st.prices[0] ? st.prices[0].amount : null;
+          var addr = formatFullAddress(st.location);
           if (i === 0) {
             item.querySelector('.price').textContent = formatValue(price);
             item.querySelector('.name').textContent = st.name || 'Kein Name';
@@ -193,55 +159,93 @@
           }
         });
       }
-      const now = new Date();
+
+      var now = new Date();
       el('time').textContent =
         now.toLocaleDateString('de-AT') + ' ' +
-        now.toLocaleTimeString('de-AT', { hour:'2-digit', minute:'2-digit' });
+        now.toLocaleTimeString('de-AT', { hour: '2-digit', minute: '2-digit' });
     }
 
-    // --- Show cached stations instantly ---
+    /* ----- Clipboard ----- */
+    function copyAddress(index) {
+      var station = latestStations[index];
+      if (!station || !station.location) return;
+      var loc = station.location;
+      var text = [loc.address || '', loc.postalCode || '', loc.city || ''].filter(Boolean).join(', ');
+      navigator.clipboard.writeText(text).catch(function(e) { console.warn('Clipboard error', e); });
+    }
+
+    function handleHashAction() {
+      var qs = window.location.hash;
+      if (qs.startsWith('#')) qs = qs.substring(1);
+      var params = new URLSearchParams(qs);
+      var act = params.get('action');
+      if (act && act.startsWith('copy')) {
+        var idx = parseInt(act.substring(4), 10);
+        if (!isNaN(idx)) copyAddress(idx);
+      }
+    }
+
+    /* ----- Load cached data immediately ----- */
     (function loadCached() {
       try {
-        const cached = getCookie(CACHE_KEY);
+        var cached = getCookie(CACHE_KEY);
         if (cached) {
-          const parsed = JSON.parse(cached);
+          var parsed = JSON.parse(cached);
           renderStations(parsed);
         } else {
           showStatus('Lade gespeicherte Daten...');
         }
       } catch (e) {
-        console.warn('Cache read error', e);
+        console.warn('Cache error', e);
       }
     })();
 
-    // --- Load new data and refresh cookie ---
-    async function loadStations() {
-      let lat = FALLBACK_LOCATION.latitude;
-      let lon = FALLBACK_LOCATION.longitude;
-      let fallback = false;
-      try {
-        const pos = await new Promise((res, rej) => {
-          if (!navigator.geolocation) return rej();
-          navigator.geolocation.getCurrentPosition(res, rej, { maximumAge:60000, timeout:10000 });
-        });
-        if (pos?.coords) {
-          lat = pos.coords.latitude.toFixed(3);
-          lon = pos.coords.longitude.toFixed(3);
-        } else fallback = true;
-      } catch { fallback = true; }
+    /* ----- Load fresh stations (no async/await) ----- */
+    function loadStations() {
+      var lat = FALLBACK_LOCATION.latitude;
+      var lon = FALLBACK_LOCATION.longitude;
+      var fallback = false;
 
-      showStatus(fallback ? 'Der Standardstandort wird verwendet.' : '');
+      // get geolocation
       try {
-        const url = `https://api.e-control.at/sprit/1.0/search/gas-stations/by-address?latitude=${lat}&longitude=${lon}&fuelType=${FUEL_TYPE}&includeClosed=false`;
-        const resp = await fetch(url);
-        if (!resp.ok) throw new Error('Fetch failed');
-        const json = await resp.json();
-        renderStations(json);
-        setCookie(CACHE_KEY, JSON.stringify(json), CACHE_DAYS);
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(function(pos) {
+            lat = pos.coords.latitude.toFixed(3);
+            lon = pos.coords.longitude.toFixed(3);
+            requestStations(lat, lon);
+          }, function() {
+            fallback = true;
+            showStatus('Der Standardstandort wird verwendet.');
+            requestStations(lat, lon);
+          }, { maximumAge: 60000, timeout: 10000 });
+        } else {
+          fallback = true;
+          requestStations(lat, lon);
+        }
       } catch (e) {
-        console.error(e);
-        showStatus('Fehler beim Laden der Tankstellen.');
+        fallback = true;
+        requestStations(lat, lon);
       }
+    }
+
+    function requestStations(lat, lon) {
+      var url = "https://api.e-control.at/sprit/1.0/search/gas-stations/by-address?latitude=" +
+        lat + "&longitude=" + lon + "&fuelType=" + FUEL_TYPE + "&includeClosed=false";
+
+      fetch(url)
+        .then(function(resp) {
+          if (!resp.ok) throw new Error('API Error');
+          return resp.json();
+        })
+        .then(function(json) {
+          renderStations(json);
+          setCookie(CACHE_KEY, JSON.stringify(json), CACHE_DAYS);
+        })
+        .catch(function(e) {
+          console.error(e);
+          showStatus('Fehler beim Laden der Tankstellen.');
+        });
     }
 
     handleHashAction();
