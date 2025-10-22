@@ -6,252 +6,149 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
     :root {
-      --bg1: #ffffff;
-      --bg2: #eeeeee;
-      --bg3: #fafafa;
-      --text: #000000;
-      --muted: #666666;
-      --accent: #2b8cff;
-      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      --bg1:#ffffff;--bg2:#eeeeee;--bg3:#fafafa;--text:#000000;--muted:#666;--accent:#2b8cff;
+      font-family:Inter,system-ui,-apple-system;
     }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg1: #111111;
-        --bg2: #222222;
-        --bg3: #212121;
-        --text: #ededed;
-        --muted: #bbbbbb;
-        --accent: #4da3ff;
-      }
-    }
-    html, body {
-      height: 100%;
-      margin: 0;
-      background: linear-gradient(180deg, var(--bg1), var(--bg2));
-      color: var(--text);
-    }
-    .app {
-      display: flex;
-      flex-direction: column;
-      margin: 8px auto;
-      border-radius: 12px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.03), transparent);
-      box-shadow: 0 6px 18px rgba(0,0,0,0.06);
-      max-width: 400px;
-      padding: 10px;
-    }
-    .status { text-align: center; }
-    .list {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: 5px;
-    }
-    a.item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      text-decoration: none;
-      color: inherit;
-      background: var(--bg3);
-      padding: 10px;
-      border-radius: 10px;
-      transition: background 0.2s;
-    }
-    a.item.big {
-      flex-direction: column;
-      align-items: center;
-      padding: 14px;
-    }
-    .price { font-family: Menlo, monospace; font-size: 22px; }
-    .smallPrice { font-family: Menlo, monospace; font-size: 12px; color: var(--muted); }
-    .meta { text-align: center; }
-    .name { font-weight: 600; }
-    .addr { font-size: 12px; color: var(--muted); }
-    .timestamp { font-size: 11px; color: var(--muted); text-align: center;}
-    .hidden { display: none !important; }
+    @media (prefers-color-scheme:dark){
+      :root{
+        --bg1:#111;--bg2:#222;--bg3:#212121;--text:#ededed;--muted:#bbb;--accent:#4da3ff;
+      }}
+    html,body{height:100%;margin:0;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:var(--text);}
+    .app{display:flex;flex-direction:column;margin:8px auto;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,0.03),transparent);box-shadow:0 6px 18px rgba(0,0,0,.06);max-width:400px;padding:10px;}
+    .status{text-align:center;}
+    .list{display:flex;flex-direction:column;gap:10px;margin-top:5px;}
+    a.item{display:flex;align-items:center;justify-content:space-between;text-decoration:none;color:inherit;background:var(--bg3);padding:10px;border-radius:10px;}
+    a.item.big{flex-direction:column;align-items:center;padding:14px;}
+    .price{font-family:Menlo,monospace;font-size:22px;}
+    .smallPrice{font-family:Menlo,monospace;font-size:12px;color:var(--muted);}
+    .name{font-weight:600;}
+    .addr{font-size:12px;color:var(--muted);}
+    .timestamp{font-size:11px;color:var(--muted);text-align:center;margin-top:12px;}
+    .hidden{display:none!important;}
   </style>
 </head>
 <body>
-  <div class="app">
-    <div id="status" class="status"></div>
-    <div id="time" class="timestamp"></div>
-    <div id="list" class="list">
-      <a class="item big" href="#action=copy0"><div class="price"></div><div class="meta"><div class="name"></div><div class="addr"></div></div></a>
-      <a class="item" href="#action=copy1"><div class="smallPrice"></div><div style="flex:1;margin-left:18px;"><div class="name"></div><div class="addr"></div></div></a>
-      <a class="item" href="#action=copy2"><div class="smallPrice"></div><div style="flex:1;margin-left:18px;"><div class="name"></div><div class="addr"></div></div></a>
-      <a class="item" href="#action=copy3"><div class="smallPrice"></div><div style="flex:1;margin-left:18px;"><div class="name"></div><div class="addr"></div></div></a>
-      <a class="item" href="#action=copy4"><div class="smallPrice"></div><div style="flex:1;margin-left:18px;"><div class="name"></div><div class="addr"></div></div></a>
-    </div>
+<div class="app">
+  <div id="status" class="status"></div>
+  <div id="time" class="timestamp"></div>
+
+  <div id="list" class="list">
+    <a class="item big" href="#action=copy0"><div class="price"></div><div class="meta"><div class="name"></div><div class="addr"></div></div></a>
+    <a class="item" href="#action=copy1"><div class="smallPrice"></div><div style="flex:1;margin-left:18px;"><div class="name"></div><div class="addr"></div></div></a>
+    <a class="item" href="#action=copy2"><div class="smallPrice"></div><div style="flex:1;margin-left:18px;"><div class="name"></div><div class="addr"></div></div></a>
+    <a class="item" href="#action=copy3"><div class="smallPrice"></div><div style="flex:1;margin-left:18px;"><div class="name"></div><div class="addr"></div></div></a>
+    <a class="item" href="#action=copy4"><div class="smallPrice"></div><div style="flex:1;margin-left:18px;"><div class="name"></div><div class="addr"></div></div></a>
   </div>
+</div>
 
-  <script>
-    const FUEL_TYPE = 'DIE';
-    const FALLBACK_LOCATION = { latitude: 48.290, longitude: 14.285 };
-    const CACHE_KEY = "stations_cache_v1";
-    const CACHE_DAYS = 1;
+<script>
+const FUEL_TYPE = 'DIE';
+const FALLBACK_LOCATION = { latitude:48.290, longitude:14.285 };
+const CACHE_KEY = "stations_cache_v1";
+const CACHE_DAYS = 1;
 
-    const el = id => document.getElementById(id);
-    const items = Array.from(document.querySelectorAll('#list .item'));
-    let latestStations = [];
+const el = id => document.getElementById(id);
+const items = Array.from(document.querySelectorAll('#list .item'));
+let latestStations = [];
 
-    /* ----- Cookie helpers ----- */
-    function setCookie(c_name, value, exdays) {
-      var exdate = new Date();
-      exdate.setDate(exdate.getDate() + exdays);
-      var c_value = escape(value) + ((exdays == null) ? "" : "; expires=" + exdate.toUTCString());
-      document.cookie = c_name + "=" + c_value + "; path=/";
+/* --- Cookie helpers --- */
+function setCookie(c_name,value,exdays){
+  var exdate=new Date();exdate.setDate(exdate.getDate()+exdays);
+  document.cookie=c_name+"="+escape(value)+"; expires="+exdate.toUTCString()+"; path=/";
+}
+function getCookie(c_name){
+  var ARRcookies=document.cookie.split(";");
+  for(var i=0;i<ARRcookies.length;i++){
+    var x=ARRcookies[i].split("=")[0].trim();
+    var y=ARRcookies[i].split("=")[1];
+    if(x===c_name) return unescape(y);
+  }
+}
+
+/* --- UI helper --- */
+function formatValue(v){return v!=null?(v+"€"):"--";}
+function showStatus(m){el('status').textContent=m||'';}
+function formatFullAddress(l){
+  if(!l)return '';return[l.address,l.postalCode,l.city].filter(Boolean).join(', ');
+}
+function renderStations(data){
+  latestStations=data.filter(s=>s.prices&&s.prices.length>0);
+  const top=latestStations.slice(0,items.length);
+
+  items.forEach((item,i)=>{
+    const st=top[i];
+    if(!st){item.classList.add('hidden');return;}
+    item.classList.remove('hidden');
+    const price=st.prices[0].amount;
+    item.querySelector((i===0)?'.price':'.smallPrice').textContent=formatValue(price);
+    item.querySelector('.name').textContent=st.name||'Kein Name';
+    item.querySelector('.addr').textContent=formatFullAddress(st.location);
+  });
+
+  const now=new Date();
+  el('time').textContent=now.toLocaleDateString('de-AT')+" "+now.toLocaleTimeString('de-AT',{hour:'2-digit',minute:'2-digit'});
+}
+
+/* --- Clipboard --- */
+function copyAddress(i){
+  var st=latestStations[i];if(!st||!st.location)return;
+  var l=st.location;
+  var text=[l.address,l.postalCode,l.city].filter(Boolean).join(', ');
+  navigator.clipboard.writeText(text);
+}
+
+/* --- Action (copy) handler --- */
+function handleHashAction(){
+  var params=new URLSearchParams(location.hash.slice(1));
+  var a=params.get('action');
+  if(a&&a.startsWith('copy')) copyAddress(parseInt(a.substring(4),10));
+}
+
+/* --- Load cached immediately --- */
+(function(){
+  var c=getCookie(CACHE_KEY);
+  if(c){
+    try{ renderStations(JSON.parse(c)); }catch(e){}
+  }
+})();
+
+/* --- API load (no async/await) --- */
+function loadStations(){
+  var lat=FALLBACK_LOCATION.latitude, lon=FALLBACK_LOCATION.longitude;
+  navigator.geolocation.getCurrentPosition(
+    pos=>{ lat=pos.coords.latitude.toFixed(3); lon=pos.coords.longitude.toFixed(3); request(); },
+    ()=>{ request(); },
+    {timeout:8000}
+  );
+  function request(){
+    fetch("https://api.e-control.at/sprit/1.0/search/gas-stations/by-address?latitude="+lat+
+          "&longitude="+lon+"&fuelType="+FUEL_TYPE+"&includeClosed=false")
+      .then(r=>r.json()).then(json=>{
+        renderStations(json);
+        setCookie(CACHE_KEY,JSON.stringify(json),CACHE_DAYS);
+      }).catch(()=>showStatus("Fehler beim Laden"));
+  }
+}
+
+handleHashAction();
+
+/* ✅ Verzögertes Laden für JsWidget-Stabilität */
+setTimeout(loadStations, 600);
+
+/* ✅ Warten auf Daten oder Timeout → verhindert "weiße Seite" */
+(function waitForStations(){
+  var start=Date.now();
+  var i=setInterval(()=>{
+    if(latestStations.length>0 || Date.now()-start>2500){
+      clearInterval(i);
+      console.log("Widget ready ✅");
     }
+  },200);
+})();
 
-    function getCookie(c_name) {
-      var i, x, y, ARRcookies = document.cookie.split(";");
-      for (i = 0; i < ARRcookies.length; i++) {
-        x = ARRcookies[i].substr(0, ARRcookies[i].indexOf("="));
-        y = ARRcookies[i].substr(ARRcookies[i].indexOf("=") + 1);
-        x = x.replace(/^\s+|\s+$/g, "");
-        if (x == c_name) return unescape(y);
-      }
-    }
+/* Widget Title */
+function __wweb2JsWidgetTitle(){return "TankenAT";}
 
-    /* ----- Helpers ----- */
-    function formatValue(value) {
-      if (value == null) return "--";
-      const str = String(value).trim();
-      return str ? str + '€' : "--";
-    }
-
-    function showStatus(msg) { el('status').textContent = msg || ''; }
-
-    function formatFullAddress(loc) {
-      if (!loc) return 'Keine Adresse';
-      const { address = '', postalCode = '', city = '' } = loc;
-      return [address, postalCode, city].filter(Boolean).join(', ');
-    }
-
-    function renderStations(data) {
-      latestStations = data.filter(function(s) {
-        return Array.isArray(s.prices) && s.prices.length > 0;
-      });
-
-      if (latestStations.length === 0) {
-        showStatus('Keine Stationen gefunden.');
-        items.forEach(it => it.classList.add('hidden'));
-      } else {
-        showStatus('');
-        const top = latestStations.slice(0, items.length);
-        items.forEach(function(item, i) {
-          var st = top[i];
-          if (!st) {
-            item.classList.add('hidden');
-            return;
-          }
-          item.classList.remove('hidden');
-          var price = st.prices && st.prices[0] ? st.prices[0].amount : null;
-          var addr = formatFullAddress(st.location);
-          if (i === 0) {
-            item.querySelector('.price').textContent = formatValue(price);
-            item.querySelector('.name').textContent = st.name || 'Kein Name';
-            item.querySelector('.addr').textContent = addr;
-          } else {
-            item.querySelector('.smallPrice').textContent = formatValue(price);
-            item.querySelector('.name').textContent = st.name || 'Kein Name';
-            item.querySelector('.addr').textContent = addr;
-          }
-        });
-      }
-
-      var now = new Date();
-      el('time').textContent =
-        now.toLocaleDateString('de-AT') + ' ' +
-        now.toLocaleTimeString('de-AT', { hour: '2-digit', minute: '2-digit' });
-    }
-
-    /* ----- Clipboard ----- */
-    function copyAddress(index) {
-      var station = latestStations[index];
-      if (!station || !station.location) return;
-      var loc = station.location;
-      var text = [loc.address || '', loc.postalCode || '', loc.city || ''].filter(Boolean).join(', ');
-      navigator.clipboard.writeText(text).catch(function(e) { console.warn('Clipboard error', e); });
-    }
-
-    function handleHashAction() {
-      var qs = window.location.hash;
-      if (qs.startsWith('#')) qs = qs.substring(1);
-      var params = new URLSearchParams(qs);
-      var act = params.get('action');
-      if (act && act.startsWith('copy')) {
-        var idx = parseInt(act.substring(4), 10);
-        if (!isNaN(idx)) copyAddress(idx);
-      }
-    }
-
-    /* ----- Load cached data immediately ----- */
-    (function loadCached() {
-      try {
-        var cached = getCookie(CACHE_KEY);
-        if (cached) {
-          var parsed = JSON.parse(cached);
-          renderStations(parsed);
-        } else {
-          showStatus('Lade gespeicherte Daten...');
-        }
-      } catch (e) {
-        console.warn('Cache error', e);
-      }
-    })();
-
-    /* ----- Load fresh stations (no async/await) ----- */
-    function loadStations() {
-      var lat = FALLBACK_LOCATION.latitude;
-      var lon = FALLBACK_LOCATION.longitude;
-      var fallback = false;
-
-      // get geolocation
-      try {
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(function(pos) {
-            lat = pos.coords.latitude.toFixed(3);
-            lon = pos.coords.longitude.toFixed(3);
-            requestStations(lat, lon);
-          }, function() {
-            fallback = true;
-            showStatus('Der Standardstandort wird verwendet.');
-            requestStations(lat, lon);
-          }, { maximumAge: 60000, timeout: 10000 });
-        } else {
-          fallback = true;
-          requestStations(lat, lon);
-        }
-      } catch (e) {
-        fallback = true;
-        requestStations(lat, lon);
-      }
-    }
-
-    function requestStations(lat, lon) {
-      var url = "https://api.e-control.at/sprit/1.0/search/gas-stations/by-address?latitude=" +
-        lat + "&longitude=" + lon + "&fuelType=" + FUEL_TYPE + "&includeClosed=false";
-
-      fetch(url)
-        .then(function(resp) {
-          if (!resp.ok) throw new Error('API Error');
-          return resp.json();
-        })
-        .then(function(json) {
-          renderStations(json);
-          setCookie(CACHE_KEY, JSON.stringify(json), CACHE_DAYS);
-        })
-        .catch(function(e) {
-          console.error(e);
-          showStatus('Fehler beim Laden der Tankstellen.');
-        });
-    }
-
-    handleHashAction();
-    loadStations();
-
-    function __wweb2JsWidgetTitle() { return "TankenAT"; }
-  </script>
+</script>
 </body>
 </html>
