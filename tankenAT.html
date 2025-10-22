@@ -79,7 +79,6 @@
       font-size: 11px;
       color: var(--muted);
       text-align: center;
-      margin-top: 18px;
     }
     .hidden { display: none !important; }
   </style>
@@ -87,6 +86,9 @@
 <body>
   <div class="app">
     <div id="status" class="status"></div>
+
+    
+    <div id="time" class="timestamp"></div>
 
     <!-- Predefined <a> elements -->
     <div id="list" class="list">
@@ -102,8 +104,6 @@
       <a class="item" href="#action=copy3"><div class="smallPrice"></div><div style="flex:1;margin-left:18px;"><div class="name"></div><div class="addr"></div></div></a>
       <a class="item" href="#action=copy4"><div class="smallPrice"></div><div style="flex:1;margin-left:18px;"><div class="name"></div><div class="addr"></div></div></a>
     </div>
-
-    <div id="time" class="timestamp"></div>
   </div>
 
   <script>
@@ -175,7 +175,6 @@
         showStatus('Keine Stationen gefunden.');
         items.forEach(it => it.classList.add('hidden'));
       } else {
-        showStatus('');
         const top = latestStations.slice(0, items.length);
         items.forEach((item, i) => {
           const st = top[i];
