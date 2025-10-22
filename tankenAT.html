@@ -40,9 +40,7 @@
       max-width: 400px;
       padding: 10px;
     }
-    .status {
-      text-align: center;
-    }
+    .status { text-align: center; }
     .list {
       display: flex;
       flex-direction: column;
@@ -74,25 +72,16 @@
       font-size: 12px;
       color: var(--muted);
     }
-    .meta {
-      text-align: center;
-    }
-    .name {
-      font-weight: 600;
-    }
-    .addr {
-      font-size: 12px;
-      color: var(--muted);
-    }
+    .meta { text-align: center; }
+    .name { font-weight: 600; }
+    .addr { font-size: 12px; color: var(--muted); }
     .timestamp {
       font-size: 11px;
       color: var(--muted);
       text-align: center;
       margin-top: 18px;
     }
-    .hidden {
-      display: none !important;
-    }
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
@@ -144,6 +133,7 @@
   <script>
     const FUEL_TYPE = 'DIE';
     const FALLBACK_LOCATION = { latitude: 48.290, longitude: 14.285 };
+    const CACHE_KEY = "stations_cache_v1";
     const el = id => document.getElementById(id);
     const items = Array.from(document.querySelectorAll('#list .item'));
     let latestStations = [];
@@ -171,7 +161,6 @@
       } catch (e) {
         console.warn('Clipboard error', e);
       }
-      // Optionally, you could reload or re-render after copy, or show a message
     }
 
     function handleHashAction() {
@@ -181,9 +170,7 @@
       const act = params.get('action');
       if (act && act.startsWith('copy')) {
         const idx = parseInt(act.substring(4), 10);
-        if (!isNaN(idx)) {
-          copyAddress(idx);
-        }
+        if (!isNaN(idx)) copyAddress(idx);
       }
     }
 
@@ -193,7 +180,6 @@
         showStatus('Keine Stationen gefunden.');
         items.forEach(it => it.classList.add('hidden'));
       } else {
-        showStatus('');
         const top = latestStations.slice(0, items.length);
         items.forEach((item, i) => {
           const st = top[i];
@@ -221,6 +207,22 @@
         now.toLocaleTimeString('de-AT', { hour:'2-digit', minute:'2-digit' });
     }
 
+    // 🔹 Show cached data immediately
+    (function loadCached() {
+      try {
+        const cached = localStorage.getItem(CACHE_KEY);
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          renderStations(parsed);
+        } else {
+          showStatus('Lade gespeicherte Daten...');
+        }
+      } catch (e) {
+        console.warn('Cache read error', e);
+      }
+    })();
+
+    // 🔹 Load live data asynchronously and refresh cache
     async function loadStations() {
       let lat = FALLBACK_LOCATION.latitude;
       let lon = FALLBACK_LOCATION.longitude;
@@ -233,12 +235,9 @@
         if (pos?.coords) {
           lat = pos.coords.latitude.toFixed(3);
           lon = pos.coords.longitude.toFixed(3);
-        } else {
-          fallback = true;
-        }
-      } catch (e) {
-        fallback = true;
-      }
+        } else fallback = true;
+      } catch { fallback = true; }
+
       showStatus(fallback ? 'Der Standardstandort wird verwendet.' : '');
       try {
         const url = `https://api.e-control.at/sprit/1.0/search/gas-stations/by-address?latitude=${lat}&longitude=${lon}&fuelType=${FUEL_TYPE}&includeClosed=false`;
@@ -246,18 +245,16 @@
         if (!resp.ok) throw new Error('Fetch failed');
         const json = await resp.json();
         renderStations(json);
+        localStorage.setItem(CACHE_KEY, JSON.stringify(json));
       } catch (e) {
         console.error(e);
         showStatus('Fehler beim Laden der Tankstellen.');
-        items.forEach(it => it.classList.add('hidden'));
       }
     }
 
-    // Called early to catch hash
     handleHashAction();
     loadStations();
 
-    // Optionally define title via function (already meta is set)
     function __wweb2JsWidgetTitle() {
       return "TankenAT";
     }
