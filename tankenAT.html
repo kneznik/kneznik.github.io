@@ -2,19 +2,18 @@
 <html lang="de">
 <head>
   <meta charset="utf-8" />
-  <meta name="js-widget-title" content="TankenAT" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="js-widget-title" content="TankenAT" />
   <style>
     :root {
-      --bg1: #ffffff;
-      --bg2: #eeeeee;
+      --bg1: #fff;
+      --bg2: #eee;
       --bg3: #fafafa;
-      --text: #000000;
+      --text: #000;
       --muted: #666;
       --accent: #2b8cff;
       font-family: Inter, system-ui, -apple-system;
     }
-
     @media (prefers-color-scheme: dark) {
       :root {
         --bg1: #111;
@@ -25,83 +24,53 @@
         --accent: #4da3ff;
       }
     }
-
     html, body {
-      height: 100%;
       margin: 0;
+      height: 100%;
       background: linear-gradient(180deg, var(--bg1), var(--bg2));
       color: var(--text);
     }
-
     .app {
       display: flex;
       flex-direction: column;
+      max-width: 400px;
       margin: 8px auto;
       border-radius: 12px;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent);
-      box-shadow: 0 6px 18px rgba(0, 0, 0, .06);
-      max-width: 400px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), transparent);
+      box-shadow: 0 6px 18px rgba(0,0,0,.06);
       padding: 10px;
     }
-
-    .status {
-      text-align: center;
-    }
-
-    .list {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: 5px;
-    }
-
-    .item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      text-decoration: none;
-      color: inherit;
-      background: var(--bg3);
-      padding: 10px;
-      border-radius: 10px;
-    }
-
-    .item.big {
-      flex-direction: column;
-      align-items: center;
-      padding: 14px;
-    }
-
-    .price {
-      font-family: Menlo, monospace;
-      font-size: 22px;
-    }
-
-    .smallPrice {
-      font-family: Menlo, monospace;
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    .name {
-      font-weight: 600;
-    }
-
-    .addr {
-      font-size: 12px;
-      color: var(--muted);
-    }
-
+    .status { text-align: center; }
     .timestamp {
       font-size: 11px;
       color: var(--muted);
       text-align: center;
       margin-top: 12px;
     }
-
-    .hidden {
-      display: none !important;
+    .list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 5px;
     }
+    .item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg3);
+      border-radius: 10px;
+      padding: 10px;
+    }
+    .item.big {
+      flex-direction: column;
+      align-items: center;
+      padding: 14px;
+    }
+    .price { font-family: Menlo, monospace; font-size: 22px; }
+    .smallPrice { font-family: Menlo, monospace; font-size: 12px; color: var(--muted); }
+    .name { font-weight: 600; }
+    .addr { font-size: 12px; color: var(--muted); }
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
@@ -117,38 +86,11 @@
           <div class="addr"></div>
         </div>
       </div>
-
-      <div class="item">
-        <div class="smallPrice"></div>
-        <div style="flex: 1; margin-left: 18px;">
-          <div class="name"></div>
-          <div class="addr"></div>
-        </div>
-      </div>
-
-      <div class="item">
-        <div class="smallPrice"></div>
-        <div style="flex: 1; margin-left: 18px;">
-          <div class="name"></div>
-          <div class="addr"></div>
-        </div>
-      </div>
-
-      <div class="item">
-        <div class="smallPrice"></div>
-        <div style="flex: 1; margin-left: 18px;">
-          <div class="name"></div>
-          <div class="addr"></div>
-        </div>
-      </div>
-
-      <div class="item">
-        <div class="smallPrice"></div>
-        <div style="flex: 1; margin-left: 18px;">
-          <div class="name"></div>
-          <div class="addr"></div>
-        </div>
-      </div>
+      <!-- four smaller items -->
+      <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:18px;"><div class="name"></div><div class="addr"></div></div></div>
+      <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:18px;"><div class="name"></div><div class="addr"></div></div></div>
+      <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:18px;"><div class="name"></div><div class="addr"></div></div></div>
+      <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:18px;"><div class="name"></div><div class="addr"></div></div></div>
     </div>
   </div>
 
@@ -164,48 +106,30 @@
     let latestStations = [];
 
     /* --- Cookie Helpers --- */
-    function setCookie(c_name, value, exdays) {
-      var exdate = new Date();
-      exdate.setDate(exdate.getDate() + exdays);
-      document.cookie = c_name + "=" + escape(value) +
-        "; expires=" + exdate.toUTCString() + "; path=/";
+    function setCookie(name, value, days) {
+      const expires = new Date(Date.now() + days * 864e5).toUTCString();
+      document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/`;
     }
-
-    function getCookie(c_name) {
-      var ARRcookies = document.cookie.split(";");
-      for (var i = 0; i < ARRcookies.length; i++) {
-        var x = ARRcookies[i].split("=")[0].trim();
-        var y = ARRcookies[i].split("=")[1];
-        if (x === c_name) return unescape(y);
-      }
+    function getCookie(name) {
+      return document.cookie.split('; ').reduce((r, v) => {
+        const parts = v.split('=');
+        return parts[0] === name ? decodeURIComponent(parts[1]) : r;
+      }, '');
     }
 
     /* --- UI Helpers --- */
-    function formatValue(v) {
-      return v != null ? (v + "€") : "--";
-    }
-
-    function showStatus(m) {
-      el('status').textContent = m || '';
-    }
-
-    function formatFullAddress(l) {
-      if (!l) return '';
-      return [l.address, l.postalCode, l.city].filter(Boolean).join(', ');
-    }
+    const formatValue = v => v != null ? v + "€" : "--";
+    const showStatus = msg => el('status').textContent = msg || '';
+    const formatFullAddress = l => l ? [l.address, l.postalCode, l.city].filter(Boolean).join(', ') : '';
 
     function renderStations(data) {
-      latestStations = data.filter(s => s.prices && s.prices.length > 0);
+      latestStations = data.filter(s => s.prices && s.prices.length);
       const top = latestStations.slice(0, items.length);
 
       items.forEach((item, i) => {
         const st = top[i];
-        if (!st) {
-          item.classList.add('hidden');
-          return;
-        }
+        if (!st) return item.classList.add('hidden');
         item.classList.remove('hidden');
-
         const price = st.prices[0].amount;
         item.querySelector(i === 0 ? '.price' : '.smallPrice').textContent = formatValue(price);
         item.querySelector('.name').textContent = st.name || 'Kein Name';
@@ -218,66 +142,34 @@
         now.toLocaleTimeString('de-AT', { hour: '2-digit', minute: '2-digit' });
     }
 
-    /* --- Clipboard --- */
-    function copyAddress(i) {
-      var st = latestStations[i];
-      if (!st || !st.location) return;
-
-      var l = st.location;
-      var text = [l.address, l.postalCode, l.city].filter(Boolean).join(', ');
-      navigator.clipboard.writeText(text);
-    }
-
-    /* --- Load Cached Data Immediately --- */
+    /* --- Load cached data --- */
     (function () {
-      var c = getCookie(CACHE_KEY);
-      if (c) {
-        try { renderStations(JSON.parse(c)); } catch (e) {}
-      }
+      const cached = getCookie(CACHE_KEY);
+      if (cached) try { renderStations(JSON.parse(cached)); } catch(e) {}
     })();
 
-    /* --- API Load (no async/await) --- */
+    /* --- API Load --- */
     function loadStations() {
-      var lat = FALLBACK_LOCATION.latitude,
-          lon = FALLBACK_LOCATION.longitude;
-
+      let { latitude: lat, longitude: lon } = FALLBACK_LOCATION;
       navigator.geolocation.getCurrentPosition(
-        pos => {
-          lat = pos.coords.latitude.toFixed(3);
-          lon = pos.coords.longitude.toFixed(3);
-          request();
-        },
-        () => { request(); }
+        pos => { lat = pos.coords.latitude.toFixed(3); lon = pos.coords.longitude.toFixed(3); request(); },
+        request
       );
 
       function request() {
-        fetch(
-          "https://api.e-control.at/sprit/1.0/search/gas-stations/by-address" +
-          "?latitude=" + lat +
-          "&longitude=" + lon +
-          "&fuelType=" + FUEL_TYPE +
-          "&includeClosed=false"
-        )
+        fetch(`https://api.e-control.at/sprit/1.0/search/gas-stations/by-address?latitude=${lat}&longitude=${lon}&fuelType=${FUEL_TYPE}&includeClosed=false`)
           .then(r => r.json())
-          .then(json => {
-            renderStations(json);
-            setCookie(CACHE_KEY, JSON.stringify(json), CACHE_DAYS);
-          })
+          .then(json => { renderStations(json); setCookie(CACHE_KEY, JSON.stringify(json), CACHE_DAYS); })
           .catch(() => showStatus("Fehler beim Laden"));
       }
     }
 
-    /* --- Verzögertes Laden für JsWidget-Stabilität --- */
+    /* --- Delay to fit JsWidget loader --- */
     setTimeout(loadStations, 600);
 
     /* --- Widget API Hooks --- */
-    function __wweb2JsWidgetTitle() {
-      return "TankenAT";
-    }
-
-    function __wweb2WaitMillisecondsToWidgetIsReady(currentDelayMs) {
-      return 3000;
-    }
+    function __wweb2JsWidgetTitle() { return "TankenAT"; }
+    function __wweb2WaitMillisecondsToWidgetIsReady(currentDelayMs) { return 3000; }
   </script>
 </body>
 </html>
