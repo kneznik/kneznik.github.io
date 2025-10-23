@@ -86,7 +86,6 @@
           <div class="addr"></div>
         </div>
       </div>
-      <!-- four smaller items -->
       <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:18px;"><div class="name"></div><div class="addr"></div></div></div>
       <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:18px;"><div class="name"></div><div class="addr"></div></div></div>
       <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:18px;"><div class="name"></div><div class="addr"></div></div></div>
@@ -98,24 +97,9 @@
     /* --- Settings --- */
     const FUEL_TYPE = 'DIE';
     const FALLBACK_LOCATION = { latitude: 48.290, longitude: 14.285 };
-    const CACHE_KEY = "stations_cache_v1";
-    const CACHE_DAYS = 1;
 
     const el = id => document.getElementById(id);
     const items = Array.from(document.querySelectorAll('#list .item'));
-    let latestStations = [];
-
-    /* --- Cookie Helpers --- */
-    function setCookie(name, value, days) {
-      const expires = new Date(Date.now() + days * 864e5).toUTCString();
-      document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/`;
-    }
-    function getCookie(name) {
-      return document.cookie.split('; ').reduce((r, v) => {
-        const parts = v.split('=');
-        return parts[0] === name ? decodeURIComponent(parts[1]) : r;
-      }, '');
-    }
 
     /* --- UI Helpers --- */
     const formatValue = v => v != null ? v + "€" : "--";
@@ -123,8 +107,8 @@
     const formatFullAddress = l => l ? [l.address, l.postalCode, l.city].filter(Boolean).join(', ') : '';
 
     function renderStations(data) {
-      latestStations = data.filter(s => s.prices && s.prices.length);
-      const top = latestStations.slice(0, items.length);
+      const stations = data.filter(s => s.prices && s.prices.length);
+      const top = stations.slice(0, items.length);
 
       items.forEach((item, i) => {
         const st = top[i];
@@ -142,15 +126,11 @@
         now.toLocaleTimeString('de-AT', { hour: '2-digit', minute: '2-digit' });
     }
 
-    /* --- Load cached data --- */
-    (function () {
-      const cached = getCookie(CACHE_KEY);
-      if (cached) try { renderStations(JSON.parse(cached)); } catch(e) {}
-    })();
-
     /* --- API Load --- */
     function loadStations() {
+      showStatus("Lade Daten ...");
       let { latitude: lat, longitude: lon } = FALLBACK_LOCATION;
+
       navigator.geolocation.getCurrentPosition(
         pos => { lat = pos.coords.latitude.toFixed(3); lon = pos.coords.longitude.toFixed(3); request(); },
         request
@@ -159,17 +139,16 @@
       function request() {
         fetch(`https://api.e-control.at/sprit/1.0/search/gas-stations/by-address?latitude=${lat}&longitude=${lon}&fuelType=${FUEL_TYPE}&includeClosed=false`)
           .then(r => r.json())
-          .then(json => { renderStations(json); setCookie(CACHE_KEY, JSON.stringify(json), CACHE_DAYS); })
+          .then(json => { renderStations(json); showStatus(""); })
           .catch(() => showStatus("Fehler beim Laden"));
       }
     }
 
-    /* --- Delay to fit JsWidget loader --- */
+    /* --- Delay for JsWidget Stability --- */
     setTimeout(loadStations, 600);
 
     /* --- Widget API Hooks --- */
     function __wweb2JsWidgetTitle() { return "TankenAT"; }
-    function __wweb2WaitMillisecondsToWidgetIsReady(currentDelayMs) { return 3000; }
   </script>
 </body>
 </html>
