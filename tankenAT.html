@@ -128,7 +128,6 @@
 
     /* --- API Load --- */
     function loadStations() {
-      showStatus("Lade Daten ...");
       let { latitude: lat, longitude: lon } = FALLBACK_LOCATION;
 
       navigator.geolocation.getCurrentPosition(
@@ -144,11 +143,11 @@
       }
     }
 
-    /* --- Delay for JsWidget Stability --- */
-    setTimeout(loadStations, 600);
-
     /* --- Widget API Hooks --- */
     function __wweb2JsWidgetTitle() { return "TankenAT"; }
+  </script>
+  <script>
+  loadStations()
   </script>
 </body>
 </html>
