@@ -189,6 +189,7 @@
     }
 
     function __wweb2WaitMillisecondsToWidgetIsReady(currentDelayMs) {
+      showStatus(currentDelayMs);
       if (dataLoaded) {
           return 0;
       }
