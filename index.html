@@ -156,12 +156,12 @@
         pos => {
           const lat = pos.coords.latitude.toFixed(3);
           const lon = pos.coords.longitude.toFixed(3);
-          request(lat, lon);
+          getData(lat, lon);
         },
         () => {
           // Use fallback only if geolocation fails
           showStatus("Linz als Standort"); 
-          request(FALLBACK_LOCATION.latitude.toFixed(3), FALLBACK_LOCATION.longitude.toFixed(3));
+          getData(FALLBACK_LOCATION.latitude.toFixed(3), FALLBACK_LOCATION.longitude.toFixed(3));
         }
       );
       */
@@ -189,12 +189,12 @@
     }
 
     function __wweb2WaitMillisecondsToWidgetIsReady(currentDelayMs) {
-  
       if (dataLoaded) {
           return 0;
       }
       return 1000;
     }
+    
     loadStations();
   </script>
 </body>
