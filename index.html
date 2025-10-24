@@ -175,11 +175,12 @@
             return r.json()
           })
           .then(json => {
-            renderStations(json)
+            renderStations(json);
+            dataLoaded = true;
           })
           .catch(err => {
-            dataLoaded = true;
             showStatus(err);
+            dataLoaded = true;
           });
     }
     
