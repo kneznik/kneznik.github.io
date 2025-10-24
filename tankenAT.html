@@ -126,28 +126,47 @@
         now.toLocaleTimeString('de-AT', { hour: '2-digit', minute: '2-digit' });
     }
 
-    /* --- API Load --- */
+    /* --- FIXED API Load --- */
     function loadStations() {
-      let { latitude: lat, longitude: lon } = FALLBACK_LOCATION;
-
+      showStatus("Lade Daten ...");
+      
       navigator.geolocation.getCurrentPosition(
-        pos => { lat = pos.coords.latitude.toFixed(3); lon = pos.coords.longitude.toFixed(3); request(); },
-        request
+        pos => {
+          const lat = pos.coords.latitude.toFixed(3);
+          const lon = pos.coords.longitude.toFixed(3);
+          request(lat, lon);
+        },
+        () => {
+          // Use fallback only if geolocation fails
+          request(FALLBACK_LOCATION.latitude.toFixed(3), FALLBACK_LOCATION.longitude.toFixed(3));
+        }
       );
 
-      function request() {
-        fetch(`https://api.e-control.at/sprit/1.0/search/gas-stations/by-address?latitude=${lat}&longitude=${lon}&fuelType=${FUEL_TYPE}&includeClosed=false`)
-          .then(r => r.json())
-          .then(json => { renderStations(json); showStatus(""); })
-          .catch(() => showStatus("Fehler beim Laden"));
+      function request(lat, lon) {
+        const url = `https://api.e-control.at/sprit/1.0/search/gas-stations/by-address?latitude=${lat}&longitude=${lon}&fuelType=${FUEL_TYPE}&includeClosed=false`;
+        console.log("API URL:", url); // Debug line
+        
+        fetch(url)
+          .then(r => {
+            if (!r.ok) throw new Error(`HTTP ${r.status}`);
+            return r.json();
+          })
+          .then(json => { 
+            renderStations(json); 
+            showStatus(""); 
+          })
+          .catch(err => {
+            console.error("API Error:", err);
+            showStatus("Fehler beim Laden");
+          });
       }
     }
 
+    /* --- Delay for JsWidget Stability --- */
+    setTimeout(loadStations, 600);
+
     /* --- Widget API Hooks --- */
     function __wweb2JsWidgetTitle() { return "TankenAT"; }
-  </script>
-  <script>
-  loadStations()
   </script>
 </body>
 </html>
