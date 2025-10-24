@@ -167,7 +167,7 @@
       */
     }
 
-      function getData(lat, lon) {
+    function getData(lat, lon) {
         const url = `https://api.e-control.at/sprit/1.0/search/gas-stations/by-address?latitude=${lat}&longitude=${lon}&fuelType=${FUEL_TYPE}&includeClosed=false`;
         
         fetch(url)
@@ -179,22 +179,22 @@
             dataLoaded = true; 
           })
           .catch(err => {
-            dataLoaded = true; 
-            showStatus(JSON.stringfy(err));
+            dataLoaded = true;
             showStatus("Fehler beim Laden: ");
           });
-      }
     }
     
-    function __wweb2JsWidgetTitle() { return "TankenAT"; }
+    function __wweb2JsWidgetTitle() {
+      return "TankenAT";
+    }
 
     function __wweb2WaitMillisecondsToWidgetIsReady(currentDelayMs) {
-      
+  
       if (dataLoaded) {
           return 0;
       }
       return 1000;
-  }
+    }
     loadStations();
   </script>
 </body>
