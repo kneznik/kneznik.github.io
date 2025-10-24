@@ -190,11 +190,12 @@
       if(dataLoaded){
         return 0;
       }
-      return 1000;
+      return 5000;
     }
     
     try {
       loadStations();
+      dataLoaded = true;
     } catch(e) {
       showStatus(e);
       dataLoaded = true;
