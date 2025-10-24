@@ -113,7 +113,7 @@
     const FUEL_TYPE = 'DIE';
 
     /* Data loaded indicator */
-    const dataLoaded = false;
+    let dataLoaded = false;
 
     /* -- City LINZ as Fallback Location */
     const FALLBACK_LOCATION = { latitude: 48.265, longitude: 14.287 };
@@ -173,7 +173,7 @@
             renderStations(json); 
           })
           .catch(err => {
-            showStatus("Fehler beim Laden");
+            showStatus("Fehler beim Laden: ");
           });
       }
     }
