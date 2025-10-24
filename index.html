@@ -6,50 +6,100 @@
   <meta name="js-widget-title" content="TankenAT" />
   <style>
     :root {
-      --bg1: #fff; --bg2: #eee; --bg3: #fafafa;
-      --text: #000; --muted: #666; --accent: #2b8cff;
+      --bg1: #fff;
+      --bg2: #eee;
+      --bg3: #fafafa;
+      --text: #000;
+      --muted: #666;
+      --accent: #2b8cff;
       font-family: Inter, system-ui, -apple-system;
     }
     @media (prefers-color-scheme: dark) {
       :root {
-        --bg1: #111; --bg2: #222; --bg3: #212121;
-        --text: #ededed; --muted: #bbb; --accent: #4da3ff;
+        --bg1: #111;
+        --bg2: #222;
+        --bg3: #212121;
+        --text: #ededed;
+        --muted: #bbb;
+        --accent: #4da3ff;
       }
     }
-    html,body{margin:0;height:100%;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:var(--text);}
-    .app{max-width:400px;margin:8px auto;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,.03),transparent);box-shadow:0 6px 18px rgba(0,0,0,.06);padding:10px;position:relative;}
-    .status{text-align:center;}
-    .timestamp{font-size:11px;color:var(--muted);text-align:center;margin-top:12px;}
-    .list{display:flex;flex-direction:column;gap:10px;margin-top:5px;}
-    .item{display:flex;align-items:center;justify-content:space-between;background:var(--bg3);border-radius:10px;padding:10px;}
-    .item.big{flex-direction:column;align-items:center;padding:14px;}
-    .price{font-family:Menlo,monospace;font-size:22px;}
-    .smallPrice{font-family:Menlo,monospace;font-size:12px;color:var(--muted);}
-    .name{font-weight:600;}
-    .addr{font-size:12px;color:var(--muted);}
-    .hidden{display:none !important;}
-
-    /* ---------- LOADER ---------- */
-    #loader{position:absolute;inset:0;background:var(--bg1);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10;}
-    #loader p{margin:0;font-size:14px;color:var(--muted);}
-    @keyframes spin{to{transform:rotate(360deg);}}
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: linear-gradient(180deg, var(--bg1), var(--bg2));
+      color: var(--text);
+    }
+    .app {
+      display: flex;
+      flex-direction: column;
+      max-width: 400px;
+      margin: 8px auto;
+      border-radius: 12px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), transparent);
+      box-shadow: 0 6px 18px rgba(0,0,0,.06);
+      padding: 10px;
+    }
+    .status {
+      text-align: center;
+    }
+    .timestamp {
+      font-size: 11px;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 12px;
+    }
+    .list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 5px;
+    }
+    .item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg3);
+      border-radius: 10px;
+      padding: 10px;
+    }
+    .item.big {
+      flex-direction: column;
+      align-items: center;
+      padding: 14px;
+    }
+    .price {
+      font-family: Menlo, monospace;
+      font-size: 22px;
+    }
+    .smallPrice {
+      font-family: Menlo, monospace;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .name {
+      font-weight: 600;
+    }
+    .addr {
+      font-size: 12px; color: var(--muted);
+    }
+    .hidden {
+      display: none !important;
+    }
   </style>
 </head>
 <body>
   <div class="app">
-    <!-- Full-screen blocker while loading -->
-    <div id="loader">
-      <div</div>
-      <p>Lade Tankstellen…</p>
-    </div>
+    <div id="status" class="status"></div>
+    <div id="time" class="timestamp"></div>
 
-    <div id="status" class="status hidden"></div>
-    <div id="time" class="timestamp hidden"></div>
-
-    <div id="list" class="list hidden">
+    <div id="list" class="list">
       <div class="item big">
         <div class="price"></div>
-        <div class="meta"><div class="name"></div><div class="addr"></div></div>
+        <div class="meta">
+          <div class="name"></div>
+          <div class="addr"></div>
+        </div>
       </div>
       <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:18px;"><div class="name"></div><div class="addr"></div></div></div>
       <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:18px;"><div class="name"></div><div class="addr"></div></div></div>
@@ -61,81 +111,82 @@
   <script>
     /* Diesel */
     const FUEL_TYPE = 'DIE';
+
+    /* Data loaded indicator */
+    const dataLoaded = false;
+
+    /* -- City LINZ as Fallback Location */
     const FALLBACK_LOCATION = { latitude: 48.265, longitude: 14.287 };
 
     const el = id => document.getElementById(id);
-    const $loader = el('loader');
-    const $status = el('status');
-    const $time   = el('time');
-    const $list   = el('list');
-    const items   = Array.from($list.querySelectorAll('.item'));
+    const items = Array.from(document.querySelectorAll('#list .item'));
 
-    /* --- UI helpers --- */
+    /* --- UI Helpers --- */
     const formatValue = v => v != null ? v + "€" : "--";
+    const showStatus = msg => el('status').textContent = msg || '';
     const formatFullAddress = l => l ? [l.address, l.postalCode, l.city].filter(Boolean).join(', ') : '';
 
-    function hideLoader() {
-      $loader.classList.add('hidden');
-      $status.classList.remove('hidden');
-      $time.classList.remove('hidden');
-      $list.classList.remove('hidden');
-    }
-
-    function showStatus(msg) { $status.textContent = msg || ''; }
-
-    function renderStations(stations) {
+    function renderStations(data) {
+      const stations = data.filter(s => s.prices && s.prices.length);
       const top = stations.slice(0, items.length);
+
       items.forEach((item, i) => {
         const st = top[i];
-        const price = st.prices?.[0]?.amount;
+        const price = st.prices[0].amount;
         item.querySelector(i === 0 ? '.price' : '.smallPrice').textContent = formatValue(price);
         item.querySelector('.name').textContent = st.name || 'Kein Name';
         item.querySelector('.addr').textContent = formatFullAddress(st.location);
       });
 
       const now = new Date();
-      $time.textContent = `${now.toLocaleDateString('de-AT')} ${now.toLocaleTimeString('de-AT', {hour:'2-digit', minute:'2-digit'})}`;
+      el('time').textContent =
+        now.toLocaleDateString('de-AT') + " " +
+        now.toLocaleTimeString('de-AT', { hour: '2-digit', minute: '2-digit' });
+        
+      dataLoaded = true;
     }
 
-    /* --- MAIN LOADING LOGIC (blocking UI) --- */
-    async function loadStations() {
-      let lat, lon;
 
-      // 1. Try to get the user location
-      try {
-        const pos = await new Promise((resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(resolve, reject, {timeout: 8000});
-        });
-        lat = pos.coords.latitude.toFixed(3);
-        lon = pos.coords.longitude.toFixed(3);
-      } catch (_) {
-        // 2. Fallback to Linz
-        showStatus('Linz als Standort');
-        lat = FALLBACK_LOCATION.latitude.toFixed(3);
-        lon = FALLBACK_LOCATION.longitude.toFixed(3);
-      }
+    /* --- FIXED API Load --- */
+    function loadStations() {
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          const lat = pos.coords.latitude.toFixed(3);
+          const lon = pos.coords.longitude.toFixed(3);
+          request(lat, lon);
+        },
+        () => {
+          // Use fallback only if geolocation fails
+          showStatus("Linz als Standort"); 
+          request(FALLBACK_LOCATION.latitude.toFixed(3), FALLBACK_LOCATION.longitude.toFixed(3));
+        }
+      );
 
-      // 3. Fetch data
-      try {
+      function request(lat, lon) {
         const url = `https://api.e-control.at/sprit/1.0/search/gas-stations/by-address?latitude=${lat}&longitude=${lon}&fuelType=${FUEL_TYPE}&includeClosed=false`;
-        const resp = await fetch(url);
-        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-        const json = await resp.json();
-
-        const stations = json.filter(s => s.prices && s.prices.length);
-        renderStations(stations);
-      } catch (e) {
-        showStatus('Fehler beim Laden');
-        console.error(e);
-      } finally {
-        hideLoader();               // <-- always remove the blocker
+        
+        fetch(url)
+          .then(r => {
+            return r.json();
+          })
+          .then(json => { 
+            renderStations(json); 
+          })
+          .catch(err => {
+            showStatus("Fehler beim Laden");
+          });
       }
     }
 
-    /* --- Widget API Hook --- */
+    /* --- Widget API Hooks --- */
     function __wweb2JsWidgetTitle() { return "TankenAT"; }
 
-    /* start */
+    function __wweb2WaitMillisecondsToWidgetIsReady(currentDelayMs) {
+      if (dataLoaded) {
+          return 0;  // Ready now—take screenshot immediately
+      }
+      return 1000;  // Wait another second, then poll again
+  }
     loadStations();
   </script>
 </body>
