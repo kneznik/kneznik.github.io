@@ -190,16 +190,11 @@
       if(dataLoaded){
         return 0;
       }
-      return 3000;
+      return 3500;
     }
     
-    try {
-      loadStations();
-      dataLoaded = true;
-    } catch(e) {
-      showStatus(e);
-      dataLoaded = true;
-    }
+    setTimeout(() => dataLoaded = true, 500);
+    loadStations();
     
   </script>
 </body>
