@@ -148,13 +148,12 @@
 
     /* --- FIXED API Load --- */
     function loadStations() {
-      
-      //getData(FALLBACK_LOCATION.latitude.toFixed(3), FALLBACK_LOCATION.longitude.toFixed(3));
       if ('geolocation' in navigator) {
         navigator.geolocation.getCurrentPosition(
           pos => {
             const lat = pos.coords.latitude.toFixed(3);
             const lon = pos.coords.longitude.toFixed(3);
+            showStatus('Position wurde ermittelt');
             getData(lat, lon);
           },
           () => {
@@ -199,13 +198,9 @@
       }
       return 1000;
     }
-    try {
-      loadStations();
-      dataLoaded = true
-    } catch(e) {
-      showStatus(e);
-      dataLoaded = true
-    }
+    
+    loadStations();
+    
   </script>
 </body>
 </html>
