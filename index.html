@@ -128,17 +128,17 @@
     const formatFullAddress = l => l ? [l.address, l.postalCode, l.city].filter(Boolean).join(', ') : '';
 
     function renderStations(data) {
-      const stations = data.filter(s => s.prices && s.prices.length);
-      const top = stations.slice(0, items.length);
-
-      items.forEach((item, i) => {
-        const st = top[i];
-        const price = st.prices[0].amount;
-        item.querySelector(i === 0 ? '.price' : '.smallPrice').textContent = formatValue(price);
-        item.querySelector('.name').textContent = st.name || 'Kein Name';
-        item.querySelector('.addr').textContent = formatFullAddress(st.location);
-      });
-
+      const stations = data?.filter(s => s.prices && s.prices.length);
+      const arr = stations?.slice(0, items.length);
+      if(arr?.lenght > 0){
+        items.forEach((item, i) => {
+          const st = arr[i];
+          const price = st.prices[0].amount;
+          item.querySelector(i === 0 ? '.price' : '.smallPrice').textContent = formatValue(price);
+          item.querySelector('.name').textContent = st.name || 'Kein Name';
+          item.querySelector('.addr').textContent = formatFullAddress(st.location);
+        });
+      }
       const now = new Date();
       el('time').textContent =
         now.toLocaleDateString('de-AT') + " " +
@@ -173,7 +173,7 @@
         
         fetch(url)
           .then(r => {
-            renderStations(r.json());
+            renderStations(r?.json());
             dataLoaded = true;
           })
           .catch(err => {
