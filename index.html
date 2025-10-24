@@ -189,11 +189,10 @@
     }
 
     function __wweb2WaitMillisecondsToWidgetIsReady(currentDelayMs) {
-      showStatus(currentDelayMs);
       if (dataLoaded) {
           return 0;
       }
-      return 3000;
+      return 1000;
     }
     
     loadStations();
