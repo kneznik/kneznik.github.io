@@ -198,8 +198,12 @@
       }
       return 1000;
     }
-    
+    try {
     loadStations();
+    } catch(e) {
+      showStatus(e);
+      dataLoaded = true;
+    }
     
   </script>
 </body>
