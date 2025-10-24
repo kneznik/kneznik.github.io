@@ -173,7 +173,7 @@
           })
           .catch(err => {
             dataLoaded = true; 
-            __wweb2Log(JSON.stringify(err));
+            showStatus(JSON.stringfy(err));
             showStatus("Fehler beim Laden: ");
           });
       }
