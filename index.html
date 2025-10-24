@@ -130,7 +130,7 @@
     function renderStations(data) {
       const stations = data?.filter(s => s.prices && s.prices.length);
       const arr = stations?.slice(0, items.length);
-      if(arr?.lenght > 0){
+      if(arr?.length > 0){
         items.forEach((item, i) => {
           const st = arr[i];
           const price = st.prices[0].amount;
@@ -148,7 +148,6 @@
 
     /* --- FIXED API Load --- */
     function loadStations() {
-      showStatus("Linz als Standort");
       
       getData(FALLBACK_LOCATION.latitude.toFixed(3), FALLBACK_LOCATION.longitude.toFixed(3));
       
