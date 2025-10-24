@@ -108,9 +108,9 @@
   <script>
     /* Diesel */
     const FUEL_TYPE = 'DIE';
-
+    
     /* Data loaded indicator */
-    let dataLoaded = false;
+    var dataLoaded = false;
 
     /* -- City LINZ as Fallback Location */
     const FALLBACK_LOCATION = { latitude: 48.265, longitude: 14.287 };
@@ -141,7 +141,6 @@
         now.toLocaleDateString('de-AT') + " " +
         now.toLocaleTimeString('de-AT', { hour: '2-digit', minute: '2-digit' });
     }
-
 
     /* --- FIXED API Load --- */
     function loadStations() {
@@ -188,6 +187,9 @@
     }
 
     function __wweb2WaitMillisecondsToWidgetIsReady(currentDelayMs) {
+      if(dataLoaded){
+        return 0;
+      }
       return 5000;
     }
     
