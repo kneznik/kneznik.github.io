@@ -167,7 +167,7 @@
       */
     }
 
-      function request(lat, lon) {
+      function getData(lat, lon) {
         const url = `https://api.e-control.at/sprit/1.0/search/gas-stations/by-address?latitude=${lat}&longitude=${lon}&fuelType=${FUEL_TYPE}&includeClosed=false`;
         
         fetch(url)
