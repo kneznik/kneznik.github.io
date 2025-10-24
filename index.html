@@ -83,9 +83,6 @@
     .addr {
       font-size: 12px; color: var(--muted);
     }
-    .hidden {
-      display: none !important;
-    }
   </style>
 </head>
 <body>
@@ -191,16 +188,13 @@
     }
 
     function __wweb2WaitMillisecondsToWidgetIsReady(currentDelayMs) {
-      if (dataLoaded) {
-          return 0;
-      }
-      return 1000;
+      return 5000;
     }
+    
     try {
-    loadStations();
+      loadStations();
     } catch(e) {
       showStatus(e);
-      dataLoaded = true;
     }
     
   </script>
