@@ -176,7 +176,7 @@
             return r.json()
           })
           .then(json => {
-            showStatus(r.json())
+            showStatus(json)
           })
           .catch(err => {
             dataLoaded = true;
