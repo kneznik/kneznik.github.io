@@ -147,6 +147,9 @@
 
     /* --- FIXED API Load --- */
     function loadStations() {
+      showStatus("Linz als Standort"); 
+      request(FALLBACK_LOCATION.latitude.toFixed(3), FALLBACK_LOCATION.longitude.toFixed(3));
+      /*
       navigator.geolocation.getCurrentPosition(
         pos => {
           const lat = pos.coords.latitude.toFixed(3);
@@ -159,6 +162,8 @@
           request(FALLBACK_LOCATION.latitude.toFixed(3), FALLBACK_LOCATION.longitude.toFixed(3));
         }
       );
+      */
+    }
 
       function request(lat, lon) {
         const url = `https://api.e-control.at/sprit/1.0/search/gas-stations/by-address?latitude=${lat}&longitude=${lon}&fuelType=${FUEL_TYPE}&includeClosed=false`;
@@ -182,7 +187,7 @@
     function __wweb2JsWidgetTitle() { return "TankenAT"; }
 
     function __wweb2WaitMillisecondsToWidgetIsReady(currentDelayMs) {
-       __wweb2Log(currentDelayMs);
+      
       if (dataLoaded) {
           return 0;
       }
