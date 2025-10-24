@@ -119,6 +119,7 @@
     const FALLBACK_LOCATION = { latitude: 48.265, longitude: 14.287 };
 
     const el = id => document.getElementById(id);
+    
     const items = Array.from(document.querySelectorAll('#list .item'));
 
     /* --- UI Helpers --- */
@@ -147,7 +148,8 @@
 
     /* --- FIXED API Load --- */
     function loadStations() {
-      showStatus("Linz als Standort"); 
+      showStatus("Linz als Standort");
+      
       //request(FALLBACK_LOCATION.latitude.toFixed(3), FALLBACK_LOCATION.longitude.toFixed(3));
       /*
       navigator.geolocation.getCurrentPosition(
