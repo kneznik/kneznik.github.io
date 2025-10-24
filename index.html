@@ -153,7 +153,6 @@
           pos => {
             const lat = pos.coords.latitude.toFixed(3);
             const lon = pos.coords.longitude.toFixed(3);
-            showStatus('Position wurde ermittelt');
             getData(lat, lon);
           },
           () => {
@@ -173,7 +172,6 @@
 
     function getData(lat, lon) {
         const url = `https://api.e-control.at/sprit/1.0/search/gas-stations/by-address?latitude=${lat}&longitude=${lon}&fuelType=${FUEL_TYPE}&includeClosed=false`;
-        
         fetch(url)
           .then(r => {
             return r.json()
