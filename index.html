@@ -150,19 +150,26 @@
     function loadStations() {
       
       //getData(FALLBACK_LOCATION.latitude.toFixed(3), FALLBACK_LOCATION.longitude.toFixed(3));
-      
-      navigator.geolocation.getCurrentPosition(
-        pos => {
-          const lat = pos.coords.latitude.toFixed(3);
-          const lon = pos.coords.longitude.toFixed(3);
-          getData(lat, lon);
-        },
-        () => {
-          // Use fallback only if geolocation fails
-          showStatus("Linz als Standort"); 
-          getData(FALLBACK_LOCATION.latitude.toFixed(3), FALLBACK_LOCATION.longitude.toFixed(3));
-        }
-      );
+      if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          pos => {
+            const lat = pos.coords.latitude.toFixed(3);
+            const lon = pos.coords.longitude.toFixed(3);
+            getData(lat, lon);
+          },
+          () => {
+            fallbackLocation()
+          },
+          { timeout: 7000, maximumAge: 600000 }
+        );
+      } else {
+        fallbackLocation();
+      }
+    }
+    
+    function fallbackLocation() {
+      showStatus("Linz als Standort"); 
+      getData(FALLBACK_LOCATION.latitude.toFixed(3), FALLBACK_LOCATION.longitude.toFixed(3));
     }
 
     function getData(lat, lon) {
