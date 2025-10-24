@@ -142,8 +142,6 @@
       el('time').textContent =
         now.toLocaleDateString('de-AT') + " " +
         now.toLocaleTimeString('de-AT', { hour: '2-digit', minute: '2-digit' });
-        
-      dataLoaded = true;
     }
 
 
@@ -170,22 +168,24 @@
             return r.json();
           })
           .then(json => { 
-            renderStations(json); 
+            renderStations(json);
+            dataLoaded = true; 
           })
           .catch(err => {
+            dataLoaded = true; 
+            __wweb2Log(JSON.stringify(err));
             showStatus("Fehler beim Laden: ");
           });
       }
     }
-
-    /* --- Widget API Hooks --- */
+    
     function __wweb2JsWidgetTitle() { return "TankenAT"; }
 
     function __wweb2WaitMillisecondsToWidgetIsReady(currentDelayMs) {
       if (dataLoaded) {
-          return 0;  // Ready now—take screenshot immediately
+          return 0;
       }
-      return 1000;  // Wait another second, then poll again
+      return 1000;
   }
     loadStations();
   </script>
