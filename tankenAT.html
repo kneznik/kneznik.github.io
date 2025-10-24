@@ -40,7 +40,9 @@
       box-shadow: 0 6px 18px rgba(0,0,0,.06);
       padding: 10px;
     }
-    .status { text-align: center; }
+    .status {
+      text-align: center;
+    }
     .timestamp {
       font-size: 11px;
       color: var(--muted);
@@ -66,11 +68,24 @@
       align-items: center;
       padding: 14px;
     }
-    .price { font-family: Menlo, monospace; font-size: 22px; }
-    .smallPrice { font-family: Menlo, monospace; font-size: 12px; color: var(--muted); }
-    .name { font-weight: 600; }
-    .addr { font-size: 12px; color: var(--muted); }
-    .hidden { display: none !important; }
+    .price {
+      font-family: Menlo, monospace;
+      font-size: 22px;
+    }
+    .smallPrice {
+      font-family: Menlo, monospace;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .name {
+      font-weight: 600;
+    }
+    .addr {
+      font-size: 12px; color: var(--muted);
+    }
+    .hidden {
+      display: none !important;
+    }
   </style>
 </head>
 <body>
@@ -94,9 +109,11 @@
   </div>
 
   <script>
-    /* --- Settings --- */
+    /* Diesel */
     const FUEL_TYPE = 'DIE';
-    const FALLBACK_LOCATION = { latitude: 48.290, longitude: 14.285 };
+
+    /* -- City LINZ as Fallback Location */
+    const FALLBACK_LOCATION = { latitude: 48.265, longitude: 14.287 };
 
     const el = id => document.getElementById(id);
     const items = Array.from(document.querySelectorAll('#list .item'));
@@ -112,8 +129,6 @@
 
       items.forEach((item, i) => {
         const st = top[i];
-        if (!st) return item.classList.add('hidden');
-        item.classList.remove('hidden');
         const price = st.prices[0].amount;
         item.querySelector(i === 0 ? '.price' : '.smallPrice').textContent = formatValue(price);
         item.querySelector('.name').textContent = st.name || 'Kein Name';
@@ -128,8 +143,6 @@
 
     /* --- FIXED API Load --- */
     function loadStations() {
-      showStatus("Lade Daten ...");
-      
       navigator.geolocation.getCurrentPosition(
         pos => {
           const lat = pos.coords.latitude.toFixed(3);
@@ -138,35 +151,31 @@
         },
         () => {
           // Use fallback only if geolocation fails
+          showStatus("Linz als Standort"); 
           request(FALLBACK_LOCATION.latitude.toFixed(3), FALLBACK_LOCATION.longitude.toFixed(3));
         }
       );
 
       function request(lat, lon) {
         const url = `https://api.e-control.at/sprit/1.0/search/gas-stations/by-address?latitude=${lat}&longitude=${lon}&fuelType=${FUEL_TYPE}&includeClosed=false`;
-        console.log("API URL:", url); // Debug line
         
         fetch(url)
           .then(r => {
-            if (!r.ok) throw new Error(`HTTP ${r.status}`);
             return r.json();
           })
           .then(json => { 
             renderStations(json); 
-            showStatus(""); 
           })
           .catch(err => {
-            console.error("API Error:", err);
             showStatus("Fehler beim Laden");
           });
       }
     }
 
-    /* --- Delay for JsWidget Stability --- */
-    setTimeout(loadStations, 600);
-
     /* --- Widget API Hooks --- */
     function __wweb2JsWidgetTitle() { return "TankenAT"; }
+
+    loadStations();
   </script>
 </body>
 </html>
