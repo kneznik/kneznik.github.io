@@ -173,11 +173,8 @@
         
         fetch(url)
           .then(r => {
-            return r.json();
-          })
-          .then(json => { 
-            renderStations(json);
-            dataLoaded = true; 
+            renderStations(r.json());
+            dataLoaded = true;
           })
           .catch(err => {
             dataLoaded = true;
