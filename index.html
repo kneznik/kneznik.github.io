@@ -193,7 +193,11 @@
       return 1000;
     }
     
-    setTimeout(() => dataLoaded = true, 3000);
+    setTimeout(() => {
+      dataLoaded = true
+      setStatus('done')
+    }, 3000);
+    
     loadStations();
     
   </script>
