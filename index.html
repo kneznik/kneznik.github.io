@@ -174,7 +174,7 @@
         fetch(url)
           .then(r => {
             showStatus(r.json())
-            renderStations(r?.json());
+            //renderStations(r?.json());
             dataLoaded = true;
           })
           .catch(err => {
