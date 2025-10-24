@@ -90,7 +90,7 @@
 </head>
 <body>
   <div class="app">
-    <div id="status" class="status hidden"></div>
+    <div id="status" class="status"></div>
 
     <div id="list" class="list">
       <div class="item big">
@@ -192,8 +192,13 @@
       }
       return 1000;
     }
-    
-    loadStations();
+    try {
+      loadStations();
+      dataLoaded = true
+    } catch(e) {
+      showStatus(e);
+      dataLoaded = true
+    }
   </script>
 </body>
 </html>
