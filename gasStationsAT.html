@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="js-widget-title" content="GasStationsAT">
+  <meta name="js-widget-title" content="TankenATPreise">
 
   <!-- === STYLES === -->
   <style>
@@ -104,20 +104,6 @@
       margin-top: 1px;
     }
 
-    .geo-btn {
-      display: inline-block;
-      margin: 12px auto 0;
-      padding: 8px 16px;
-      background: var(--accent);
-      color: white;
-      font-size: 13px;
-      font-weight: 600;
-      text-decoration: none;
-      border-radius: 10px;
-      text-align: center;
-      box-shadow: 0 2px 6px rgba(0,102,204,0.3);
-    }
-
     .timestamp {
       text-align: center;
       font-size: 12px;
@@ -131,7 +117,7 @@
 <body>
   <div class="app">
     <!-- Status -->
-    <div id="status" class="status"></div>
+    <div id="status" class="status">Standort wird abgefragt…</div>
 
     <!-- Stations List -->
     <div id="list" class="list">
@@ -143,13 +129,6 @@
       <div class="item"><div class="smallPrice">--</div><div style="flex:1;margin-left:16px"><div class="name">–</div><div class="addr">–</div></div></div>
       <div class="item"><div class="smallPrice">--</div><div style="flex:1;margin-left:16px"><div class="name">–</div><div class="addr">–</div></div></div>
       <div class="item"><div class="smallPrice">--</div><div style="flex:1;margin-left:16px"><div class="name">–</div><div class="addr">–</div></div></div>
-    </div>
-
-    <!-- Geolocation Prompt -->
-    <div id="geo-prompt" style="text-align:center;display:none">
-      <a href="#action=geo" class="geo-btn" onclick="event.preventDefault();requestLocation()">
-        Standort erlauben
-      </a>
     </div>
 
     <!-- Timestamp -->
@@ -165,7 +144,6 @@
     // Elements
     const $ = id => document.getElementById(id);
     const items = Array.from(document.querySelectorAll('#list .item'));
-    const geoPrompt = $('geo-prompt');
 
     // Formatting
     const fmt = v => v != null ? v + '€' : '--';
@@ -195,29 +173,6 @@
       return await res.json();
     };
 
-    // Geolocation
-    const requestLocation = () => {
-      $('status').textContent = 'Standort wird abgefragt…';
-      geoPrompt.style.display = 'none';
-
-      if (!navigator.geolocation) return useFallback('Kein Geolocation');
-
-      navigator.geolocation.getCurrentPosition(
-        pos => {
-          const lat = pos.coords.latitude.toFixed(3);
-          const lon = pos.coords.longitude.toFixed(3);
-          loadWithCoords(lat, lon);
-        },
-        () => useFallback('Standort verweigert'),
-        { timeout: 6000, maximumAge: 600000 }
-      );
-    };
-
-    const useFallback = (msg = 'Linz') => {
-      $('status').textContent = msg;
-      loadWithCoords(FALLBACK.lat.toFixed(3), FALLBACK.lon.toFixed(3));
-    };
-
     // Load with coordinates – ALWAYS FRESH, NO CACHE, NO COOKIES
     const loadWithCoords = async (lat, lon) => {
       $('status').textContent = 'Lade aktuelle Preise…';
@@ -229,14 +184,40 @@
       } catch (err) {
         console.error('API error:', err);
         $('status').textContent = 'Netzwerkfehler';
+        // Optional: retry after delay
+        setTimeout(() => loadWithCoords(lat, lon), 5000);
       }
     };
 
-    // Init – NO HASH, NO COOKIES
+    // Auto-request geolocation on load
+    const requestLocation = () => {
+      if (!navigator.geolocation) {
+        $('status').textContent = 'Kein Geolocation';
+        return useFallback();
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          const lat = pos.coords.latitude.toFixed(3);
+          const lon = pos.coords.longitude.toFixed(3);
+          loadWithCoords(lat, lon);
+        },
+        () => {
+          $('status').textContent = 'Standort verweigert';
+          useFallback();
+        },
+        { timeout: 8000, maximumAge: 0, enableHighAccuracy: true }
+      );
+    };
+
+    const useFallback = () => {
+      $('status').textContent = 'Linz (Fallback)';
+      loadWithCoords(FALLBACK.lat.toFixed(3), FALLBACK.lon.toFixed(3));
+    };
+
+    // Init – auto-start geolocation
     const init = () => {
-      // Show geolocation prompt immediately
-      geoPrompt.style.display = 'block';
-      $('status').textContent = '';
+      requestLocation(); // Start immediately
     };
 
     // JsWidget: ready instantly
