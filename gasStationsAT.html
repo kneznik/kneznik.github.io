@@ -221,7 +221,7 @@
     };
 
     // JsWidget: ready instantly
-    window.__wweb2WaitMillisecondsToWidgetIsReady = () => 5000;
+    window.__wweb2WaitMillisecondsToWidgetIsReady = (millis) => millis ? 5000 : millis;
 
     // Start
     init();
