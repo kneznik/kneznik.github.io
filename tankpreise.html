@@ -62,11 +62,14 @@
       justify-content: space-between;
       background: rgba(255,255,255,0.4);
       border-radius: 12px;
-      padding: 8px 10px;
+      padding: 0px 10px;
       transition: transform 0.1s;
     }
+    
     @media (prefers-color-scheme: dark) {
-      .item { background: rgba(255,255,255,0.08); }
+      .item {
+        background: rgba(255,255,255,0.08);
+      }
     }
 
     .item.big {
@@ -83,6 +86,7 @@
       font-weight: 700;
       color: #d00;
     }
+    
     .smallPrice {
       font-family: Menlo, monospace;
       font-size: 13px;
