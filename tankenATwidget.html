@@ -3,30 +3,25 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="js-widget-title" content="TankenATWidget">
+  <meta name="js-widget-title" content="TankenAT">
 
-  <!-- === STYLES === -->
   <style>
     :root {
       --text: #000;
-      --muted: #555;
+      --muted: #666;
       --bg: #f8f9fa;
-      --card: rgba(255, 255, 255, 0.65);
+      --card: rgba(255,255,255,0.65);
       --accent: #0066cc;
-      --price: #c00;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
-
     @media (prefers-color-scheme: dark) {
       :root {
-        --text: #f0f0f0;
-        --muted: #aaaaaa;
+        --text: #ededed;
+        --muted: #bbbbbb;
         --bg: #1a1a1a;
-        --card: rgba(40, 40, 40, 0.75);
-        --price: #ff3b30;
+        --card: rgba(40,40,40,0.75);
       }
     }
-
     * { box-sizing: border-box; }
     html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text); }
 
@@ -42,9 +37,9 @@
 
     .status {
       text-align: center;
-      font-size: 15px;
+      font-size: 16px;
       font-weight: 600;
-      margin: 6px 0 14px;
+      margin: 8px 0 14px;
       color: var(--accent);
     }
 
@@ -52,36 +47,46 @@
 
     .item {
       display: flex;
-      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
       background: rgba(255,255,255,0.5);
       border-radius: 14px;
-      padding: 12px 14px;
-      transition: transform 0.12s ease;
+      padding: 10px 12px;
+      transition: transform 0.12s;
     }
     @media (prefers-color-scheme: dark) {
       .item { background: rgba(255,255,255,0.1); }
     }
 
-    .item:nth-child(1) { background: linear-gradient(135deg, rgba(0,102,204,0.15), transparent); }
-    .item:nth-child(2) { background: linear-gradient(135deg, rgba(0,150,0,0.12), transparent); }
-    .item:nth-child(3) { background: linear-gradient(135deg, rgba(200,120,0,0.1), transparent); }
+    .item.big {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 14px;
+      background: linear-gradient(135deg, rgba(0,102,204,0.15), transparent);
+    }
 
     .price {
       font-family: Menlo, Monaco, Consolas, monospace;
       font-size: 32px;
       font-weight: 800;
-      color: var(--price);
+      color: #d00;
       letter-spacing: -0.5px;
-      margin-bottom: 4px;
+    }
+    .smallPrice {
+      font-family: Menlo, monospace;
+      font-size: 15px;
+      color: var(--muted);
+      min-width: 56px;
+      text-align: right;
+      font-weight: 600;
     }
 
     .name {
-      font-size: 17px;
       font-weight: 700;
+      font-size: 18px;
       margin-bottom: 2px;
-      color: var(--text);
     }
-
     .addr {
       font-size: 13px;
       color: var(--muted);
@@ -94,7 +99,7 @@
       padding: 10px 20px;
       background: var(--accent);
       color: white;
-      font-size: 15px;
+      font-size: 16px;
       font-weight: 700;
       text-decoration: none;
       border-radius: 12px;
@@ -105,7 +110,7 @@
 
     .timestamp {
       text-align: center;
-      font-size: 12px;
+      font-size: 13px;
       color: var(--muted);
       margin-top: 18px;
       font-variant: tabular-nums;
@@ -116,43 +121,33 @@
 
 <body>
   <div class="app">
-    <!-- Status -->
     <div id="status" class="status"></div>
 
-    <!-- Top 3 Stations -->
     <div id="list" class="list">
-      <div class="item">
+      <div class: class="item big">
         <div class="price">--</div>
-        <div class="name">–</div>
-        <div class="addr">–</div>
+        <div class="meta"><div class="name">–</div><div class="addr">–</div></div>
       </div>
-      <div class="item">
-        <div class="price">--</div>
-        <div class="name">–</div>
-        <div class="addr">–</div>
-      </div>
-      <div class="item">
-        <div class="price">--</div>
-        <div class="name">–</div>
-        <div class="addr">–</div>
-      </div>
+      <div class="item"><div class="smallPrice">--</div><div style="flex:1;margin-left:16px"><div class="name">–</div><div class="addr">–</div></div></div>
+      <div class="item"><div class="smallPrice">--</div><div style="flex:1;margin-left:16px"><div class="name">–</div><div class="addr">–</div></div></div>
+      <div class="item"><div class="smallPrice">--</div><div style="flex:1;margin-left:16px"><div class="name">–</div><div class="addr">–</div></div></div>
+      <div class="item"><div class="smallPrice">--</div><div style="flex:1;margin-left:16px"><div class="name">–</div><div class="addr">–</div></div></div>
     </div>
 
-    <!-- Geolocation Button -->
     <div id="geo-prompt" style="text-align:center;display:none">
       <a href="#action=geo" class="geo-btn" onclick="event.preventDefault();requestLocation()">
         Standort erlauben
       </a>
     </div>
 
-    <!-- Timestamp -->
     <div id="time" class="timestamp"></div>
   </div>
 
-  <!-- === SCRIPT === -->
   <script>
+    // --- SICHERER FALLBACK ---
     const FUEL_TYPE = 'DIE';
-    const FALLBACK = { lat: 48.265, lon: 14.287 }; // Linz
+    const FALLBACK_LAT = 48.265;  // Linz
+    const FALLBACK_LON = 14.287;
 
     const $ = id => document.getElementById(id);
     const items = Array.from(document.querySelectorAll('#list .item'));
@@ -169,17 +164,16 @@
     const fmt = v => v != null ? v + '€' : '--';
     const addr = l => l ? [l.address, l.postalCode, l.city].filter(Boolean).join(', ') : '–';
 
-    // Render Top 3
+    // Render
     const render = data => {
-      const list = data?.filter(s => s.prices?.length).slice(0, 3) || [];
+      const list = data?.filter(s => s.prices?.length).slice(0, items.length) || [];
       items.forEach((it, i) => {
         const s = list[i];
         const p = s?.prices?.[0]?.amount;
-        it.querySelector('.price').textContent = fmt(p);
+        it.querySelector(i === 0 ? '.price' : '.smallPrice').textContent = fmt(p);
         it.querySelector('.name').textContent = s?.name || '–';
         it.querySelector('.addr').textContent = addr(s?.location);
       });
-
       const now = new Date();
       $('time').textContent = now.toLocaleDateString('de-AT') + ' ' +
                               now.toLocaleTimeString('de-AT', { hour: '2-digit', minute: '2-digit' });
@@ -197,7 +191,6 @@
     const requestLocation = () => {
       $('status').textContent = 'Standort wird abgefragt…';
       geoPrompt.style.display = 'none';
-
       if (!navigator.geolocation) return useFallback('Kein Geolocation');
 
       navigator.geolocation.getCurrentPosition(
@@ -215,7 +208,7 @@
 
     const useFallback = (msg = 'Linz (Fallback)') => {
       $('status').textContent = msg;
-      loadWithCoords(FALLBACK.lat.toFixed(3), FALLBACK.lon.toFixed(3));
+      loadWithCoords(FALLBACK_LAT.toFixed(3), FALLBACK_LON.toFixed(3));
     };
 
     // Load
@@ -243,7 +236,6 @@
       if (p.has('lat') && p.has('lon')) {
         return loadWithCoords(parseFloat(p.get('lat')).toFixed(3), parseFloat(p.get('lon')).toFixed(3));
       }
-
       const lat = getCookie('lastLat');
       const lon = getCookie('lastLon');
       if (lat && lon) return loadWithCoords(lat, lon);
@@ -252,9 +244,7 @@
       geoPrompt.style.display = 'block';
     };
 
-    // JsWidget ready
     window.__wweb2WaitMillisecondsToWidgetIsReady = () => 0;
-
     init();
   </script>
 </body>
