@@ -163,9 +163,9 @@
             return r.json()
           })
           .then(json => {
+            showStatus('');
             renderStations(json);
             dataLoaded = true;
-            showStatus('')
           })
           .catch(err => {
             showStatus(err);
