@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="js-widget-title" content="TankenATWidget">
+
+  <!-- === STYLES === -->
+  <style>
+    :root {
+      --text: #000;
+      --muted: #555;
+      --bg: #f8f9fa;
+      --card: rgba(255, 255, 255, 0.65);
+      --accent: #0066cc;
+      --price: #c00;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --text: #f0f0f0;
+        --muted: #aaaaaa;
+        --bg: #1a1a1a;
+        --card: rgba(40, 40, 40, 0.75);
+        --price: #ff3b30;
+      }
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text); }
+
+    .app {
+      max-width: 380px;
+      margin: 14px auto;
+      padding: 16px;
+      border-radius: 18px;
+      background: var(--card);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+
+    .status {
+      text-align: center;
+      font-size: 15px;
+      font-weight: 600;
+      margin: 6px 0 14px;
+      color: var(--accent);
+    }
+
+    .list { display: flex; flex-direction: column; gap: 14px; margin-top: 8px; }
+
+    .item {
+      display: flex;
+      flex-direction: column;
+      background: rgba(255,255,255,0.5);
+      border-radius: 14px;
+      padding: 12px 14px;
+      transition: transform 0.12s ease;
+    }
+    @media (prefers-color-scheme: dark) {
+      .item { background: rgba(255,255,255,0.1); }
+    }
+
+    .item:nth-child(1) { background: linear-gradient(135deg, rgba(0,102,204,0.15), transparent); }
+    .item:nth-child(2) { background: linear-gradient(135deg, rgba(0,150,0,0.12), transparent); }
+    .item:nth-child(3) { background: linear-gradient(135deg, rgba(200,120,0,0.1), transparent); }
+
+    .price {
+      font-family: Menlo, Monaco, Consolas, monospace;
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--price);
+      letter-spacing: -0.5px;
+      margin-bottom: 4px;
+    }
+
+    .name {
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 2px;
+      color: var(--text);
+    }
+
+    .addr {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .geo-btn {
+      display: inline-block;
+      margin: 16px auto 0;
+      padding: 10px 20px;
+      background: var(--accent);
+      color: white;
+      font-size: 15px;
+      font-weight: 700;
+      text-decoration: none;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 3px 8px rgba(0,102,204,0.3);
+      --wweb2-overlay-btn-press-color: rgba(0,80,160,0.8);
+    }
+
+    .timestamp {
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 18px;
+      font-variant: tabular-nums;
+      letter-spacing: 0.5px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <!-- Status -->
+    <div id="status" class="status"></div>
+
+    <!-- Top 3 Stations -->
+    <div id="list" class="list">
+      <div class="item">
+        <div class="price">--</div>
+        <div class="name">–</div>
+        <div class="addr">–</div>
+      </div>
+      <div class="item">
+        <div class="price">--</div>
+        <div class="name">–</div>
+        <div class="addr">–</div>
+      </div>
+      <div class="item">
+        <div class="price">--</div>
+        <div class="name">–</div>
+        <div class="addr">–</div>
+      </div>
+    </div>
+
+    <!-- Geolocation Button -->
+    <div id="geo-prompt" style="text-align:center;display:none">
+      <a href="#action=geo" class="geo-btn" onclick="event.preventDefault();requestLocation()">
+        Standort erlauben
+      </a>
+    </div>
+
+    <!-- Timestamp -->
+    <div id="time" class="timestamp"></div>
+  </div>
+
+  <!-- === SCRIPT === -->
+  <script>
+    const FUEL_TYPE = 'DIE';
+    const FALLBACK = { lat: 48.265, lon: 14.287 }; // Linz
+
+    const $ = id => document.getElementById(id);
+    const items = Array.from(document.querySelectorAll('#list .item'));
+    const geoPrompt = $('geo-prompt');
+
+    // Cookie
+    const setCookie = (n, v, d = 365) => {
+      const e = new Date(); e.setTime(e.getTime() + d * 864e5);
+      document.cookie = `${n}=${v};expires=${e.toUTCString()};path=/`;
+    };
+    const getCookie = n => document.cookie.match(new RegExp('(^| )' + n + '=([^;]+)'))?.[2] || null;
+
+    // Format
+    const fmt = v => v != null ? v + '€' : '--';
+    const addr = l => l ? [l.address, l.postalCode, l.city].filter(Boolean).join(', ') : '–';
+
+    // Render Top 3
+    const render = data => {
+      const list = data?.filter(s => s.prices?.length).slice(0, 3) || [];
+      items.forEach((it, i) => {
+        const s = list[i];
+        const p = s?.prices?.[0]?.amount;
+        it.querySelector('.price').textContent = fmt(p);
+        it.querySelector('.name').textContent = s?.name || '–';
+        it.querySelector('.addr').textContent = addr(s?.location);
+      });
+
+      const now = new Date();
+      $('time').textContent = now.toLocaleDateString('de-AT') + ' ' +
+                              now.toLocaleTimeString('de-AT', { hour: '2-digit', minute: '2-digit' });
+    };
+
+    // API
+    const fetchStations = async (lat, lon) => {
+      const url = `https://api.e-control.at/sprit/1.0/search/gas-stations/by-address?latitude=${lat}&longitude=${lon}&fuelType=${FUEL_TYPE}&includeClosed=false`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('' + res.status);
+      return await res.json();
+    };
+
+    // Geolocation
+    const requestLocation = () => {
+      $('status').textContent = 'Standort wird abgefragt…';
+      geoPrompt.style.display = 'none';
+
+      if (!navigator.geolocation) return useFallback('Kein Geolocation');
+
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          const lat = pos.coords.latitude.toFixed(3);
+          const lon = pos.coords.longitude.toFixed(3);
+          setCookie('lastLat', lat, 30);
+          setCookie('lastLon', lon, 30);
+          loadWithCoords(lat, lon);
+        },
+        () => useFallback('Standort verweigert'),
+        { timeout: 6000, maximumAge: 600000 }
+      );
+    };
+
+    const useFallback = (msg = 'Linz (Fallback)') => {
+      $('status').textContent = msg;
+      loadWithCoords(FALLBACK.lat.toFixed(3), FALLBACK.lon.toFixed(3));
+    };
+
+    // Load
+    const loadWithCoords = async (lat, lon) => {
+      const key = `cache_${lat}_${lon}`;
+      const cached = getCookie(key);
+      if (cached) try { render(JSON.parse(cached)); } catch {}
+
+      try {
+        $('status').textContent = 'Lade Preise…';
+        const data = await fetchStations(lat, lon);
+        setCookie(key, JSON.stringify(data), 1);
+        render(data);
+        $('status').textContent = '';
+      } catch (err) {
+        __wweb2Log('API error: ' + err);
+        $('status').textContent = 'Netzwerkfehler';
+      }
+    };
+
+    // Init
+    const init = () => {
+      const hash = location.hash.slice(1);
+      const p = new URLSearchParams(hash);
+      if (p.has('lat') && p.has('lon')) {
+        return loadWithCoords(parseFloat(p.get('lat')).toFixed(3), parseFloat(p.get('lon')).toFixed(3));
+      }
+
+      const lat = getCookie('lastLat');
+      const lon = getCookie('lastLon');
+      if (lat && lon) return loadWithCoords(lat, lon);
+
+      $('status').textContent = '';
+      geoPrompt.style.display = 'block';
+    };
+
+    // JsWidget ready
+    window.__wweb2WaitMillisecondsToWidgetIsReady = () => 0;
+
+    init();
+  </script>
+</body>
+</html>
