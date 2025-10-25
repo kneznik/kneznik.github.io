@@ -6,22 +6,14 @@
   <meta name="js-widget-title" content="TankenAT" />
   <style>
     :root {
-      --bg1: #fff;
-      --bg2: #eee;
-      --bg3: #fafafa;
       --text: #000;
       --muted: #666;
-      --accent: #2b8cff;
       font-family: Inter, system-ui, -apple-system;
     }
     @media (prefers-color-scheme: dark) {
       :root {
-        --bg1: #111;
-        --bg2: #222;
-        --bg3: #212121;
         --text: #ededed;
         --muted: #bbb;
-        --accent: #4da3ff;
       }
     }
     html, body {
@@ -57,7 +49,6 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: var(--bg3);
       border-radius: 10px;
       padding: 5px;
     }
@@ -192,7 +183,7 @@
     }
     
     setTimeout(() => {
-      //dataLoaded = true;
+      dataLoaded = true;
     }, 3000);
     
     loadStations();
