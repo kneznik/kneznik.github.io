@@ -177,6 +177,9 @@
     
     function __wweb2WaitMillisecondsToWidgetIsReady(currentDelayMs) {
       showStatus(dataLoaded + ' ' + new Date().toLocaleTimeString());
+      if (dataLoaded){
+        return 0;
+      }
       return 10000;
     }
     
