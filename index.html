@@ -179,14 +179,14 @@
       if(dataLoaded){
         return 0;
       }
-      return 1000;
+      return 0;
     }
     
+    loadStations();
     setTimeout(() => {
       dataLoaded = true;
-    }, 500);
+    });
     
-    loadStations();
     
   </script>
 </body>
