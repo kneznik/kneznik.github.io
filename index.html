@@ -176,11 +176,11 @@
     }
     
     function __wweb2WaitMillisecondsToWidgetIsReady(currentDelayMs) {
-      showStatus(currentDelayMs || 'leer');
+      showStatus(currentDelayMs || dataLoaded);
       return 5000;
     }
+    
     loadStations();
-    dataLoaded = true;
     
   </script>
 </body>
