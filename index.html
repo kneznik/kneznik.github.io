@@ -176,8 +176,8 @@
     }
     
     function __wweb2WaitMillisecondsToWidgetIsReady(currentDelayMs) {
-      showStatus(new Date().toLocaleTimeString());
-      return 5000;
+      showStatus(dataLoaded + ' ' + new Date().toLocaleTimeString());
+      return 10000;
     }
     
     loadStations();
