@@ -6,28 +6,19 @@
   <meta name="js-widget-title" content="TankenAT" />
   <style>
     :root {
-      --bg1: #fff;
-      --bg2: #eee;
-      --bg3: #fafafa;
       --text: #000;
       --muted: #666;
-      --accent: #2b8cff;
       font-family: Inter, system-ui, -apple-system;
     }
     @media (prefers-color-scheme: dark) {
       :root {
-        --bg1: #111;
-        --bg2: #222;
-        --bg3: #212121;
         --text: #ededed;
         --muted: #bbb;
-        --accent: #4da3ff;
       }
     }
     html, body {
       margin: 0;
       height: 100%;
-      background: linear-gradient(180deg, var(--bg1), var(--bg2));
       color: var(--text);
     }
     .app {
@@ -37,7 +28,6 @@
       margin: 8px auto;
       border-radius: 12px;
       background: linear-gradient(180deg, rgba(255,255,255,0.03), transparent);
-      box-shadow: 0 6px 18px rgba(0,0,0,.06);
       padding: 10px;
     }
     .status {
@@ -47,7 +37,7 @@
       font-size: 11px;
       color: var(--muted);
       text-align: center;
-      margin-top: 12px;
+      margin-top: 20px;
     }
     .list {
       display: flex;
@@ -59,14 +49,13 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: var(--bg3);
       border-radius: 10px;
-      padding: 10px;
+      padding: 5px;
     }
     .item.big {
       flex-direction: column;
       align-items: center;
-      padding: 14px;
+      padding: 7px;
     }
     .price {
       font-family: Menlo, monospace;
@@ -83,15 +72,11 @@
     .addr {
       font-size: 12px; color: var(--muted);
     }
-    .hidden {
-      display: none !important;
-    }
   </style>
 </head>
 <body>
   <div class="app">
     <div id="status" class="status"></div>
-    <div id="time" class="timestamp"></div>
 
     <div id="list" class="list">
       <div class="item big">
@@ -105,17 +90,22 @@
       <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:18px;"><div class="name"></div><div class="addr"></div></div></div>
       <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:18px;"><div class="name"></div><div class="addr"></div></div></div>
       <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:18px;"><div class="name"></div><div class="addr"></div></div></div>
-    </div>
+      </div>
+    <div id="time" class="timestamp"></div>
   </div>
 
   <script>
     /* Diesel */
     const FUEL_TYPE = 'DIE';
+    
+    /* Data loaded indicator */
+    var dataLoaded = false;
 
     /* -- City LINZ as Fallback Location */
     const FALLBACK_LOCATION = { latitude: 48.265, longitude: 14.287 };
 
     const el = id => document.getElementById(id);
+    
     const items = Array.from(document.querySelectorAll('#list .item'));
 
     /* --- UI Helpers --- */
@@ -124,17 +114,17 @@
     const formatFullAddress = l => l ? [l.address, l.postalCode, l.city].filter(Boolean).join(', ') : '';
 
     function renderStations(data) {
-      const stations = data.filter(s => s.prices && s.prices.length);
-      const top = stations.slice(0, items.length);
-
-      items.forEach((item, i) => {
-        const st = top[i];
-        const price = st.prices[0].amount;
-        item.querySelector(i === 0 ? '.price' : '.smallPrice').textContent = formatValue(price);
-        item.querySelector('.name').textContent = st.name || 'Kein Name';
-        item.querySelector('.addr').textContent = formatFullAddress(st.location);
-      });
-
+      const stations = data?.filter(s => s.prices && s.prices.length);
+      const arr = stations?.slice(0, items.length);
+      if(arr?.length > 0){
+        items.forEach((item, i) => {
+          const st = arr[i];
+          const price = st.prices[0].amount;
+          item.querySelector(i === 0 ? '.price' : '.smallPrice').textContent = formatValue(price);
+          item.querySelector('.name').textContent = st.name || 'Kein Name';
+          item.querySelector('.addr').textContent = formatFullAddress(st.location);
+        });
+      }
       const now = new Date();
       el('time').textContent =
         now.toLocaleDateString('de-AT') + " " +
@@ -143,39 +133,48 @@
 
     /* --- FIXED API Load --- */
     function loadStations() {
-      navigator.geolocation.getCurrentPosition(
-        pos => {
-          const lat = pos.coords.latitude.toFixed(3);
-          const lon = pos.coords.longitude.toFixed(3);
-          request(lat, lon);
-        },
-        () => {
-          // Use fallback only if geolocation fails
-          showStatus("Linz als Standort"); 
-          request(FALLBACK_LOCATION.latitude.toFixed(3), FALLBACK_LOCATION.longitude.toFixed(3));
-        }
-      );
-
-      function request(lat, lon) {
-        const url = `https://api.e-control.at/sprit/1.0/search/gas-stations/by-address?latitude=${lat}&longitude=${lon}&fuelType=${FUEL_TYPE}&includeClosed=false`;
-        
-        fetch(url)
-          .then(r => {
-            return r.json();
-          })
-          .then(json => { 
-            renderStations(json); 
-          })
-          .catch(err => {
-            showStatus("Fehler beim Laden");
-          });
+      showStatus('Loading...');
+      if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          pos => {
+            const lat = pos.coords.latitude.toFixed(3);
+            const lon = pos.coords.longitude.toFixed(3);
+            getData(lat, lon);
+          },
+          () => {
+            fallbackLocation()
+          },
+          { timeout: 3000 }
+        );
+      } else {
+        fallbackLocation();
       }
     }
+    
+    function fallbackLocation() {
+      showStatus("Linz"); 
+      getData(FALLBACK_LOCATION.latitude.toFixed(3), FALLBACK_LOCATION.longitude.toFixed(3));
+    }
 
-    /* --- Widget API Hooks --- */
-    function __wweb2JsWidgetTitle() { return "TankenAT"; }
-
+    function getData(lat, lon) {
+        const url = `https://api.e-control.at/sprit/1.0/search/gas-stations/by-address?latitude=${lat}&longitude=${lon}&fuelType=${FUEL_TYPE}&includeClosed=false`;
+        fetch(url)
+          .then(r => {
+            return r.json()
+          })
+          .then(json => {
+            showStatus('');
+            renderStations(json);
+            dataLoaded = true;
+          })
+          .catch(err => {
+            showStatus(err);
+            dataLoaded = true;
+          });
+    }
+    
     loadStations();
+    
   </script>
 </body>
 </html>
