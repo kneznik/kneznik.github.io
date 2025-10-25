@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="js-widget-title" content="gasStationsAT">
+  <meta name="js-widget-title" content="GasStationsAT">
 
   <!-- === STYLES === -->
   <style>
@@ -116,7 +116,6 @@
       border-radius: 10px;
       text-align: center;
       box-shadow: 0 2px 6px rgba(0,102,204,0.3);
-      --wweb2-overlay-btn-press-color: rgba(0,80,160,0.7);
     }
 
     .timestamp {
@@ -168,13 +167,6 @@
     const items = Array.from(document.querySelectorAll('#list .item'));
     const geoPrompt = $('geo-prompt');
 
-    // Cookie helpers
-    const setCookie = (n, v, d = 365) => {
-      const e = new Date(); e.setTime(e.getTime() + d * 864e5);
-      document.cookie = `${n}=${v};expires=${e.toUTCString()};path=/`;
-    };
-    const getCookie = n => document.cookie.match(new RegExp('(^| )' + n + '=([^;]+)'))?.[2] || null;
-
     // Formatting
     const fmt = v => v != null ? v + '€' : '--';
     const addr = l => l ? [l.address, l.postalCode, l.city].filter(Boolean).join(', ') : '–';
@@ -214,8 +206,6 @@
         pos => {
           const lat = pos.coords.latitude.toFixed(3);
           const lon = pos.coords.longitude.toFixed(3);
-          setCookie('lastLat', lat, 30);
-          setCookie('lastLon', lon, 30);
           loadWithCoords(lat, lon);
         },
         () => useFallback('Standort verweigert'),
@@ -228,43 +218,25 @@
       loadWithCoords(FALLBACK.lat.toFixed(3), FALLBACK.lon.toFixed(3));
     };
 
-    // Load with coordinates
+    // Load with coordinates – ALWAYS FRESH, NO CACHE, NO COOKIES
     const loadWithCoords = async (lat, lon) => {
-      // ---- ALWAYS FRESH ----------------------------------------------------
-      const key = `cache_${lat}_${lon}`;
-      // Delete any stale cache
-      document.cookie = `${key}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
-    
       $('status').textContent = 'Lade aktuelle Preise…';
-    
+
       try {
         const data = await fetchStations(lat, lon);
-        // ---- NO CACHE -------------------------------------------------------
         render(data);
         $('status').textContent = '';
       } catch (err) {
-        __wweb2Log('API error: ' + err);
+        console.error('API error:', err);
         $('status').textContent = 'Netzwerkfehler';
       }
     };
 
-    // Init
+    // Init – NO HASH, NO COOKIES
     const init = () => {
-      // URL override?
-      const hash = location.hash.slice(1);
-      const p = new URLSearchParams(hash);
-      if (p.has('lat') && p.has('lon')) {
-        return loadWithCoords(parseFloat(p.get('lat')).toFixed(3), parseFloat(p.get('lon')).toFixed(3));
-      }
-
-      // Last known?
-      const lat = getCookie('lastLat');
-      const lon = getCookie('lastLon');
-      if (lat && lon) return loadWithCoords(lat, lon);
-
-      // Show prompt
-      $('status').textContent = '';
+      // Show geolocation prompt immediately
       geoPrompt.style.display = 'block';
+      $('status').textContent = '';
     };
 
     // JsWidget: ready instantly
