@@ -26,7 +26,12 @@
     }
 
     * { box-sizing: border-box; }
-    html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text); }
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+    }
 
     .app {
       max-width: 380px;
@@ -40,13 +45,18 @@
 
     .status {
       text-align: center;
-      font-size: 14px;
+      font-size: 16px;
       margin: 8px 0 12px;
       color: var(--accent);
       font-weight: 500;
     }
 
-    .list { display: flex; flex-direction: column; gap: 11px; margin-top: 6px; }
+    .list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 5px;
+    }
     .item {
       display: flex;
       align-items: center;
@@ -82,8 +92,16 @@
       text-align: right;
     }
 
-    .name { font-weight: 600; font-size: 15px; }
-    .addr { font-size: 11.5px; color: var(--muted); margin-top: 1px; }
+    .name {
+      font-weight: 600;
+      font-size: 18px;
+    }
+    
+    .addr {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 1px;
+    }
 
     .geo-btn {
       display: inline-block;
@@ -102,7 +120,7 @@
 
     .timestamp {
       text-align: center;
-      font-size: 11px;
+      font-size: 12px;
       color: var(--muted);
       margin-top: 16px;
       font-variant: tabular-nums;
@@ -204,7 +222,7 @@
       );
     };
 
-    const useFallback = (msg = 'Linz (Fallback)') => {
+    const useFallback = (msg = 'Linz') => {
       $('status').textContent = msg;
       loadWithCoords(FALLBACK.lat.toFixed(3), FALLBACK.lon.toFixed(3));
     };
