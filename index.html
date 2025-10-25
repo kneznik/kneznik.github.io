@@ -133,6 +133,7 @@
 
     /* --- FIXED API Load --- */
     function loadStations() {
+      showStatus('Loading...');
       if ('geolocation' in navigator) {
         navigator.geolocation.getCurrentPosition(
           pos => {
@@ -164,6 +165,7 @@
           .then(json => {
             renderStations(json);
             dataLoaded = true;
+            showStatus('')
           })
           .catch(err => {
             showStatus(err);
