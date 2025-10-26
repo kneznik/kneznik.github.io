@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="js-widget-title" content="TankenATPreise">
+  <meta name="js-widget-title" content="Tankpreise">
 
   <style>
     :root {
@@ -229,8 +229,7 @@
     };
 
     const init = () => {
-        
-      $('status').textContent = `${document.cookie}`;
+      $('status').textContent = `Cookie: ${document.cookie}`;
       const lat = getCookie('lastLat');
       const lon = getCookie('lastLon');
       if (lat && lon) {
