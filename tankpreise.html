@@ -211,7 +211,7 @@
 
       try {
         let data = await fetchStations(lat, lon);
-        data = cleanedData(data);
+        //data = cleanedData(data);
         setCookie(key, JSON.stringify(data));
         $('status').textContent = `${document.cookie}`;
         render(data);
