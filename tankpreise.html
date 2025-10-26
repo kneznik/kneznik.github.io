@@ -144,7 +144,8 @@
     const setCookie = (n, v, minutes = 1) => {
       const e = new Date();
       e.setTime(e.getTime() + minutes * 60 * 1000);
-      document.cookie = `${n}=${v}; expires=${e.toUTCString()}`;
+      //{value: v, savedAt: Date.now()}
+      document.cookie = `${n}=${v}; expires=${e.toUTCString()}; path=/`;
     };
 
     const getCookie = n => document.cookie.match(new RegExp('(^| )' + n + '=([^;]+)'))?.[2] || null;
