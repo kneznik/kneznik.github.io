@@ -211,6 +211,7 @@
 
       try {
         const data = await fetchStations(lat, lon);
+        data = cleanedData(data);
         setCookie(key, JSON.stringify(data));
         $('status').textContent = `${document.cookie}`;
         render(data);
@@ -218,6 +219,14 @@
           $('status').textContent = 'Unerwarteter Fehler';
       }
     };
+
+    const cleanedData = (data) => {
+        return data.map(s => ({
+            prices: s.prices ? s.prices.map(p => ({ amount: p.amount })) : [],
+            name: s.name,
+            location: s.location
+            }));
+    }
 
     const init = () => {
       $('status').textContent = `${document.cookie}`;
