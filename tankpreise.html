@@ -150,7 +150,7 @@
     const getCookie = n => document.cookie.match(new RegExp('(^| )' + n + '=([^;]+)'))?.[2] || null;
 
     // Formatting
-    const fmt = v => v != null ? v + 'EUR' : '';
+    const fmt = v => v != null ? v + '€' : '';
     const addr = l => l ? [l.address, l.postalCode, l.city].filter(Boolean).join(', ') : '-';
 
     // Render stations
