@@ -221,7 +221,6 @@
             location: s.location
         }));
         setCookie(key, JSON.stringify(cleanedData));
-        $('status').textContent = `${document.cookie}`;
         render(data);
       } catch (err) {
           $('status').textContent = 'Unerwarteter Fehler';
@@ -229,15 +228,14 @@
     };
 
     const init = () => {
-      $('status').textContent = `${document.cookie}`;
       const lat = getCookie('lastLat');
       const lon = getCookie('lastLon');
       if (lat && lon) {
-        //$('status').textContent = `${lat}, ${lon}`;
+        $('status').textContent = `${lat}, ${lon}`;
         return loadWithCoords(lat, lon);
       }
       
-      $('status').textContent = 'Laden...';
+      $('status').textContent = 'Daten werden geladen...';
       requestLocation();
     };
 
