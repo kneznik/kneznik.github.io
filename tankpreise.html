@@ -219,6 +219,7 @@
     };
 
     const init = () => {
+      $('status').textContent = '';
       const lat = getCookie('lastLat');
       const lon = getCookie('lastLon');
       if (lat && lon) {
