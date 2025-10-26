@@ -201,10 +201,9 @@
 
     // Geolocation
     const requestLocation = () => {
-      $('status').textContent = 'Standort wird abgefragt…';
       geoPrompt.style.display = 'none';
 
-      if (!navigator.geolocation) return useFallback('Kein Geolocation');
+      if (!navigator.geolocation) return useFallback();
 
       navigator.geolocation.getCurrentPosition(
         pos => {
@@ -214,7 +213,7 @@
           setCookie('lastLon', lon);
           loadWithCoords(lat, lon);
         },
-        () => useFallback('Standort verweigert'),
+        () => useFallback(),
         { timeout: 6000, maximumAge: 600000 }
       );
     };
@@ -231,11 +230,9 @@
       if (cached) try { render(JSON.parse(cached)); } catch {}
 
       try {
-        $('status').textContent = 'Lade Preise…';
         const data = await fetchStations(lat, lon);
         setCookie(key, JSON.stringify(data));
         render(data);
-        $('status').textContent = '';
       } catch (err) {
         __wweb2Log('API error: ' + err);
         $('status').textContent = 'Netzwerkfehler';
@@ -247,10 +244,11 @@
       // Last known position (valid for 1 day)
       const lat = getCookie('lastLat');
       const lon = getCookie('lastLon');
-      if (lat && lon) return loadWithCoords(lat, lon);
+      if (lat && lon) {
+        $('status').textContent = `${lat}, ${lon}`
+        return loadWithCoords(lat, lon);
+      }
 
-      // Show prompt
-      $('status').textContent = '';
       geoPrompt.style.display = 'block';
     };
 
