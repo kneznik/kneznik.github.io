@@ -212,6 +212,7 @@
       try {
         const data = await fetchStations(lat, lon);
         setCookie(key, JSON.stringify(data));
+        $('status').textContent = `${document.cookie}`;
         render(data);
       } catch (err) {
           $('status').textContent = 'Unerwarteter Fehler';
