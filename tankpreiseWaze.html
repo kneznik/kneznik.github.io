@@ -193,17 +193,18 @@
             const lat = s.location.latitude;
             const lon = s.location.longitude;
             aTag.href = `waze://?ll=${lat},${lon}&navigate=yes`;
+            aTag.onclick = e => {
+                e.preventDefault();
+                window.location.href = aTag.href;
+                setTimeout(() => {
+                    if (document.hidden || document.webkitHidden) return;
+                    window.location.href = `https://waze.com/ul?ll=${lat},${lon}&navigate=yes`;
+                }, 1000);
+        };
         } else {
             aTag.href = '#';
         }
-        aTag.onclick = e => {
-            e.preventDefault();
-            window.location.href = aTag.href;
-            setTimeout(() => {
-            if (document.hidden || document.webkitHidden) return;
-            window.location.href = `https://waze.com/ul?ll=${lat},${lon}&navigate=yes`;
-            }, 1000);
-        };
+        
       });
 
       const now = new Date();
