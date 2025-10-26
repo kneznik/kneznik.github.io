@@ -196,7 +196,11 @@
 
     const useFallback = (msg = 'Linz') => {
       $('status').textContent = msg;
-      loadWithCoords(FALLBACK.lat.toFixed(3), FALLBACK.lon.toFixed(3));
+      const lat = FALLBACK.lat.toFixed(3);
+      const lon = FALLBACK.lon.toFixed(3);
+      setCookie('lastLat', lat);
+      setCookie('lastLon', lon);
+      loadWithCoords(lat, lon);
     };
 
     // Load with coordinates
