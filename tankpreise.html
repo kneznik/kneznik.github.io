@@ -117,13 +117,13 @@
     <!-- Stations List -->
     <div id="list" class="list">
       <div class="item big">
-        <div class="price">--</div>
-        <div class="meta"><div class="name">-</div><div class="addr">-</div></div>
+        <div class="price"></div>
+        <div class="meta"><div class="name"></div><div class="addr"></div></div>
       </div>
-      <div class="item"><div class="smallPrice">--</div><div style="flex:1;margin-left:16px"><div class="name">-</div><div class="addr">-</div></div></div>
-      <div class="item"><div class="smallPrice">--</div><div style="flex:1;margin-left:16px"><div class="name">-</div><div class="addr">-</div></div></div>
-      <div class="item"><div class="smallPrice">--</div><div style="flex:1;margin-left:16px"><div class="name">-</div><div class="addr">-</div></div></div>
-      <div class="item"><div class="smallPrice">--</div><div style="flex:1;margin-left:16px"><div class="name">-</div><div class="addr">-</div></div></div>
+      <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:16px"><div class="name"></div><div class="addr"></div></div></div>
+      <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:16px"><div class="name"></div><div class="addr"></div></div></div>
+      <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:16px"><div class="name"></div><div class="addr"></div></div></div>
+      <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:16px"><div class="name"></div><div class="addr"></div></div></div>
     </div>
 
     <!-- Timestamp -->
@@ -150,7 +150,7 @@
     const getCookie = n => document.cookie.match(new RegExp('(^| )' + n + '=([^;]+)'))?.[2] || null;
 
     // Formatting
-    const fmt = v => v != null ? v + 'EUR' : '--';
+    const fmt = v => v != null ? v + 'EUR' : '';
     const addr = l => l ? [l.address, l.postalCode, l.city].filter(Boolean).join(', ') : '-';
 
     // Render stations
