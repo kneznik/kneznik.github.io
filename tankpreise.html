@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="js-widget-title" content="Tankpreise">
+  <meta name="js-widget-title" content="TankenATPreise">
 
   <style>
     :root {
@@ -141,14 +141,22 @@
     const items = Array.from(document.querySelectorAll('#list .item'));
 
     // Cookie helpers
-    const setCookie = (n, v, minutes = 1) => {
+    const setCookie = (n, v) => {
       const e = new Date();
-      e.setTime(e.getTime() + minutes * 60 * 1000);
-      //{value: v, savedAt: Date.now()}
-      document.cookie = `${n}=${v}; expires=${e.toUTCString()}; path=/`;
+      e.setTime(e.getTime() + 60 * 1000);
+      document.cookie = `${n}=${{value: v, savedAt: Date.now()}}; expires=${e.toUTCString()};`;
     };
 
-    const getCookie = n => document.cookie.match(new RegExp('(^| )' + n + '=([^;]+)'))?.[2] || null;
+    const getCookie = n => {
+        let {value, savedAt} = JSON.parse(document.cookie.match(new RegExp('(^| )' + n + '=([^;]+)'))?.[2] || null);
+        if((Date.now() - savedAt) > (60 * 1000)){
+            deleteCookie(n);
+            return null;
+        }
+        return value;
+    }
+
+    const deleteCookie = n => document.cookie = `${n}=; expires=Thu, 01 Jan 1970 00:00:00 GMT;`;
 
     // Formatting
     const fmt = v => v != null ? v + '€' : '';
@@ -234,10 +242,10 @@
       const lon = getCookie('lastLon');
       if (lat && lon) {
         //$('status').textContent = `${lat}, ${lon}`;
-        //return loadWithCoords(lat, lon);
+        return loadWithCoords(lat, lon);
       }
       
-      //requestLocation();
+      requestLocation();
     };
 
     window.__wweb2WaitMillisecondsToWidgetIsReady = () => 0;
