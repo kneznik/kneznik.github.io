@@ -151,7 +151,7 @@
 
     // Formatting
     const fmt = v => v != null ? v + '€' : '';
-    const addr = l => l ? [l.address, l.postalCode, l.city].filter(Boolean).join(', ') : '-';
+    const addr = l => l ? [l.address, l.postalCode, l.city].filter(Boolean).join(', ') : '';
 
     // Render stations
     const render = data => {
@@ -160,7 +160,7 @@
         const s = list[i];
         const p = s?.prices?.[0]?.amount;
         it.querySelector(i === 0 ? '.price' : '.smallPrice').textContent = fmt(p);
-        it.querySelector('.name').textContent = s?.name || '-';
+        it.querySelector('.name').textContent = s?.name || '';
         it.querySelector('.addr').textContent = addr(s?.location);
       });
 
