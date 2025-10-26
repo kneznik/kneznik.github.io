@@ -133,12 +133,12 @@
     <div id="list" class="list">
       <div class="item big">
         <div class="price">--</div>
-        <div class="meta"><div class="name">–</div><div class="addr">–</div></div>
+        <div class="meta"><div class="name">-</div><div class="addr">-</div></div>
       </div>
-      <div class="item"><div class="smallPrice">--</div><div style="flex:1;margin-left:16px"><div class="name">–</div><div class="addr">–</div></div></div>
-      <div class="item"><div class="smallPrice">--</div><div style="flex:1;margin-left:16px"><div class="name">–</div><div class="addr">–</div></div></div>
-      <div class="item"><div class="smallPrice">--</div><div style="flex:1;margin-left:16px"><div class="name">–</div><div class="addr">–</div></div></div>
-      <div class="item"><div class="smallPrice">--</div><div style="flex:1;margin-left:16px"><div class="name">–</div><div class="addr">–</div></div></div>
+      <div class="item"><div class="smallPrice">--</div><div style="flex:1;margin-left:16px"><div class="name">-</div><div class="addr">-</div></div></div>
+      <div class="item"><div class="smallPrice">--</div><div style="flex:1;margin-left:16px"><div class="name">-</div><div class="addr">-</div></div></div>
+      <div class="item"><div class="smallPrice">--</div><div style="flex:1;margin-left:16px"><div class="name">-</div><div class="addr">-</div></div></div>
+      <div class="item"><div class="smallPrice">--</div><div style="flex:1;margin-left:16px"><div class="name">-</div><div class="addr">-</div></div></div>
     </div>
 
     <!-- Geolocation Prompt -->
@@ -164,16 +164,16 @@
     const geoPrompt = $('geo-prompt');
 
     // Cookie helpers
-    const setCookie = (n, v, d = 365) => {
+    const setCookie = (n, v, minutes = 2) => {
       const e = new Date();
-      e.setTime(e.getTime() + d * 864e5);
+      e.setTime(e.getTime() + minutes * 60 * 1000);
       document.cookie = `${n}=${v};expires=${e.toUTCString()};path=/`;
     };
     const getCookie = n => document.cookie.match(new RegExp('(^| )' + n + '=([^;]+)'))?.[2] || null;
 
     // Formatting
-    const fmt = v => v != null ? v + '€' : '--';
-    const addr = l => l ? [l.address, l.postalCode, l.city].filter(Boolean).join(', ') : '–';
+    const fmt = v => v != null ? v + 'EUR' : '--';
+    const addr = l => l ? [l.address, l.postalCode, l.city].filter(Boolean).join(', ') : '-';
 
     // Render stations
     const render = data => {
@@ -182,7 +182,7 @@
         const s = list[i];
         const p = s?.prices?.[0]?.amount;
         it.querySelector(i === 0 ? '.price' : '.smallPrice').textContent = fmt(p);
-        it.querySelector('.name').textContent = s?.name || '–';
+        it.querySelector('.name').textContent = s?.name || '-';
         it.querySelector('.addr').textContent = addr(s?.location);
       });
 
@@ -210,8 +210,8 @@
         pos => {
           const lat = pos.coords.latitude.toFixed(3);
           const lon = pos.coords.longitude.toFixed(3);
-          setCookie('lastLat', lat, 30);
-          setCookie('lastLon', lon, 30);
+          setCookie('lastLat', lat, 1440); // 1440 minutes = 1 day
+          setCookie('lastLon', lon, 1440);
           loadWithCoords(lat, lon);
         },
         () => useFallback('Standort verweigert'),
@@ -233,7 +233,7 @@
       try {
         $('status').textContent = 'Lade Preise…';
         const data = await fetchStations(lat, lon);
-        setCookie(key, JSON.stringify(data), 1);
+        setCookie(key, JSON.stringify(data), 2); // 2 minutes
         render(data);
         $('status').textContent = '';
       } catch (err) {
@@ -244,14 +244,7 @@
 
     // Init
     const init = () => {
-      // URL override?
-      const hash = location.hash.slice(1);
-      const p = new URLSearchParams(hash);
-      if (p.has('lat') && p.has('lon')) {
-        return loadWithCoords(parseFloat(p.get('lat')).toFixed(3), parseFloat(p.get('lon')).toFixed(3));
-      }
-
-      // Last known?
+      // Last known position (valid for 1 day)
       const lat = getCookie('lastLat');
       const lon = getCookie('lastLon');
       if (lat && lon) return loadWithCoords(lat, lon);
