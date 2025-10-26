@@ -210,8 +210,8 @@
         pos => {
           const lat = pos.coords.latitude.toFixed(3);
           const lon = pos.coords.longitude.toFixed(3);
-          setCookie('lastLat', lat, 1440); // 1440 minutes = 1 day
-          setCookie('lastLon', lon, 1440);
+          setCookie('lastLat', lat);
+          setCookie('lastLon', lon);
           loadWithCoords(lat, lon);
         },
         () => useFallback('Standort verweigert'),
@@ -233,7 +233,7 @@
       try {
         $('status').textContent = 'Lade Preise…';
         const data = await fetchStations(lat, lon);
-        setCookie(key, JSON.stringify(data), 2); // 2 minutes
+        setCookie(key, JSON.stringify(data));
         render(data);
         $('status').textContent = '';
       } catch (err) {
