@@ -180,8 +180,6 @@
 
     // Geolocation
     const requestLocation = () => {
-      $('status').textContent = 'Lade Standort...';
-
       if (!navigator.geolocation) return useFallbackLoc();
 
       navigator.geolocation.getCurrentPosition(
@@ -209,11 +207,9 @@
       if (cached) try { render(JSON.parse(cached)); } catch {}
 
       try {
-        $('status').textContent = 'Lade Preise...';
         const data = await fetchStations(lat, lon);
         setCookie(key, JSON.stringify(data));
         render(data);
-        $('status').textContent = '';
       } catch (err) {
         $('status').textContent = 'Unerwarteter Fehler';
       }
@@ -221,11 +217,12 @@
 
     // Init
     const init = () => {
-      // Last known position (valid for 1 day)
       const lat = getCookie('lastLat');
       const lon = getCookie('lastLon');
-      if (lat && lon)
+      if (lat && lon) {
+        $('status').textContent = `${lat}, ${lon}`
         return loadWithCoords(lat, lon);
+      }
       requestLocation();
     };
 
