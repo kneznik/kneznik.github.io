@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="js-widget-title" content="TankenATPreise">
 
-  <!-- === STYLES === -->
   <style>
     :root {
       --text: #000;
@@ -21,7 +20,9 @@
       }
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
     
     html, body {
       margin: 0;
@@ -100,21 +101,6 @@
       margin-top: 1px;
     }
 
-    .geo-btn {
-      display: inline-block;
-      margin: 12px auto 0;
-      padding: 8px 16px;
-      background: var(--accent);
-      color: white;
-      font-size: 13px;
-      font-weight: 600;
-      text-decoration: none;
-      border-radius: 10px;
-      text-align: center;
-      box-shadow: 0 2px 6px rgba(0,102,204,0.3);
-      --wweb2-overlay-btn-press-color: rgba(0,80,160,0.7);
-    }
-
     .timestamp {
       text-align: center;
       font-size: 12px;
@@ -142,13 +128,6 @@
       <div class="item"><div class="smallPrice">--</div><div style="flex:1;margin-left:16px"><div class="name">-</div><div class="addr">-</div></div></div>
     </div>
 
-    <!-- Geolocation Prompt -->
-    <div id="geo-prompt" style="text-align:center;display:none">
-      <a href="#action=geo" class="geo-btn" onclick="event.preventDefault();requestLocation()">
-        Standort erlauben
-      </a>
-    </div>
-
     <!-- Timestamp -->
     <div id="time" class="timestamp"></div>
   </div>
@@ -162,14 +141,14 @@
     // Elements
     const $ = id => document.getElementById(id);
     const items = Array.from(document.querySelectorAll('#list .item'));
-    const geoPrompt = $('geo-prompt');
 
     // Cookie helpers
-    const setCookie = (n, v, minutes = 2) => {
+    const setCookie = (n, v, minutes = 1) => {
       const e = new Date();
       e.setTime(e.getTime() + minutes * 60 * 1000);
       document.cookie = `${n}=${v};expires=${e.toUTCString()};path=/`;
     };
+
     const getCookie = n => document.cookie.match(new RegExp('(^| )' + n + '=([^;]+)'))?.[2] || null;
 
     // Formatting
@@ -200,11 +179,10 @@
       return await res.json();
     };
 
-    // Geolocation
     const requestLocation = () => {
-      geoPrompt.style.display = 'none';
-
-      if (!navigator.geolocation) return useFallback();
+      if (!navigator.geolocation) {
+         return useFallback();
+      }
 
       navigator.geolocation.getCurrentPosition(
         pos => {
@@ -235,28 +213,22 @@
         setCookie(key, JSON.stringify(data));
         render(data);
       } catch (err) {
-        __wweb2Log('API error: ' + err);
-        $('status').textContent = 'Netzwerkfehler';
+        $('status').textContent = 'Unerwarteter Fehler';
       }
     };
 
-    // Init
     const init = () => {
-      // Last known position (valid for 1 day)
       const lat = getCookie('lastLat');
       const lon = getCookie('lastLon');
       if (lat && lon) {
         $('status').textContent = `${lat}, ${lon}`
         return loadWithCoords(lat, lon);
       }
-
-      geoPrompt.style.display = 'block';
+      requestLocation();
     };
 
-    // JsWidget: ready instantly
     window.__wweb2WaitMillisecondsToWidgetIsReady = () => 0;
 
-    // Start
     init();
   </script>
 </body>
