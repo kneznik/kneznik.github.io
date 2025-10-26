@@ -253,6 +253,7 @@
     };
 
     const init = () => {
+      $('status').textContent = `Cookie: ${document.cookie}`;
       const lat = getCookie('lastLat');
       const lon = getCookie('lastLon');
       if (lat && lon) {
@@ -260,7 +261,6 @@
         return loadWithCoords(lat, lon);
       }
       
-      $('status').textContent = 'Daten werden geladen...';
       requestLocation();
     };
 
