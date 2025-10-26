@@ -148,12 +148,21 @@
     };
 
     const getCookie = n => {
-        let {value: v, savedAt: d} = JSON.parse(document.cookie.match(new RegExp('(^| )' + n + '=([^;]+)'))?.[2] || {value: null, savedAt: Date.now()});
-        if((Date.now() - d) > (60 * 1000)){
-            deleteCookie(n);
+        let match = document.cookie.match(new RegExp('(^| )' + n + '=([^;]+)'))?.[2] || null;
+        if (!match)
             return null;
+        let r = null;
+        try{
+            const {value: v, savedAt: d} = JSON.parse(match);
+            if(Date.now() - d >= 60 * 1000){
+                deleteCookie(n);
+            } else {
+                r = v;
+            }
+        } catch(err){
+            deleteCookie(n);
         }
-        return v;
+        return r;
     }
 
     const deleteCookie = n => document.cookie = `${n}=; expires=Thu, 01 Jan 1970 00:00:00 GMT;`;
