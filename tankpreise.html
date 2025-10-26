@@ -233,7 +233,7 @@
       const lat = getCookie('lastLat');
       const lon = getCookie('lastLon');
       if (lat && lon) {
-        $('status').textContent = `${lat}, ${lon}`;
+        //$('status').textContent = `${lat}, ${lon}`;
         return loadWithCoords(lat, lon);
       }
       
