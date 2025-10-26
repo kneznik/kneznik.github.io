@@ -204,14 +204,20 @@
     const loadWithCoords = async (lat, lon) => {
       const key = `cache_${lat}_${lon}`;
       const cached = getCookie(key);
-      if (cached) try { render(JSON.parse(cached)); } catch {}
+      if (cached) {
+        try {
+            render(JSON.parse(cached));
+        } catch {
+
+        }
+      }
 
       try {
         const data = await fetchStations(lat, lon);
         setCookie(key, JSON.stringify(data));
         render(data);
       } catch (err) {
-        $('status').textContent = 'Unerwarteter Fehler';
+          $('status').textContent = 'Unerwarteter Fehler';
       }
     };
 
