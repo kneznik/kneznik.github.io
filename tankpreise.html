@@ -144,7 +144,8 @@
     const setCookie = (n, v) => {
       const e = new Date();
       e.setTime(e.getTime() + 60 * 1000);
-      document.cookie = `${n}=${{value: v, savedAt: Date.now()}}; expires=${e.toUTCString()};`;
+      let data = {value: v, savedAt: Date.now()};
+      document.cookie = `${n}=${JSON.stringify(data)}; expires=${e.toUTCString()};`;
     };
 
     const getCookie = n => {
