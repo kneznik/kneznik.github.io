@@ -117,13 +117,13 @@
     <!-- Stations List -->
     <div id="list" class="list">
       <div class="item big">
-        <div class="price">--</div>
-        <div class="meta"><div class="name">-</div><div class="addr">-</div></div>
+        <div class="price"></div>
+        <div class="meta"><div class="name"></div><div class="addr"></div></div>
       </div>
-      <div class="item"><div class="smallPrice">--</div><div style="flex:1;margin-left:16px"><div class="name">-</div><div class="addr">-</div></div></div>
-      <div class="item"><div class="smallPrice">--</div><div style="flex:1;margin-left:16px"><div class="name">-</div><div class="addr">-</div></div></div>
-      <div class="item"><div class="smallPrice">--</div><div style="flex:1;margin-left:16px"><div class="name">-</div><div class="addr">-</div></div></div>
-      <div class="item"><div class="smallPrice">--</div><div style="flex:1;margin-left:16px"><div class="name">-</div><div class="addr">-</div></div></div>
+      <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:16px"><div class="name">-</div><div class="addr">-</div></div></div>
+      <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:16px"><div class="name">-</div><div class="addr">-</div></div></div>
+      <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:16px"><div class="name">-</div><div class="addr">-</div></div></div>
+      <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:16px"><div class="name">-</div><div class="addr">-</div></div></div>
     </div>
 
     <!-- Timestamp -->
@@ -178,9 +178,9 @@
 
     // Geolocation
     const requestLocation = () => {
-      $('status').textContent = 'Standort wird abgefragt…';
+      $('status').textContent = 'Lade Standort...';
 
-      if (!navigator.geolocation) return useFallback();
+      if (!navigator.geolocation) return useFallbackLoc();
 
       navigator.geolocation.getCurrentPosition(
         pos => {
@@ -190,12 +190,12 @@
           setCookie('lastLon', lon);
           loadWithCoords(lat, lon);
         },
-        () => useFallback(),
+        () => useFallbackLoc(),
         { timeout: 6000, maximumAge: 600000 }
       );
     };
 
-    const useFallback = (msg = 'Linz') => {
+    const useFallbackLoc = (msg = 'Linz') => {
       $('status').textContent = msg;
       loadWithCoords(FALLBACK.lat.toFixed(3), FALLBACK.lon.toFixed(3));
     };
@@ -207,14 +207,13 @@
       if (cached) try { render(JSON.parse(cached)); } catch {}
 
       try {
-        $('status').textContent = 'Lade Preise…';
+        $('status').textContent = 'Lade Preise...';
         const data = await fetchStations(lat, lon);
         setCookie(key, JSON.stringify(data));
         render(data);
         $('status').textContent = '';
       } catch (err) {
-        __wweb2Log('API error: ' + err);
-        $('status').textContent = 'Netzwerkfehler';
+        $('status').textContent = 'Unerwarteter Fehler';
       }
     };
 
@@ -225,7 +224,7 @@
       const lon = getCookie('lastLon');
       if (lat && lon)
         return loadWithCoords(lat, lon);
-
+      requestLocation();
     };
 
     // JsWidget: ready instantly
