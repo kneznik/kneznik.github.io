@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="js-widget-title" content="TankenATPreise">
+  <meta name="js-widget-title" content="tankpreiseWaze">
 
   <style>
     :root {
@@ -116,14 +116,14 @@
 
     <!-- Stations List -->
     <div id="list" class="list">
-      <div class="item big">
+      <a href="#" class="item big">
         <div class="price"></div>
         <div class="meta"><div class="name"></div><div class="addr"></div></div>
-      </div>
-      <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:16px"><div class="name"></div><div class="addr"></div></div></div>
-      <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:16px"><div class="name"></div><div class="addr"></div></div></div>
-      <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:16px"><div class="name"></div><div class="addr"></div></div></div>
-      <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:16px"><div class="name"></div><div class="addr"></div></div></div>
+      </a>
+      <a href="#" class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:16px"><div class="name"></div><div class="addr"></div></div></a>
+      <a href="#" class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:16px"><div class="name"></div><div class="addr"></div></div></a>
+      <a href="#" class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:16px"><div class="name"></div><div class="addr"></div></div></a>
+      <a href="#" class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:16px"><div class="name"></div><div class="addr"></div></div></a>
     </div>
 
     <!-- Timestamp -->
@@ -181,12 +181,20 @@
     // Render stations
     const render = data => {
       const list = data?.filter(s => s.prices?.length).slice(0, items.length) || [];
-      items.forEach((it, i) => {
+      items.forEach((aTag, i) => {
         const s = list[i];
         const p = s?.prices?.[0]?.amount;
-        it.querySelector(i === 0 ? '.price' : '.smallPrice').textContent = fmt(p);
-        it.querySelector('.name').textContent = s?.name || '';
-        it.querySelector('.addr').textContent = addr(s?.location);
+        aTag.querySelector(i === 0 ? '.price' : '.smallPrice').textContent = fmt(p);
+        aTag.querySelector('.name').textContent = s?.name || '';
+        aTag.querySelector('.addr').textContent = addr(s?.location);
+        if (s?.location?.latitude && s?.location?.longitude) {
+            const lat = s.location.latitude;
+            const lon = s.location.longitude;
+            aTag.href = `https://waze.com/ul?ll=${lat},${lon}&navigate=yes`;
+        } else {
+            aTag.href = '#';
+        }
+        aTag.onclick = e => e.preventDefault();
       });
 
       const now = new Date();
