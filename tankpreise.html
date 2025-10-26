@@ -165,8 +165,7 @@
       });
 
       const now = new Date();
-      $('time').textContent = now.toLocaleDateString('de-AT') + ' ' +
-                              now.toLocaleTimeString('de-AT', { hour: '2-digit', minute: '2-digit' });
+      $('time').textContent = now.toLocaleDateString('de-AT') + ' ' + now.toLocaleTimeString('de-AT', { hour: '2-digit', minute: '2-digit' });
     };
 
     // API
@@ -207,9 +206,7 @@
       if (cached) {
         try {
             render(JSON.parse(cached));
-        } catch {
-
-        }
+        } catch {}
       }
 
       try {
@@ -225,9 +222,11 @@
       const lat = getCookie('lastLat');
       const lon = getCookie('lastLon');
       if (lat && lon) {
-        $('status').textContent = `${lat}, ${lon}`
+        $('status').textContent = `${lat}, ${lon}`;
         return loadWithCoords(lat, lon);
       }
+      
+      $('status').textContent = 'Refreshing';
       requestLocation();
     };
 
