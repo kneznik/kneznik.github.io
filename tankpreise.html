@@ -144,11 +144,16 @@
     const setCookie = (n, v) => {
       const e = new Date();
       e.setTime(e.getTime() + 60 * 1000);
-      let data = {value: v, savedAt: Date.now()};
-      document.cookie = `${n}=${JSON.stringify(data)}; expires=${e.toUTCString()};`;
+      document.cookie = `${n}=${v}; expires=${e.toUTCString()};`;
+      return;
+
+      let s = {value: v, savedAt: Date.now()};
+      document.cookie = `${n}=${JSON.stringify(s)}; expires=${e.toUTCString()};`;
     };
 
     const getCookie = n => {
+        return  document.cookie.match(new RegExp('(^| )' + n + '=([^;]+)'))?.[2] || null;
+
         let match = document.cookie.match(new RegExp('(^| )' + n + '=([^;]+)'))?.[2] || null;
         if (!match)
             return null;
