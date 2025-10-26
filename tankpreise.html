@@ -144,7 +144,7 @@
     const setCookie = (n, v, minutes = 1) => {
       const e = new Date();
       e.setTime(e.getTime() + minutes * 60 * 1000);
-      document.cookie = `${n}=${v}; expires=${e.toUTCString()}`;
+      document.cookie = `${n}=${escape(v)}; expires=${e.toUTCString()}`;
     };
 
     const getCookie = n => document.cookie.match(new RegExp('(^| )' + n + '=([^;]+)'))?.[2] || null;
@@ -210,7 +210,7 @@
       }
 
       try {
-        const data = await fetchStations(lat, lon);
+        let data = await fetchStations(lat, lon);
         data = cleanedData(data);
         setCookie(key, JSON.stringify(data));
         $('status').textContent = `${document.cookie}`;
