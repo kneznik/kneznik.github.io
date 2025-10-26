@@ -225,11 +225,10 @@
       const lon = getCookie('lastLon');
       if (lat && lon) {
         //$('status').textContent = `${lat}, ${lon}`;
-        //return loadWithCoords(lat, lon);
-        return;
+        return loadWithCoords(lat, lon);
       }
       
-      $('status').textContent = 'Daten laden...';
+      $('status').textContent = 'Laden...';
       requestLocation();
     };
 
