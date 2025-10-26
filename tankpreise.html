@@ -224,11 +224,11 @@
       const lon = getCookie('lastLon');
       if (lat && lon) {
         //$('status').textContent = `${lat}, ${lon}`;
-        return loadWithCoords(lat, lon);
+        //return loadWithCoords(lat, lon);
       }
       
       $('status').textContent = 'Daten laden...';
-      requestLocation();
+      //requestLocation();
     };
 
     window.__wweb2WaitMillisecondsToWidgetIsReady = () => 0;
