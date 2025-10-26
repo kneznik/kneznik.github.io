@@ -144,10 +144,10 @@
     const setCookie = (n, v, minutes = 1) => {
       const e = new Date();
       e.setTime(e.getTime() + minutes * 60 * 1000);
-      document.cookie = `${n}=${escape(v)}; expires=${e.toUTCString()}`;
+      document.cookie = `${n}=${v}; expires=${e.toUTCString()}`;
     };
 
-    const getCookie = n => unescape(document.cookie.match(new RegExp('(^| )' + n + '=([^;]+)'))?.[2] || null);
+    const getCookie = n => document.cookie.match(new RegExp('(^| )' + n + '=([^;]+)'))?.[2] || null;
 
     // Formatting
     const fmt = v => v != null ? v + '€' : '';
