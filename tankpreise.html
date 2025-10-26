@@ -148,12 +148,12 @@
     };
 
     const getCookie = n => {
-        let {value, savedAt} = JSON.parse(document.cookie.match(new RegExp('(^| )' + n + '=([^;]+)'))?.[2] || null);
-        if((Date.now() - savedAt) > (60 * 1000)){
+        let {value: v, savedAt: d} = JSON.parse(document.cookie.match(new RegExp('(^| )' + n + '=([^;]+)'))?.[2] || null);
+        if((Date.now() - d) > (60 * 1000)){
             deleteCookie(n);
             return null;
         }
-        return value;
+        return v;
     }
 
     const deleteCookie = n => document.cookie = `${n}=; expires=Thu, 01 Jan 1970 00:00:00 GMT;`;
