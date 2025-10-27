@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="js-widget-title" content="tankpreiseWaze">
+  <meta name="js-widget-title" content="tankpreiseCopy">
 
   <style>
     :root {
@@ -193,7 +193,6 @@
         if (s?.location?.latitude && s?.location?.longitude) {
             const lat = s.location.latitude;
             const lon = s.location.longitude;
-            //aTag.href = `https://waze.com/ul?ll=${lat},${lon}&navigate=yes`;
             aTag.onclick = e => {
               navigator.clipboard.writeText(addy);
             };
