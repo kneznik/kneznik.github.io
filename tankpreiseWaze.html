@@ -137,7 +137,7 @@
     // Config
     const FUEL_TYPE = 'DIE';
     const FALLBACK = { lat: 48.265, lon: 14.287 }; // Linz
-    const cookieTime = 1;
+    const cookieTime = 1440;
 
     // Elements
     const $ = id => document.getElementById(id);
@@ -192,9 +192,11 @@
         if (s?.location?.latitude && s?.location?.longitude) {
             const lat = s.location.latitude;
             const lon = s.location.longitude;
-            aTag.href = `https://waze.com/ul?ll=${lat},${lon}&navigate=yes`;
+            //aTag.href = `https://waze.com/ul?ll=${lat},${lon}&navigate=yes`;
             aTag.onclick = e => {
-              window.location.href = `waze://?ll=${lat},${lon}&navigate=yes`;
+              const wazeUrl = `https://waze.com/ul?ll=${lat},${lon}&navigate=yes`;
+              window.open(wazeUrl, '_blank');
+                //window.location.href = `waze://?ll=${lat},${lon}&navigate=yes`;
                 //e.preventDefault();
                 //window.location.href = aTag.href;
                 // setTimeout(() => {
