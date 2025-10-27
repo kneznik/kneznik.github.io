@@ -189,7 +189,7 @@
           s.name = s?.name?.replaceAll('ss', 'ß');
         }
         if(s?.location?.address){
-          s?.location?.address = s?.location?.address?.replaceAll('ss', 'ß');
+          s.location.address = s?.location?.address?.replaceAll('ss', 'ß');
         }
         const addy = addr(s?.location);
         it.querySelector(i === 0 ? '.price' : '.smallPrice').textContent = fmt(p);
