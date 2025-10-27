@@ -136,7 +136,6 @@
     const FUEL_TYPE = 'DIE';
     const FALLBACK = { lat: 48.265, lon: 14.287 }; // Linz
     const cookieTime = 1440;
-    let dataLoaded = false;
 
     // Elements
     const $ = id => document.getElementById(id);
@@ -282,13 +281,12 @@ const randomLinzCoords = () => {
       } catch (err) {
           $('status').textContent = 'Unerwarteter Fehler';
       } finally {
-        dataLoaded = true;
+        
       }
     };
 
     const init = () => {
       //$('status').textContent = `Cookie: ${document.cookie}`;
-      dataLoaded = false;
       const lat = getCookie('lastLat');
       const lon = getCookie('lastLon');
       if (lat && lon) {
@@ -299,7 +297,7 @@ const randomLinzCoords = () => {
       requestLocation();
     };
 
-    window.__wweb2WaitMillisecondsToWidgetIsReady = () => dataLoaded ? 0 : 1000;
+    //window.__wweb2WaitMillisecondsToWidgetIsReady = () => 1000;
 
     init();
   </script>
