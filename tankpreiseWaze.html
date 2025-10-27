@@ -137,7 +137,7 @@
     // Config
     const FUEL_TYPE = 'DIE';
     const FALLBACK = { lat: 48.265, lon: 14.287 }; // Linz
-    const cookieTime = 1440;
+    const cookieTime = 1;
 
     // Elements
     const $ = id => document.getElementById(id);
@@ -188,21 +188,14 @@
         const p = s?.prices?.[0]?.amount;
         aTag.querySelector(i === 0 ? '.price' : '.smallPrice').textContent = fmt(p);
         aTag.querySelector('.name').textContent = s?.name || '';
-        aTag.querySelector('.addr').textContent = addr(s?.location);
+        const addy = addr(s?.location);
+        aTag.querySelector('.addr').textContent = addy;
         if (s?.location?.latitude && s?.location?.longitude) {
             const lat = s.location.latitude;
             const lon = s.location.longitude;
             //aTag.href = `https://waze.com/ul?ll=${lat},${lon}&navigate=yes`;
             aTag.onclick = e => {
-              const wazeUrl = `https://waze.com/ul?ll=${lat},${lon}&navigate=yes`;
-              window.open(wazeUrl, '_blank');
-                //window.location.href = `waze://?ll=${lat},${lon}&navigate=yes`;
-                //e.preventDefault();
-                //window.location.href = aTag.href;
-                // setTimeout(() => {
-                //    if (document.hidden || document.webkitHidden) return;
-                //    window.location.href = `https://waze.com/ul?ll=${lat},${lon}&navigate=yes`;
-                //}, 1000);
+              navigator.clipboard.writeText(addy);
             };
         } else {
             aTag.href = '#';
