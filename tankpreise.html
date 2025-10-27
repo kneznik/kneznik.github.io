@@ -237,6 +237,7 @@ const randomLinzCoords = () => {
       
       navigator.geolocation.getCurrentPosition(
         pos => {
+          dataLoaded = false;
           //const lat = pos.coords.latitude.toFixed(3);
           //const lon = pos.coords.longitude.toFixed(3);
           
@@ -244,7 +245,7 @@ const randomLinzCoords = () => {
     
           setCookie('lastLat', lat);
           setCookie('lastLon', lon);
-          loadWithCoords(lat, lon);
+          //loadWithCoords(lat, lon);
         },
         () => useFallback(),
         { timeout: 6000, maximumAge: 600000 }
@@ -257,7 +258,7 @@ const randomLinzCoords = () => {
       const lon = FALLBACK.lon.toFixed(3);
       setCookie('lastLat', lat);
       setCookie('lastLon', lon);
-      loadWithCoords(lat, lon);
+      //loadWithCoords(lat, lon);
     };
 
     // Load with coordinates
