@@ -258,7 +258,7 @@
       const lon = getCookie('lastLon');
       if (lat && lon) {
         $('status').textContent = `${lat}, ${lon}`;
-        return loadWithCoords(lat, lon);
+        loadWithCoords(lat, lon);
       }
       
       requestLocation();
