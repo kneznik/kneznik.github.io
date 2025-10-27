@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="js-widget-title" content="TankenATPreise">
+  <meta name="js-widget-title" content="tankpreiseWaze">
 
   <style>
     :root {
@@ -59,6 +59,8 @@
       border-radius: 12px;
       padding: 0px 10px;
       transition: transform 0.1s;
+      color: inherit;
+      text-decoration: none;
     }
     
     @media (prefers-color-scheme: dark) {
@@ -116,14 +118,14 @@
 
     <!-- Stations List -->
     <div id="list" class="list">
-      <div class="item big">
+      <a href="#" class="item big">
         <div class="price"></div>
         <div class="meta"><div class="name"></div><div class="addr"></div></div>
-      </div>
-      <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:16px"><div class="name"></div><div class="addr"></div></div></div>
-      <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:16px"><div class="name"></div><div class="addr"></div></div></div>
-      <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:16px"><div class="name"></div><div class="addr"></div></div></div>
-      <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:16px"><div class="name"></div><div class="addr"></div></div></div>
+      </a>
+      <a href="#" class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:16px"><div class="name"></div><div class="addr"></div></div></a>
+      <a href="#" class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:16px"><div class="name"></div><div class="addr"></div></div></a>
+      <a href="#" class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:16px"><div class="name"></div><div class="addr"></div></div></a>
+      <a href="#" class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:16px"><div class="name"></div><div class="addr"></div></div></a>
     </div>
 
     <!-- Timestamp -->
@@ -135,7 +137,7 @@
     // Config
     const FUEL_TYPE = 'DIE';
     const FALLBACK = { lat: 48.265, lon: 14.287 }; // Linz
-    const cookieTime = 1440;
+    const cookieTime = 1;
 
     // Elements
     const $ = id => document.getElementById(id);
@@ -177,16 +179,29 @@
     // Formatting
     const fmt = v => v != null ? v + '€' : '';
     const addr = l => l ? [l.address, l.postalCode, l.city].filter(Boolean).join(', ') : '';
+    const remSub = (n, add) => (n && add ? n.split(add).join('') : n);
 
     // Render stations
     const render = data => {
       const list = data?.filter(s => s.prices?.length).slice(0, items.length) || [];
-      items.forEach((it, i) => {
+      items.forEach((aTag, i) => {
         const s = list[i];
         const p = s?.prices?.[0]?.amount;
-        it.querySelector(i === 0 ? '.price' : '.smallPrice').textContent = fmt(p);
-        it.querySelector('.name').textContent = s?.name || '';
-        it.querySelector('.addr').textContent = addr(s?.location);
+        aTag.querySelector(i === 0 ? '.price' : '.smallPrice').textContent = fmt(p);
+        aTag.querySelector('.name').textContent = remSub(s?.name || '', s?.location?.address || '');
+        const addy = addr(s?.location);
+        aTag.querySelector('.addr').textContent = addy;
+        if (s?.location?.latitude && s?.location?.longitude) {
+            const lat = s.location.latitude;
+            const lon = s.location.longitude;
+            //aTag.href = `https://waze.com/ul?ll=${lat},${lon}&navigate=yes`;
+            aTag.onclick = e => {
+              navigator.clipboard.writeText(addy);
+            };
+        } else {
+            aTag.href = '#';
+        }
+        
       });
 
       const now = new Date();
@@ -253,14 +268,14 @@
     };
 
     const init = () => {
-      //$('status').textContent = `Cookie: ${document.cookie}`;
       const lat = getCookie('lastLat');
       const lon = getCookie('lastLon');
       if (lat && lon) {
         $('status').textContent = `${lat}, ${lon}`;
-        loadWithCoords(lat, lon);
+        return loadWithCoords(lat, lon);
       }
       
+      $('status').textContent = 'Daten werden geladen...';
       requestLocation();
     };
 
