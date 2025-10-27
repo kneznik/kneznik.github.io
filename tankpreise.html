@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="js-widget-title" content="tankpreiseWaze">
+  <meta name="js-widget-title" content="TankenATPreise">
 
   <style>
     :root {
@@ -22,7 +22,7 @@
     * {
       box-sizing: border-box;
     }
-    
+
     html, body {
       margin: 0;
       height: 100%;
@@ -50,7 +50,7 @@
       gap: 10px;
       margin-top: 5px;
     }
-    
+
     .item {
       display: flex;
       align-items: center;
@@ -59,10 +59,8 @@
       border-radius: 12px;
       padding: 0px 10px;
       transition: transform 0.1s;
-      color: inherit;
-      text-decoration: none;
     }
-    
+
     @media (prefers-color-scheme: dark) {
       .item {
         background: rgba(255,255,255,0.08);
@@ -81,7 +79,7 @@
       font-size: 26px;
       font-weight: 700;
     }
-    
+
     .smallPrice {
       font-family: Menlo, monospace;
       font-size: 13px;
@@ -94,7 +92,7 @@
       font-weight: 600;
       font-size: 18px;
     }
-    
+
     .addr {
       font-size: 14px;
       color: var(--muted);
@@ -118,14 +116,14 @@
 
     <!-- Stations List -->
     <div id="list" class="list">
-      <a href="#" class="item big">
+      <div class="item big">
         <div class="price"></div>
         <div class="meta"><div class="name"></div><div class="addr"></div></div>
-      </a>
-      <a href="#" class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:16px"><div class="name"></div><div class="addr"></div></div></a>
-      <a href="#" class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:16px"><div class="name"></div><div class="addr"></div></div></a>
-      <a href="#" class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:16px"><div class="name"></div><div class="addr"></div></div></a>
-      <a href="#" class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:16px"><div class="name"></div><div class="addr"></div></div></a>
+      </div>
+      <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:16px"><div class="name"></div><div class="addr"></div></div></div>
+      <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:16px"><div class="name"></div><div class="addr"></div></div></div>
+      <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:16px"><div class="name"></div><div class="addr"></div></div></div>
+      <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:16px"><div class="name"></div><div class="addr"></div></div></div>
     </div>
 
     <!-- Timestamp -->
@@ -137,7 +135,7 @@
     // Config
     const FUEL_TYPE = 'DIE';
     const FALLBACK = { lat: 48.265, lon: 14.287 }; // Linz
-    const cookieTime = 1;
+    const cookieTime = 1440;
 
     // Elements
     const $ = id => document.getElementById(id);
@@ -184,24 +182,13 @@
     // Render stations
     const render = data => {
       const list = data?.filter(s => s.prices?.length).slice(0, items.length) || [];
-      items.forEach((aTag, i) => {
+      items.forEach((it, i) => {
         const s = list[i];
         const p = s?.prices?.[0]?.amount;
-        aTag.querySelector(i === 0 ? '.price' : '.smallPrice').textContent = fmt(p);
-        aTag.querySelector('.name').textContent = remSub(s?.name || '', s?.location?.address || '');
         const addy = addr(s?.location);
-        aTag.querySelector('.addr').textContent = addy;
-        if (s?.location?.latitude && s?.location?.longitude) {
-            const lat = s.location.latitude;
-            const lon = s.location.longitude;
-            //aTag.href = `https://waze.com/ul?ll=${lat},${lon}&navigate=yes`;
-            aTag.onclick = e => {
-              navigator.clipboard.writeText(addy);
-            };
-        } else {
-            aTag.href = '#';
-        }
-        
+        it.querySelector(i === 0 ? '.price' : '.smallPrice').textContent = fmt(p);
+        it.querySelector('.name').textContent = remSub(s?.name || '', s?.location?.address || '');
+        it.querySelector('.addr').textContent = addy;
       });
 
       const now = new Date();
@@ -268,14 +255,14 @@
     };
 
     const init = () => {
+      //$('status').textContent = `Cookie: ${document.cookie}`;
       const lat = getCookie('lastLat');
       const lon = getCookie('lastLon');
       if (lat && lon) {
         $('status').textContent = `${lat}, ${lon}`;
-        return loadWithCoords(lat, lon);
+        loadWithCoords(lat, lon);
       }
-      
-      $('status').textContent = 'Daten werden geladen...';
+
       requestLocation();
     };
 
