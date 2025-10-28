@@ -198,6 +198,7 @@
       items.forEach((it, i) => {
         const s = list[i];
         const p = s?.prices?.[0]?.amount;
+        const d = s?.distance?.toFixed(3) || '';
         if(s?.name){
           s.name = s?.name?.replaceAll('ss', 'ß');
         }
@@ -206,7 +207,7 @@
         }
         const addy = addr(s?.location);
         it.querySelector(i === 0 ? '.price' : '.smallPrice').textContent = fmt(p);
-        it.querySelector('.name').textContent = remSub(s?.name || '', s?.location?.address || '') + ' ' + s.distance;
+        it.querySelector('.name').textContent = remSub(s?.name || '', s?.location?.address || '') + (d || ' ') + d;
         it.querySelector('.addr').textContent = addy;
       });
 
@@ -249,7 +250,7 @@
       setCookie('lastLon', lon);
       str += `, New loc ${lat}, ${lon}`;
       $('status').textContent = str;
-      //await loadWithCoords(lat, lon);
+      await loadWithCoords(lat, lon);
 
       /*
       if (!navigator.geolocation) {
