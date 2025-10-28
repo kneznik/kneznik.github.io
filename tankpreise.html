@@ -294,6 +294,8 @@
       if (lat && lon) {
         $('status').textContent = `${lat}, ${lon}`;
         //loadWithCoords(lat, lon);
+      }else{
+        $('status').textContent = `$Refresh the page`
       }
       requestLocation();
     };
