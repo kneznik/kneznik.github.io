@@ -182,9 +182,8 @@
     // Render stations
     const render = data => {
       const list = data?.filter(s => s.prices?.length);
-      list.sort((a, b) => a.distance - b.distance);
-      list = list.slice(0, items.length) || [];
-      items.forEach((it, i) => {
+      list?.sort((a, b) => a.distance - b.distance);
+      (list?.slice(0, items.length) || []).forEach((it, i) => {
         const s = list[i];
         const p = s?.prices?.[0]?.amount;
         if(s?.name){
