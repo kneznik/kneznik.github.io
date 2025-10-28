@@ -230,6 +230,8 @@
       const { lat, lon } = randomLinzCoords();
       setCookie('lastLat', lat);
       setCookie('lastLon', lon);
+      
+        $('status').textContent = `${lat}, ${lon}`;
       //await loadWithCoords(lat, lon);
 
       /*
@@ -286,7 +288,6 @@
 
     const init = async () => {
       dataLoaded = false;
-      $('status').textContent = `Cookie: ${document.cookie}`;
       const lat = getCookie('lastLat');
       const lon = getCookie('lastLon');
       if (lat && lon) {
