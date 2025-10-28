@@ -227,11 +227,12 @@
     };
 
     const requestLocation = async () => {
-      let str = `Old Loc: ${lat}, ${lon}`;
+      
+      let str = `Old Loc: ${ getCookie('lastLat')}, ${getCookie('lastLon')}`;
       const { lat, lon } = randomLinzCoords();
       setCookie('lastLat', lat);
       setCookie('lastLon', lon);
-      str += `New loc ${lat}, ${lon}`;
+      str += `, New loc ${lat}, ${lon}`;
       $('status').textContent = str;
       //await loadWithCoords(lat, lon);
 
