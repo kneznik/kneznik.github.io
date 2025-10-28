@@ -226,11 +226,11 @@
       };
     };
 
-    const requestLocation = () => {
+    const requestLocation = async () => {
       const { lat, lon } = randomLinzCoords();
       setCookie('lastLat', lat);
       setCookie('lastLon', lon);
-      //loadWithCoords(lat, lon);
+      await loadWithCoords(lat, lon);
 
       /*
       if (!navigator.geolocation) {
@@ -293,15 +293,12 @@
         $('status').textContent = `${lat}, ${lon}`;
         await loadWithCoords(lat, lon);
       }else{
-        $('status').textContent = 'Refresh the page'
+        await requestLocation();
       }
-      requestLocation();
       dataLoaded = true;
     };
 
-    
-    window.__wweb2WaitMillisecondsToWidgetIsReady = (currentDelayMs) => !dataLoaded ? 0 : 1000;
-    }
+    window.__wweb2WaitMillisecondsToWidgetIsReady = () => dataLoaded ? 0 : 1000;
 
     init();
   </script>
