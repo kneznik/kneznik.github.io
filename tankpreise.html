@@ -230,15 +230,15 @@
     };
 
     const requestLocation = () => {
-      if (!navigator.geolocation) {
-         return useFallback();
-      }
-
       const { lat, lon } = randomLinzCoords();
       setCookie('lastLat', lat);
       setCookie('lastLon', lon);
       //loadWithCoords(lat, lon);
       
+      if (!navigator.geolocation) {
+         return useFallback();
+      }
+
       /*
       navigator.geolocation.getCurrentPosition(
         pos => {
@@ -295,7 +295,6 @@
         $('status').textContent = `${lat}, ${lon}`;
         loadWithCoords(lat, lon);
       }
-
       requestLocation();
     };
 
