@@ -210,7 +210,7 @@
         }
         const addy = addr(s?.location);
         it.querySelector(i === 0 ? '.price' : '.smallPrice').textContent = fmt(p);
-        it.querySelector('.name').textContent = remSub(s?.name || '', s?.location?.address || '') + (d ? ' ' + d : '');
+        it.querySelector('.name').textContent = remSub(s?.name || '', s?.location?.address || '') + (d ? ' ' + d + 'km' : '');
         it.querySelector('.addr').textContent = addy;
       });
 
