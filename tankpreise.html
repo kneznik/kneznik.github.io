@@ -133,11 +133,16 @@
 
   <!-- === SCRIPT === -->
   <script>
+  
     const FUEL_TYPE = 'DIE';
     const FALLBACK = { lat: 48.265, lon: 14.287 }; // Linz
     const cookieTime = 1440;
     let dataLoaded = false;
 
+    function  __wweb2WaitMillisecondsToWidgetIsReady(currentDelayMs) {
+      return dataLoaded ? 0 : 1000;
+    }
+    
     const $ = id => document.getElementById(id);
     const items = Array.from(document.querySelectorAll('#list .item'));
 
@@ -189,7 +194,7 @@
     const remSub = (n, add) => (n && add ? n.split(add).join('') : n);
 
     const render = data => {
-      const list = data?.filter(s => s.prices?.length).slice(0, items.length) || [];
+      const list = data?.filter(s => s.prices?.length)?.sort((a,b) => a.distance - b.distance)?.slice(0, items.length) || [];
       items.forEach((it, i) => {
         const s = list[i];
         const p = s?.prices?.[0]?.amount;
@@ -238,7 +243,6 @@
     };
 
     const requestLocation = async () => {
-      
       let str = `Old Loc: ${ getCookie('lastLat')}, ${getCookie('lastLon')}`;
       const { lat, lon } = randomLinzCoords();
       setCookie('lastLat', lat);
@@ -287,10 +291,11 @@
 
       try {
         let data = await fetchStations(lat, lon);
-        let cleanedData = data.map(s => ({
+        const cleanedData = data.map(s => ({
             prices: s.prices ? s.prices.map(p => ({ amount: p.amount })) : [],
             name: s.name,
-            location: s.location
+            location: s.location,
+            distance: s.distance
         }));
         setCookie(key, JSON.stringify(cleanedData));
         render(data);
@@ -310,9 +315,6 @@
       dataLoaded = true;
     };
 
-    function  __wweb2WaitMillisecondsToWidgetIsReady(currentDelayMs) {
-      return  dataLoaded ? 0 : 1000;
-    }
     init();
   </script>
 </body>
