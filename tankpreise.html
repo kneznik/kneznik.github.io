@@ -199,6 +199,9 @@
         const s = list[i];
         const p = s?.prices?.[0]?.amount;
         const d = s?.distance?.toFixed(2) || '';
+        if(d) {
+          s.distance = d;
+        }
         if(s?.name){
           s.name = s?.name?.replaceAll('ss', 'ß');
         }
@@ -207,7 +210,7 @@
         }
         const addy = addr(s?.location);
         it.querySelector(i === 0 ? '.price' : '.smallPrice').textContent = fmt(p);
-        it.querySelector('.name').textContent = remSub(s?.name || '', s?.location?.address || '') + (d || '');
+        it.querySelector('.name').textContent = remSub(s?.name || '', s?.location?.address || '') + (d ? ' ' + d : '');
         it.querySelector('.addr').textContent = addy;
       });
 
@@ -316,7 +319,11 @@
       dataLoaded = true;
     };
 
-    init();
+    try {
+      init();
+    }catch(e) {
+      $('status').textContent = JSON.stringify(e);
+    }
   </script>
 </body>
 </html>
