@@ -140,7 +140,7 @@
     let dataLoaded = false;
 
     function  __wweb2WaitMillisecondsToWidgetIsReady(currentDelayMs) {
-      return dataLoaded ? 0 : 1000;
+      return dataLoaded ? 0 : 3000;
     }
     
     const $ = id => document.getElementById(id);
@@ -247,13 +247,13 @@
     };
 
     const requestLocation = async () => {
-      let str = `Old Loc: ${ getCookie('lastLat')}, ${getCookie('lastLon')}`;
+      let str = `${dataLoaded}, Old Loc: ${getCookie('lastLat')}, ${getCookie('lastLon')}`;
       const { lat, lon } = randomLinzCoords();
       setCookie('lastLat', lat);
       setCookie('lastLon', lon);
       str += `, New loc ${lat}, ${lon}`;
       $('status').textContent = str;
-      await loadWithCoords(lat, lon);
+      //await loadWithCoords(lat, lon);
 
       /*
       if (!navigator.geolocation) {
