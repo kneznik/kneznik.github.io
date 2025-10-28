@@ -183,7 +183,7 @@
     const render = data => {
       const list = data?.filter(s => s.prices?.length);
       list.sort((a, b) => a.distance - b.distance);
-      const items = list.slice(0, items.length) || [];
+      list = list.slice(0, items.length) || [];
       items.forEach((it, i) => {
         const s = list[i];
         const p = s?.prices?.[0]?.amount;
@@ -295,7 +295,6 @@ const randomLinzCoords = () => {
         $('status').textContent = `${lat}, ${lon}`;
         loadWithCoords(lat, lon);
       }
-
       requestLocation();
     };
 
