@@ -3,7 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-
+  <title>Tankpreise</title>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" >
+  <meta name="js-widget-title" content="Tankpreise">
   <style>
     :root {
       --text: #000;
@@ -135,6 +137,7 @@
     const FUEL_TYPE = 'DIE';
     const FALLBACK = { lat: 48.265, lon: 14.287 }; // Linz
     const cookieTime = 1440;
+    let dataLoaded = false;
 
     // Elements
     const $ = id => document.getElementById(id);
@@ -254,13 +257,13 @@
       */
     };
 
-    const useFallback = (msg = 'Linz') => {
+    const useFallback = async (msg = 'Linz') => {
       $('status').textContent = msg;
       const lat = FALLBACK.lat.toFixed(3);
       const lon = FALLBACK.lon.toFixed(3);
       setCookie('lastLat', lat);
       setCookie('lastLon', lon);
-      loadWithCoords(lat, lon);
+      await loadWithCoords(lat, lon);
     };
 
     // Load with coordinates
@@ -287,28 +290,26 @@
       }
     };
 
-    const init = () => {
-      //$('status').textContent = `Cookie: ${document.cookie}`;
+    const init = async () => {
+      dataLoaded = false;
+      $('status').textContent = `Cookie: ${document.cookie}`;
       const lat = getCookie('lastLat');
       const lon = getCookie('lastLon');
       if (lat && lon) {
         $('status').textContent = `${lat}, ${lon}`;
-        loadWithCoords(lat, lon);
+        await loadWithCoords(lat, lon);
       }else{
         $('status').textContent = `$Refresh the page`
       }
       requestLocation();
+      dataLoaded = true;
     };
 
     function __wweb2WaitMillisecondsToWidgetIsReady(currentDelayMs) {
-      return 1000;
+      return !dataLoaded ? 0 : 1000;
     }
 
-    function __wweb2JsWidgetTitle() {
-     return "tankpreise";
-    }
-
-    init();
+    await init();
   </script>
 </body>
 </html>
