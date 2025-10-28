@@ -230,7 +230,7 @@
       const { lat, lon } = randomLinzCoords();
       setCookie('lastLat', lat);
       setCookie('lastLon', lon);
-      await loadWithCoords(lat, lon);
+      //await loadWithCoords(lat, lon);
 
       /*
       if (!navigator.geolocation) {
@@ -292,9 +292,8 @@
       if (lat && lon) {
         $('status').textContent = `${lat}, ${lon}`;
         await loadWithCoords(lat, lon);
-      }else{
-        await requestLocation();
       }
+      await requestLocation();
       dataLoaded = true;
     };
 
