@@ -133,17 +133,14 @@
 
   <!-- === SCRIPT === -->
   <script>
-    // Config
     const FUEL_TYPE = 'DIE';
     const FALLBACK = { lat: 48.265, lon: 14.287 }; // Linz
     const cookieTime = 1440;
     let dataLoaded = false;
 
-    // Elements
     const $ = id => document.getElementById(id);
     const items = Array.from(document.querySelectorAll('#list .item'));
 
-    // Cookie helpers
     const setCookie = (n, v) => {
       const e = new Date();
       e.setTime(e.getTime() + cookieTime * 60 * 1000);
@@ -176,12 +173,10 @@
 
     const deleteCookie = n => document.cookie = `${n}=; expires=Thu, 01 Jan 1970 00:00:00 GMT;`;
 
-    // Formatting
     const fmt = v => v != null ? v + '€' : '';
     const addr = l => l ? [l.address, l.postalCode, l.city].filter(Boolean).join(', ') : '';
     const remSub = (n, add) => (n && add ? n.split(add).join('') : n);
 
-    // Render stations
     const render = data => {
       const list = data?.filter(s => s.prices?.length).slice(0, items.length) || [];
       items.forEach((it, i) => {
@@ -203,7 +198,6 @@
       $('time').textContent = now.toLocaleDateString('de-AT') + ' ' + now.toLocaleTimeString('de-AT', { hour: '2-digit', minute: '2-digit' });
     };
 
-    // API
     const fetchStations = async (lat, lon) => {
       const url = `https://api.e-control.at/sprit/1.0/search/gas-stations/by-address?latitude=${lat}&longitude=${lon}&fuelType=${FUEL_TYPE}&includeClosed=false`;
       const res = await fetch(url);
@@ -278,7 +272,7 @@
 
       try {
         let data = await fetchStations(lat, lon);
-        cleanedData = data.map(s => ({
+        let cleanedData = data.map(s => ({
             prices: s.prices ? s.prices.map(p => ({ amount: p.amount })) : [],
             name: s.name,
             location: s.location
@@ -305,8 +299,8 @@
       dataLoaded = true;
     };
 
-    function __wweb2WaitMillisecondsToWidgetIsReady(currentDelayMs) {
-      return !dataLoaded ? 0 : 1000;
+    
+    window.__wweb2WaitMillisecondsToWidgetIsReady = (currentDelayMs) => !dataLoaded ? 0 : 1000;
     }
 
     init();
