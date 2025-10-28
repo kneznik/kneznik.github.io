@@ -133,7 +133,6 @@
 
   <!-- === SCRIPT === -->
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
     const FUEL_TYPE = 'DIE';
     const FALLBACK = { lat: 48.265, lon: 14.287 }; // Linz
     const cookieTime = 1440;
@@ -311,10 +310,10 @@
       dataLoaded = true;
     };
 
-    window.__wweb2WaitMillisecondsToWidgetIsReady = () => dataLoaded ? 0 : 1000;
-
+    function  __wweb2WaitMillisecondsToWidgetIsReady(currentDelayMs) {
+      return  dataLoaded ? 0 : 1000;
+    }
     init();
-    });
   </script>
 </body>
 </html>
