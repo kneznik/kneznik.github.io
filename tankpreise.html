@@ -299,7 +299,7 @@
         $('status').textContent = `${lat}, ${lon}`;
         await loadWithCoords(lat, lon);
       }else{
-        $('status').textContent = `$Refresh the page`
+        $('status').textContent = 'Refresh the page'
       }
       requestLocation();
       dataLoaded = true;
