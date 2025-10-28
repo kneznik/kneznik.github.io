@@ -234,12 +234,12 @@
       setCookie('lastLat', lat);
       setCookie('lastLon', lon);
       //loadWithCoords(lat, lon);
-      
+
+      /*
       if (!navigator.geolocation) {
          return useFallback();
       }
-
-      /*
+    
       navigator.geolocation.getCurrentPosition(
         pos => {
           const lat = pos.coords.latitude.toFixed(3);
@@ -293,7 +293,7 @@
       const lon = getCookie('lastLon');
       if (lat && lon) {
         $('status').textContent = `${lat}, ${lon}`;
-        //loadWithCoords(lat, lon);
+        loadWithCoords(lat, lon);
       }else{
         $('status').textContent = `$Refresh the page`
       }
