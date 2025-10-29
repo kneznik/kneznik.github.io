@@ -133,17 +133,13 @@
     const FALLBACK = { lat: 48.265, lon: 14.287 }; // Linz
     const cookieTime = 1;
     let dataLoaded = false;
-    let statusStr = '';
 
     function  __wweb2WaitMillisecondsToWidgetIsReady(currentDelayMs) {
       //return dataLoaded ? 0 : 1000;
       return 0;
     }
 
-    const status = (str) => {
-      statusStr += str;
-      $('status').textContent = statusStr;
-    }
+    const status = (str) => $('status').textContent = str;
     
     const $ = id => document.getElementById(id);
     const items = Array.from(document.querySelectorAll('#list .item'));
