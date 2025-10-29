@@ -146,36 +146,6 @@
     const $ = id => document.getElementById(id);
     const items = Array.from(document.querySelectorAll('#list .item'));
 
-    const setCookieOld = (n, v) => {
-      const e = new Date();
-      e.setTime(e.getTime() + cookieTime * 60 * 1000);
-      document.cookie = `${n}=${v}; expires=${e.toUTCString()};`;
-      return;
-
-      let s = {value: v, savedAt: Date.now()};
-      document.cookie = `${n}=${JSON.stringify(s)}; expires=${e.toUTCString()};`;
-    };
-
-    const getCookieOld = n => {
-        return document.cookie.match(new RegExp('(^| )' + n + '=([^;]+)'))?.[2] || null;
-
-        let match = document.cookie.match(new RegExp('(^| )' + n + '=([^;]+)'))?.[2] || null;
-        if (!match)
-            return null;
-        let r = null;
-        try{
-            const {value: v, savedAt: d} = JSON.parse(match);
-            if(Date.now() - d >= cookieTime * 60 * 1000){
-                deleteCookie(n);
-            } else {
-                r = v;
-            }
-        } catch(err){
-            deleteCookie(n);
-        }
-        return r;
-    }
-
     const setCookie = (name, value, minutes = cookieTime) => {
       const date = new Date();
       date.setTime(date.getTime() + minutes * 60 * 1000);
@@ -248,12 +218,7 @@
 
     const requestLocation = async () => {
       dataLoaded = false;
-      let str = `Old Loc: ${getCookie('lastLat')}, ${getCookie('lastLon')}`;
       const { lat, lon } = randomLinzCoords();
-      str += `, New loc ${lat}, ${lon}`;
-      status(str);
-      // const lat = getCookie('lastLat');
-      // const lon = getCookie('lastLon');
       await loadWithCoords(lat, lon);
       dataLoaded = true;
 
@@ -283,14 +248,6 @@
 
     // Load with coordinates
     const loadWithCoords = async (lat, lon) => {
-      const key = 'cached_stations'  //`cache_${lat}_${lon}`;
-      const cached = getCookie(key);
-      if (cached) {
-        try {
-            render(JSON.parse(cached));
-        } catch {}
-      }
-
       try {
         let data = await fetchStations(lat, lon);
         const cleanedData = data.map(s => ({
@@ -300,9 +257,6 @@
             distance: s.distance
         }));
         
-        setCookie('lastLat', lat);
-        setCookie('lastLon', lon);
-        setCookie(key, JSON.stringify(cleanedData));
         render(data);
       } catch (err) {
           status('Unerwarteter Fehler');
