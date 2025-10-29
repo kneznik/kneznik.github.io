@@ -11,64 +11,35 @@
       --muted: #666;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
-
     @media (prefers-color-scheme: dark) {
-      :root {
-        --text: #ededed;
-        --muted: #bbbbbb;
-      }
+      :root { --text: #ededed; --muted: #bbbbbb; }
     }
-
     * { box-sizing: border-box; }
-
     html, body { margin:0; height:100%; color:var(--text); }
-
-    .app {
-      max-width:480px; margin:8px auto; padding:8px;
-      border-radius:16px; backdrop-filter:blur(8px);
-      box-shadow:0 2px 10px rgba(0,0,0,0.05);
-    }
-
+    .app { max-width:480px; margin:8px auto; padding:8px; border-radius:16px; backdrop-filter:blur(8px); box-shadow:0 2px 10px rgba(0,0,0,0.05); }
     .status { text-align:center; font-size:10px; font-weight:500; }
-
     .list { display:flex; flex-direction:column; gap:10px; margin-top:5px; }
-
-    .item {
-      display:flex; align-items:center; justify-content:space-between;
-      background:rgba(255,255,255,0.4); border-radius:12px; padding:0 10px;
-      transition:transform .1s;
-    }
+    .item { display:flex; align-items:center; justify-content:space-between; background:rgba(255,255,255,0.4); border-radius:12px; padding:0 10px; transition:transform .1s; }
     @media (prefers-color-scheme: dark) { .item { background:rgba(255,255,255,0.08); } }
-
     .item.big { flex-direction:column; align-items:center; text-align:center; padding:8px; }
-
     .price { font-family:Menlo,Monaco,Consolas,monospace; font-size:26px; font-weight:700; }
-    .smallPrice { font-family:Menlo,monospace; font-size:13px; color:var(--muted);
-                  min-width:48px; text-align:right; }
-
+    .smallPrice { font-family:Menlo,monospace; font-size:13px; color:var(--muted); min-width:48px; text-align:right; }
     .name { font-weight:600; font-size:18px; }
     .addr { font-size:14px; color:var(--muted); margin-top:1px; }
-
-    .timestamp { text-align:center; font-size:12px; color:var(--muted);
-                 margin-top:12px; font-variant:tabular-nums; }
+    .timestamp { text-align:center; font-size:12px; color:var(--muted); margin-top:12px; font-variant:tabular-nums; }
   </style>
 </head>
 
 <body>
   <div class="app">
     <div id="status" class="status">Lade…</div>
-
     <div id="list" class="list">
-      <div class="item big">
-        <div class="price"></div>
-        <div class="meta"><div class="name"></div><div class="addr"></div></div>
-      </div>
+      <div class="item big"><div class="price"></div><div class="meta"><div class="name"></div><div class="addr"></div></div></div>
       <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:16px"><div class="name"></div><div class="addr"></div></div></div>
       <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:16px"><div class="name"></div><div class="addr"></div></div></div>
       <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:16px"><div class="name"></div><div class="addr"></div></div></div>
       <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:16px"><div class="name"></div><div class="addr"></div></div></div>
     </div>
-
     <div id="time" class="timestamp"></div>
   </div>
 
@@ -83,12 +54,10 @@
     const $ = id => document.getElementById(id);
     const items = Array.from(document.querySelectorAll('#list .item'));
 
-    /* ---------- formatting ---------- */
     const fmt = v => v != null ? v + '€' : '';
     const addr = l => l ? [l.address, l.postalCode, l.city].filter(Boolean).join(', ') : '';
     const remSub = (n, add) => (n && add ? n.split(add).join('') : n);
 
-    /* ---------- render ---------- */
     const render = data => {
       const list = data?.filter(s => s.prices?.length)
                      ?.sort((a,b) => a.distance - b.distance)
@@ -101,7 +70,6 @@
         if (d) s.distance = d;
         if (s?.name) s.name = s.name.replaceAll('ss', 'ß');
         if (s?.location?.address) s.location.address = s.location.address.replaceAll('ss', 'ß');
-
         const addy = addr(s?.location);
         it.querySelector(i === 0 ? '.price' : '.smallPrice').textContent = fmt(p);
         it.querySelector('.name').textContent = remSub(s?.name || '', s?.location?.address || '') + (d ? ', ' + d + 'km' : '');
@@ -114,7 +82,6 @@
       $('status').textContent = '';
     };
 
-    /* ---------- API ---------- */
     const fetchStations = async (lat, lon) => {
       const url = `https://api.e-control.at/sprit/1.0/search/gas-stations/by-address?latitude=${lat}&longitude=${lon}&fuelType=${FUEL_TYPE}&includeClosed=false`;
       const res = await fetch(url);
@@ -122,7 +89,6 @@
       return await res.json();
     };
 
-    /* ---------- random Linz fallback ---------- */
     const randomLinzCoords = () => {
       const centerLat = 48.3069, centerLon = 14.2858;
       const earthR = 6371;
@@ -133,14 +99,12 @@
       return { lat: +(centerLat + latOff).toFixed(4), lon: +(centerLon + lonOff).toFixed(4) };
     };
 
-    /* ---------- load data ---------- */
     const loadWithCoords = async (lat, lon) => {
       try {
         const data = await fetchStations(lat, lon);
         render(data);
       } catch (err) {
-        $('status').textContent = 'Fehler beim Laden';
-        __wweb2Log('API error: ' + err);
+        $('status').textContent = 'Fehler';
       } finally {
         dataLoaded = true;
       }
@@ -149,19 +113,14 @@
     const requestLocation = async () => {
       dataLoaded = false;
       $('status').textContent = 'Lade…';
-      const { lat, lon } = randomLinzCoords();  // Replace with real GPS later
+      const { lat, lon } = randomLinzCoords();
       await loadWithCoords(lat, lon);
     };
 
-    /* ---------- RELOAD DETECTION (built-in button) ---------- */
+    // Detect built-in reload button
     const urlParams = new URLSearchParams(window.location.search);
     const isReload = urlParams.has('__wweb2_reload');
-    const hashAction = window.location.hash.substring(1);
-    const customAction = new URLSearchParams(hashAction).get('action');
 
-    __wweb2Log('Load – reload=' + isReload + ' action=' + customAction);
-
-    // Clean URL after reload
     if (isReload) {
       setTimeout(() => {
         if (window.location.search.includes('__wweb2_reload')) {
@@ -170,7 +129,7 @@
       }, 150);
     }
 
-    // ALWAYS load fresh data — NO CACHE
+    // Always fetch fresh data — no cache, no logs
     requestLocation();
   </script>
 </body>
