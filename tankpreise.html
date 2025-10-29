@@ -125,9 +125,7 @@
     </div>
 
     <div id="time" class="timestamp"></div>
-    <a href="#" id="refreshButton" class="item big" style="justify-content:center; cursor:pointer; margin-bottom:8px;">
-      🔄 Refresh
-    </a>
+    
   </div>
 
   <script type='text/javascript'>
@@ -264,27 +262,6 @@
     };
 
     requestLocation();
-
-    document.getElementById('refreshButton').addEventListener('click', function(e) {
-      e.preventDefault();
-      window.location.reload();
-    });
-
-    // process buttons press in jswidget
-    let queryString = window.location.hash;
-    status(queryString);
-    if (queryString.startsWith("#")) {
-        queryString = queryString.substring(1);
-    }
-    const urlParams = new URLSearchParams(queryString);
-    const actionParam = urlParams.get('action');
-    if (actionParam) {
-        switch (actionParam) {
-            case "refresh": {
-                requestLocation();
-            };break;
-        }
-    }
   </script>
 </body>
 </html>
