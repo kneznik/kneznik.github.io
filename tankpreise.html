@@ -263,7 +263,26 @@
       }
     };
 
-    requestLocation();
+    let queryString = window.location.hash;
+    if (queryString.startsWith("#")) {
+        queryString = queryString.substring(1)
+    }
+    const urlParams = new URLSearchParams(queryString);
+    const actionParam = urlParams.get('action');
+    if (actionParam) {
+        switch (actionParam) {
+            case "plus": {
+                performPlusBtn();
+            };break;
+            case "minus": {
+                performMinusBtn();
+            };break;
+            case "reload": {
+                requestLocation();
+            };break;
+        }
+        urlParams.delete('action');
+    }
   </script>
 </body>
 </html>
