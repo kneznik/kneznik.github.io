@@ -138,7 +138,7 @@
     let dataLoaded = false;
 
     function  __wweb2WaitMillisecondsToWidgetIsReady(currentDelayMs) {
-      return dataLoaded ? 0 : 5000;
+      return dataLoaded ? 0 : 1000;
     }
 
     const status = (str) => $('status').textContent = str;
