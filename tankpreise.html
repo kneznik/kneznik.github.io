@@ -315,6 +315,22 @@
       e.preventDefault();
       requestLocation();
     });
+
+    // process buttons press in jswidget
+    let queryString = window.location.hash;
+    status(queryString);
+    if (queryString.startsWith("#")) {
+        queryString = queryString.substring(1);
+    }
+    const urlParams = new URLSearchParams(queryString);
+    const actionParam = urlParams.get('action');
+    if (actionParam) {
+        switch (actionParam) {
+            case "refresh": {
+                requestLocation();
+            };break;
+        }
+    }
   </script>
 </body>
 </html>
