@@ -56,4 +56,122 @@
 
 <body>
   <div class="app">
-    <div id="status" class="status">Lade…</div
+    <div id="status" class="status">Lade…</div>
+
+    <div id="list" class="list">
+      <div class="item big">
+        <div class="price"></div>
+        <div class="meta"><div class="name"></div><div class="addr"></div></div>
+      </div>
+      <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:16px"><div class="name"></div><div class="addr"></div></div></div>
+      <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:16px"><div class="name"></div><div class="addr"></div></div></div>
+      <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:16px"><div class="name"></div><div class="addr"></div></div></div>
+      <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:16px"><div class="name"></div><div class="addr"></div></div></div>
+    </div>
+
+    <div id="time" class="timestamp"></div>
+  </div>
+
+  <script type='text/javascript'>
+    const FUEL_TYPE = 'DIE';
+    let dataLoaded = false;
+
+    function __wweb2WaitMillisecondsToWidgetIsReady(currentDelayMs) {
+      return dataLoaded ? 0 : 1000;
+    }
+
+    const $ = id => document.getElementById(id);
+    const items = Array.from(document.querySelectorAll('#list .item'));
+
+    /* ---------- formatting ---------- */
+    const fmt = v => v != null ? v + '€' : '';
+    const addr = l => l ? [l.address, l.postalCode, l.city].filter(Boolean).join(', ') : '';
+    const remSub = (n, add) => (n && add ? n.split(add).join('') : n);
+
+    /* ---------- render ---------- */
+    const render = data => {
+      const list = data?.filter(s => s.prices?.length)
+                     ?.sort((a,b) => a.distance - b.distance)
+                     ?.slice(0, items.length) || [];
+
+      items.forEach((it, i) => {
+        const s = list[i];
+        const p = s?.prices?.[0]?.amount;
+        const d = s?.distance?.toFixed(2) || '';
+        if (d) s.distance = d;
+        if (s?.name) s.name = s.name.replaceAll('ss', 'ß');
+        if (s?.location?.address) s.location.address = s.location.address.replaceAll('ss', 'ß');
+
+        const addy = addr(s?.location);
+        it.querySelector(i === 0 ? '.price' : '.smallPrice').textContent = fmt(p);
+        it.querySelector('.name').textContent = remSub(s?.name || '', s?.location?.address || '') + (d ? ', ' + d + 'km' : '');
+        it.querySelector('.addr').textContent = addy;
+      });
+
+      const now = new Date();
+      $('time').textContent = now.toLocaleDateString('de-AT') + ' ' +
+                              now.toLocaleTimeString('de-AT', {hour:'2-digit', minute:'2-digit'});
+      $('status').textContent = '';
+    };
+
+    /* ---------- API ---------- */
+    const fetchStations = async (lat, lon) => {
+      const url = `https://api.e-control.at/sprit/1.0/search/gas-stations/by-address?latitude=${lat}&longitude=${lon}&fuelType=${FUEL_TYPE}&includeClosed=false`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(''+res.status);
+      return await res.json();
+    };
+
+    /* ---------- random Linz fallback ---------- */
+    const randomLinzCoords = () => {
+      const centerLat = 48.3069, centerLon = 14.2858;
+      const earthR = 6371;
+      const dist = Math.sqrt(Math.random()) * 5;
+      const bearing = Math.random() * 2 * Math.PI;
+      const latOff = (dist / earthR) * (180 / Math.PI) * Math.cos(bearing);
+      const lonOff = (dist / earthR) * (180 / Math.PI) * Math.sin(bearing) / Math.cos(centerLat * Math.PI / 180);
+      return { lat: +(centerLat + latOff).toFixed(4), lon: +(centerLon + lonOff).toFixed(4) };
+    };
+
+    /* ---------- load data ---------- */
+    const loadWithCoords = async (lat, lon) => {
+      try {
+        const data = await fetchStations(lat, lon);
+        render(data);
+      } catch (err) {
+        $('status').textContent = 'Fehler beim Laden';
+        __wweb2Log('API error: ' + err);
+      } finally {
+        dataLoaded = true;
+      }
+    };
+
+    const requestLocation = async () => {
+      dataLoaded = false;
+      $('status').textContent = 'Lade…';
+      const { lat, lon } = randomLinzCoords();  // Replace with real GPS later
+      await loadWithCoords(lat, lon);
+    };
+
+    /* ---------- RELOAD DETECTION (built-in button) ---------- */
+    const urlParams = new URLSearchParams(window.location.search);
+    const isReload = urlParams.has('__wweb2_reload');
+    const hashAction = window.location.hash.substring(1);
+    const customAction = new URLSearchParams(hashAction).get('action');
+
+    __wweb2Log('Load – reload=' + isReload + ' action=' + customAction);
+
+    // Clean URL after reload
+    if (isReload) {
+      setTimeout(() => {
+        if (window.location.search.includes('__wweb2_reload')) {
+          history.replaceState(null, '', window.location.pathname + window.location.hash);
+        }
+      }, 150);
+    }
+
+    // ALWAYS load fresh data — NO CACHE
+    requestLocation();
+  </script>
+</body>
+</html>
