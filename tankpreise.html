@@ -260,20 +260,27 @@
       }
     };
 
-    let queryString = window.location.hash;
-    if (queryString.startsWith("#")) {
-        queryString = queryString.substring(1)
-    }
+    let queryString = window.location.search + window.location.hash;
+    if (queryString.startsWith("?"))
+      queryString = queryString.substring(1);
+
     const urlParams = new URLSearchParams(queryString);
     const actionParam = urlParams.get('action');
-    status(queryString);
-    if (actionParam) {
-        switch (actionParam) {
-            case "reload": {
-                requestLocation();
-            };break;
-        }
-        urlParams.delete('action');
+    const wwebReload = urlParams.get('__wweb2_reload'); // ← THIS IS KEY
+    
+    // Trigger reload if built-in button was used OR custom action
+    if (wwebReload || actionParam === 'reload') {
+        statis("Reload detected: " + (wwebReload ? "built-in button" : "custom"));
+    
+        // Prevent infinite loop: clean URL after short delay
+        setTimeout(() => {
+            if (window.location.search.includes('__wweb2_reload')) {
+                history.replaceState(null, '', window.location.pathname + window.location.hash.replace(/#.*/, ''));
+            }
+        }, 100);
+    
+        // FORCE fresh data load
+        requestLocation();
     }
   </script>
 </body>
