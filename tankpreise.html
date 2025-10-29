@@ -291,7 +291,7 @@
 
     // Load with coordinates
     const loadWithCoords = async (lat, lon) => {
-      const key = `cache_${lat}_${lon}`;
+      const key = 'cache_loc'  //`cache_${lat}_${lon}`;
       const cached = getCookie(key);
       if (cached) {
         try {
