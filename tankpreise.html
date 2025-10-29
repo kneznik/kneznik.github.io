@@ -138,11 +138,16 @@
     const FALLBACK = { lat: 48.265, lon: 14.287 }; // Linz
     const cookieTime = 1;
     let dataLoaded = false;
+    let statusStr = '';
 
     function  __wweb2WaitMillisecondsToWidgetIsReady(currentDelayMs) {
       return dataLoaded ? 0 : 1000;
     }
-    
+
+    const status = (str) => {
+      statusStr += str;
+      $('status').textContent = statusStr;
+    }
     const $ = id => document.getElementById(id);
     const items = Array.from(document.querySelectorAll('#list .item'));
 
@@ -252,7 +257,7 @@
       setCookie('lastLat', lat);
       setCookie('lastLon', lon);
       str += `, New loc ${lat}, ${lon}`;
-      $('status').textContent = str;
+      status(str);
       //await loadWithCoords(lat, lon);
 
       /*
@@ -275,12 +280,12 @@
     };
 
     const useFallback = async (msg = 'Linz') => {
-      $('status').textContent = msg;
+      status(msg);
       const lat = FALLBACK.lat.toFixed(3);
       const lon = FALLBACK.lon.toFixed(3);
       setCookie('lastLat', lat);
       setCookie('lastLon', lon);
-      await loadWithCoords(lat, lon);
+      //await loadWithCoords(lat, lon);
     };
 
     // Load with coordinates
@@ -304,7 +309,7 @@
         setCookie(key, JSON.stringify(cleanedData));
         render(data);
       } catch (err) {
-          $('status').textContent = 'Unerwarteter Fehler';
+          status('Unerwarteter Fehler');
       }
     };
 
@@ -312,7 +317,8 @@
       dataLoaded = false;
       const lat = getCookie('lastLat');
       const lon = getCookie('lastLon');
-      if (lat && lon) {
+      if (!lat || !lon) {
+        useFallback();
         //await loadWithCoords(lat, lon);
       }
       await requestLocation();
@@ -322,7 +328,7 @@
     try {
       init();
     }catch(e) {
-      $('status').textContent = JSON.stringify(e);
+      status(JSON.stringify(e));
     }
   </script>
 </body>
