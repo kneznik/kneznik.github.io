@@ -125,9 +125,6 @@
     </div>
 
     <div id="time" class="timestamp"></div>
-    <a href="#reload" onclick="event.preventDefault(); requestLocation();"
-   style="--wweb2-overlay-btn-color: rgba(0,0,0,0.1); --wweb2-overlay-btn-press-color: rgba(0,0,0,0.3);"
-   class="reload-btn">↻</a>
   </div>
 
   <script type='text/javascript'>
@@ -269,14 +266,9 @@
     }
     const urlParams = new URLSearchParams(queryString);
     const actionParam = urlParams.get('action');
+    status(queryString);
     if (actionParam) {
         switch (actionParam) {
-            case "plus": {
-                performPlusBtn();
-            };break;
-            case "minus": {
-                performMinusBtn();
-            };break;
             case "reload": {
                 requestLocation();
             };break;
