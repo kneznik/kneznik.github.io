@@ -125,6 +125,9 @@
     </div>
 
     <div id="time" class="timestamp"></div>
+    <a href="#" id="refreshButton" class="item big" style="justify-content:center; cursor:pointer; margin-bottom:8px;">
+      🔄 Refresh
+    </a>
   </div>
 
   <script type='text/javascript'>
@@ -312,6 +315,10 @@
     };
 
     init();
+    document.getElementById('refreshButton').addEventListener('click', function(e) {
+      e.preventDefault();
+      init();
+    });
   </script>
 </body>
 </html>
