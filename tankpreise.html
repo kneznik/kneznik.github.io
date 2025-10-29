@@ -145,9 +145,10 @@
     }
 
     const status = (str) => {
-      statusStr += str;
+      statusStr += '--------' + str;
       $('status').textContent = statusStr;
     }
+    
     const $ = id => document.getElementById(id);
     const items = Array.from(document.querySelectorAll('#list .item'));
 
@@ -315,6 +316,7 @@
 
     const init = async () => {
       dataLoaded = false;
+      status('Cookie: ' + document.cookie); 
       const lat = getCookie('lastLat');
       const lon = getCookie('lastLon');
       if (!lat || !lon) {
