@@ -172,10 +172,11 @@
     // ——— Get real GPS location ———
     const requestLocation = () => {
       dataLoaded = false;
-      status('Lade…');
       
       const {lat, lon } = randomLinzCoords();
-      loadWithCoords(lat, lon);
+      
+      status(`Ranndom loc: ${lat}, ${lon}`);
+      //loadWithCoords(lat, lon);
 
       if (!navigator.geolocation) {
         loadWithCoords(FALLBACK.lat, FALLBACK.lon);
@@ -186,7 +187,7 @@
         pos => {
           const lat = pos.coords.latitude;
           const lon = pos.coords.longitude;
-          status(`Loc: ${lat}, ${lon}`)
+          status(`Current loc: ${lat}, ${lon}`);
           loadWithCoords(lat, lon);
         },
         () => {
