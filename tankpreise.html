@@ -175,10 +175,11 @@
       
       const {lat, lon } = randomLinzCoords();
       
-      status(`Ranndom loc: ${lat}, ${lon}`);
+      status(`Random loc: ${lat}, ${lon}`);
       //loadWithCoords(lat, lon);
 
       if (!navigator.geolocation) {
+        status(`Linz`);
         loadWithCoords(FALLBACK.lat, FALLBACK.lon);
         return;
       }
@@ -191,6 +192,7 @@
           loadWithCoords(lat, lon);
         },
        err => {
+          status(`Linz`);
           loadWithCoords(FALLBACK.lat, FALLBACK.lon);
         },
         { enableHighAccuracy: false, timeout: 5000, maximumAge: 60000 }
