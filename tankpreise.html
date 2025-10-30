@@ -154,7 +154,7 @@
         render(data);
         // update hash with coordinates
       } catch (err) {
-        status('Fehler');
+        status(err ? 'Fehler: ' + err.message : 'Unerwarteter Fehler beim Laden');
       } finally {
         dataLoaded = true;
       }
@@ -180,7 +180,7 @@
             window.location.hash = `lat=${lat}&lon=${lon}`
           },
         err => {
-            status(JSON.stringify(err));
+          status(err ? 'Fehler: ' + err.message : 'Unerwarteter Fehler beim Lokalisieren');
           },
           { timeout: 3000, maximumAge: 60000 }
         );
