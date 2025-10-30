@@ -203,7 +203,7 @@
     }
     
     const init = () => {
-      $('url').textContent = document.url;
+      $('url').textContent = window.location.href;
       dataLoaded = false;
       locLoaded = false;
       let coords = FALLBACK;
