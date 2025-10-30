@@ -190,9 +190,10 @@
           status(`Current loc: ${lat}, ${lon}`);
           loadWithCoords(lat, lon);
         },
-        () => {
+       err => {
           loadWithCoords(FALLBACK.lat, FALLBACK.lon);
-        }
+        },
+        { enableHighAccuracy: false, timeout: timeoutMs, maximumAge: 60000 }
       );
     };
 
