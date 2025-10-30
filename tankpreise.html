@@ -196,17 +196,14 @@
       if (hashCoords) {
         status(`Koordinaten aus URL: ${hashCoords.lat}, ${hashCoords.lon}`);
         loadWithCoords(hashCoords.lat, hashCoords.lon);
-      } 
+      } else {
+        status(`Linz`);
+        loadWithCoords(FALLBACK.lat, FALLBACK.lon);
+      }
       
       //const {lat, lon } = randomLinzCoords();
       //status(`Random loc: ${lat}, ${lon}`);
       //loadWithCoords(lat, lon);
-
-      if (!navigator.geolocation) {
-        status(`Linz`);
-        loadWithCoords(FALLBACK.lat, FALLBACK.lon);
-        return;
-      }
     };
     
     const parseHashCoords = () => {
