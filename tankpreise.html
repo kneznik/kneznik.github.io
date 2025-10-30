@@ -121,7 +121,7 @@
                      ?.sort((a,b) => a.distance - b.distance)
                      ?.slice(0, items.length) || [];
 
-      items.forEach((it, i) => {
+        items.forEach((it, i) => {
         const s = list[i];
         const p = s?.prices?.[0]?.amount;
         const d = s?.distance?.toFixed(2) || '';
@@ -178,7 +178,7 @@
           window.location.hash = `lat=${lat}&lon=${lon}`;
           locLoaded = true;
         } else {
-        status('Loc requested');
+          status('Loc requested');
           navigator.geolocation.getCurrentPosition(
             pos => {
               const lat = pos.coords.latitude;
@@ -203,7 +203,7 @@
     const init = () => {
       dataLoaded = false;
       locLoaded = false;
-      const coords = FALLBACK;
+      let coords = FALLBACK;
       const hashCoords = parseHashCoords();
       if (hashCoords) {
         status(`URL: ${hashCoords.lat}, ${hashCoords.lon}`);
