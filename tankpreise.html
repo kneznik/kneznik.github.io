@@ -193,7 +193,7 @@
        err => {
           loadWithCoords(FALLBACK.lat, FALLBACK.lon);
         },
-        { enableHighAccuracy: false, timeout: timeoutMs, maximumAge: 60000 }
+        { enableHighAccuracy: false, timeout: 5000, maximumAge: 60000 }
       );
     };
 
