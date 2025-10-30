@@ -203,15 +203,16 @@
     const init = () => {
       dataLoaded = false;
       locLoaded = false;
+      const coords = FALLBACK;
       const hashCoords = parseHashCoords();
       if (hashCoords) {
         status(`URL: ${hashCoords.lat}, ${hashCoords.lon}`);
-        loadWithCoords(hashCoords.lat, hashCoords.lon);
-        reqLoc(true);
+        coords = hashCoords;
       } else {
         status(`Linz`);
-        loadWithCoords(FALLBACK.lat, FALLBACK.lon);
       }
+      loadWithCoords(coords.lat, coords.lon);
+      reqLoc(true);
     };
     
     const parseHashCoords = () => {
