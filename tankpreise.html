@@ -183,12 +183,11 @@
     const reqLoc = (fake = false) => {
       try {
         if (fake) {
-          status('Fake Loc requested');
+          status('Fake');
           const { lat, lon } = randomLinzCoords();
           updateCookieCoords(lat, lon);
           locLoaded = true;
         } else {
-          status('Real Loc requested');
           navigator.geolocation.getCurrentPosition(
             pos => {
               const lat = pos.coords.latitude.toFixed(3);
