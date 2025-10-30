@@ -80,7 +80,6 @@
 
 <body>
   <div class="app">
-    <div id="url"></div>
     <div id="status" class="status"></div>
     
     <div id="list" class="list">
@@ -95,20 +94,17 @@
     </div>
     
     <div id="time" class="timestamp"></div>
+    <a id="refresh" href="#">Refresh</a>
   </div>
 
-  <script type='text/javascript'>
+  <script type="text/javascript">
     const FUEL_TYPE = 'DIE';
     const FALLBACK = { lat: 48.3069, lon: 14.2858 }; // Linz center
     let dataLoaded = false;
     let locLoaded = false;
 
-    function __wweb2WaitMillisecondsToWidgetIsReady(currentDelayMs) {
-      return dataLoaded && locLoaded ? 0 : 1000;
-    }
-
-    const status = (str) => $('status').textContent = str;
     const $ = id => document.getElementById(id);
+    const status = str => $('status').textContent = str;
     const items = Array.from(document.querySelectorAll('#list .item'));
 
     // ——— Formatting ———
@@ -122,7 +118,7 @@
                      ?.sort((a,b) => a.distance - b.distance)
                      ?.slice(0, items.length) || [];
 
-        items.forEach((it, i) => {
+      items.forEach((it, i) => {
         const s = list[i];
         const p = s?.prices?.[0]?.amount;
         const d = s?.distance?.toFixed(2) || '';
@@ -149,12 +145,10 @@
       return await res.json();
     };
 
-    // ——— Load with coordinates ———
     const loadWithCoords = async (lat, lon) => {
       try {
         const data = await fetchStations(lat, lon);
         render(data);
-        // update hash with coordinates
       } catch (err) {
         status(err ? 'Fehler: ' + err.message : 'Unerwarteter Fehler beim Laden');
       } finally {
@@ -162,6 +156,20 @@
       }
     };
 
+    // ——— Cookie helpers (30 min lifetime) ———
+    const setCookie = (name, value, minutes = 30) => {
+      const expires = new Date(Date.now() + minutes * 60 * 1000).toUTCString();
+      document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/`;
+    };
+
+    const getCookie = name => {
+      return document.cookie.split('; ').reduce((r, v) => {
+        const parts = v.split('=');
+        return parts[0] === name ? decodeURIComponent(parts[1]) : r;
+      }, null);
+    };
+
+    // ——— Location ———
     const randomLinzCoords = () => {
       const centerLat = 48.3069, centerLon = 14.2858;
       const earthR = 6371;
@@ -171,14 +179,13 @@
       const lonOff = (dist / earthR) * (180 / Math.PI) * Math.sin(bearing) / Math.cos(centerLat * Math.PI / 180);
       return { lat: +(centerLat + latOff).toFixed(4), lon: +(centerLon + lonOff).toFixed(4) };
     };
-    
+
     const reqLoc = (fake = false) => {
       try {
-        if(fake){
+        if (fake) {
           status('Fake Loc requested');
-          const {lat, lon } = randomLinzCoords();
-          //window.location.hash = `lat=${lat}&lon=${lon}`;
-          updateQueryCoords(lat, lon);
+          const { lat, lon } = randomLinzCoords();
+          updateCookieCoords(lat, lon);
           locLoaded = true;
         } else {
           status('Real Loc requested');
@@ -187,64 +194,58 @@
               const lat = pos.coords.latitude;
               const lon = pos.coords.longitude;
               status(`${lat}, ${lon}`);
-              //window.location.hash = `lat=${lat}&lon=${lon}`;
-              updateQueryCoords(lat, lon);
+              updateCookieCoords(lat, lon);
               locLoaded = true;
             },
-          err => {
-            status(err ? 'Fehler: ' + err.message : 'Unerwarteter Fehler beim Lokalisieren');
-            locLoaded = true;
+            err => {
+              status(err ? 'Fehler: ' + err.message : 'Unerwarteter Fehler beim Lokalisieren');
+              locLoaded = true;
             },
             { timeout: 3000, maximumAge: 60000 }
-          );  
+          );
         }
-        
-      } catch(e) {
-          status(err ? 'Fehler: ' + e.message : 'Unerwarteter Fehler beim Lokalisieren');
+      } catch (e) {
+        status('Fehler: ' + e.message);
       }
-    }
-    
+    };
+
+    // ——— Cookie coordinate handling ———
+    const getCookieCoords = () => {
+      const lat = parseFloat(getCookie('lat'));
+      const lon = parseFloat(getCookie('lon'));
+      if (!isNaN(lat) && !isNaN(lon)) return { lat, lon };
+      return null;
+    };
+
+    const updateCookieCoords = (lat, lon) => {
+      setCookie('lat', lat);
+      setCookie('lon', lon);
+    };
+
+    // ——— Init ———
     const init = () => {
-      $('url').textContent = window.location.href;
       dataLoaded = false;
       locLoaded = false;
       let coords = FALLBACK;
-      const hashCoords = parseQueryCoords();
-      if (hashCoords) {
-        status(`URL: ${hashCoords.lat}, ${hashCoords.lon}`);
-        coords = hashCoords;
+
+      const cookieCoords = getCookieCoords();
+      if (cookieCoords) {
+        status(`Cookie: ${cookieCoords.lat}, ${cookieCoords.lon}`);
+        coords = cookieCoords;
       } else {
         status(`Linz`);
       }
+
       loadWithCoords(coords.lat, coords.lon);
       reqLoc(true);
     };
-    
-    const parseHashCoords = () => {
-      const hash = window.location.hash.replace('#', '');
-      const params = new URLSearchParams(hash);
-      const lat = parseFloat(params.get('lat'));
-      const lon = parseFloat(params.get('lon'));
-      if (!isNaN(lat) && !isNaN(lon)) return { lat, lon };
-      return null;
-    };
 
-    const parseQueryCoords = () => {
-      const params = new URLSearchParams(window.location.search);
-      const lat = parseFloat(params.get('lat'));
-      const lon = parseFloat(params.get('lon'));
-      if (!isNaN(lat) && !isNaN(lon)) return { lat, lon };
-      return null;
-    };
+    // ——— Refresh button ———
+    $('refresh').addEventListener('click', e => {
+      e.preventDefault();
+      init();
+    });
 
-    const updateQueryCoords = (lat, lon) => {
-      const params = new URLSearchParams(window.location.search);
-      params.set('lat', lat);
-      params.set('lon', lon);
-      const newUrl = `${window.location.pathname}?${params.toString()}`;
-      window.history.replaceState({}, '', newUrl);
-    };
-  
     init();
   </script>
 </body>
