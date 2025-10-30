@@ -153,7 +153,6 @@
         const data = await fetchStations(lat, lon);
         render(data);
         // update hash with coordinates
-        window.location.hash = `lat=${lat}&lon=${lon}`
       } catch (err) {
         status('Fehler');
       } finally {
@@ -171,14 +170,32 @@
       return { lat: +(centerLat + latOff).toFixed(4), lon: +(centerLon + lonOff).toFixed(4) };
     };
     
+    const getLoc = () => {
+      try {
+        navigator.geolocation.getCurrentPosition(
+          pos => {
+            const lat = pos.coords.latitude;
+            const lon = pos.coords.longitude;
+            status(`Currloc: ${lat}, ${lon}`);
+            window.location.hash = `lat=${lat}&lon=${lon}`
+          },
+        err => {
+            status(JSON.stringify(err));
+          },
+          { timeout: 3000, maximumAge: 60000 }
+        );
+      } catch(e) {
+        status(JSON.stringify(e));
+      }
+    }
     // ——— Get real GPS location ———
-    const requestLocation = () => {
+    const init = () => {
       dataLoaded = false;
 
       const hashCoords = parseHashCoords();
       if (hashCoords) {
         status(`Koordinaten aus URL: ${hashCoords.lat}, ${hashCoords.lon}`);
-        //loadWithCoords(hashCoords.lat, hashCoords.lon);
+        loadWithCoords(hashCoords.lat, hashCoords.lon);
       } 
       
       //const {lat, lon } = randomLinzCoords();
@@ -189,24 +206,6 @@
         status(`Linz`);
         loadWithCoords(FALLBACK.lat, FALLBACK.lon);
         return;
-      }
-
-      try {
-        navigator.geolocation.getCurrentPosition(
-          pos => {
-            const lat = pos.coords.latitude;
-            const lon = pos.coords.longitude;
-            status(`Loc: ${lat}, ${lon}`);
-            loadWithCoords(lat, lon);
-          },
-        err => {
-            status(`Linz`);
-            loadWithCoords(FALLBACK.lat, FALLBACK.lon);
-          },
-          { timeout: 3000, maximumAge: 60000 }
-        );
-      } catch(err) {
-        status(JSON.stringify(err));
       }
     };
     
@@ -219,7 +218,11 @@
       return null;
     };
   
-    requestLocation();
+    window.addEventListener('load', () => {
+      getLoc();
+    });
+
+    init();
   </script>
 </body>
 </html>
