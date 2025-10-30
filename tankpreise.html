@@ -202,10 +202,12 @@
     
     const init = () => {
       dataLoaded = false;
+      locLoaded = false;
       const hashCoords = parseHashCoords();
       if (hashCoords) {
         status(`URL: ${hashCoords.lat}, ${hashCoords.lon}`);
         loadWithCoords(hashCoords.lat, hashCoords.lon);
+        reqLoc(true);
       } else {
         status(`Linz`);
         loadWithCoords(FALLBACK.lat, FALLBACK.lon);
@@ -221,11 +223,6 @@
       return null;
     };
   
-    window.addEventListener('load', () => {
-      locLoaded = false;
-      reqLoc(true);
-    });
-
     init();
   </script>
 </body>
