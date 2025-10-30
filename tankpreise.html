@@ -102,7 +102,11 @@
     const FALLBACK = { lat: 48.3069, lon: 14.2858 }; // Linz center
     let dataLoaded = false;
     let locLoaded = false;
-
+    
+    function  __wweb2WaitMillisecondsToWidgetIsReady(currentDelayMs) {
+        return  dataLoaded && locLoaded ? 0 : 1000;
+    }
+    
     const $ = id => document.getElementById(id);
     const status = str => $('status').textContent = str;
     const items = Array.from(document.querySelectorAll('#list .item'));
@@ -192,7 +196,7 @@
             pos => {
               const lat = pos.coords.latitude.toFixed(3);
               const lon = pos.coords.longitude.toFixed(3);
-              status(`${lat}, ${lon}`);
+              status(`Real: ${lat}, ${lon}`);
               updateCookieCoords(lat, lon);
               locLoaded = true;
             },
@@ -250,7 +254,7 @@
       navigator.geolocation.getCurrentPosition(
         pos => {
           const { latitude: lat, longitude: lon } = pos.coords;
-          status(`Erlaubt: ${lat.toFixed(3)}, ${lon.toFixed(3)}`);
+          status(`Real: ${lat.toFixed(3)}, ${lon.toFixed(3)}`);
           updateCookieCoords(lat, lon);
           loadWithCoords(lat, lon);               // reload stations with the new position
           locLoaded = true;
