@@ -171,23 +171,30 @@
       return { lat: +(centerLat + latOff).toFixed(4), lon: +(centerLon + lonOff).toFixed(4) };
     };
     
-    const reqLoc = () => {
+    const reqLoc = (fake = false) => {
       try {
-        status('Loc requested');
-        navigator.geolocation.getCurrentPosition(
-          pos => {
-            const lat = pos.coords.latitude;
-            const lon = pos.coords.longitude;
-            status(`${lat}, ${lon}`);
-            window.location.hash = `lat=${lat}&lon=${lon}`;
-            locLoaded = true;
-          },
-        err => {
-          status(err ? 'Fehler: ' + err.message : 'Unerwarteter Fehler beim Lokalisieren');
+        if(fake){
+          const {lat, lon } = randomLinzCoords();
+          window.location.hash = `lat=${lat}&lon=${lon}`;
           locLoaded = true;
-          },
-          { timeout: 3000, maximumAge: 60000 }
-        );
+        } else {
+        status('Loc requested');
+          navigator.geolocation.getCurrentPosition(
+            pos => {
+              const lat = pos.coords.latitude;
+              const lon = pos.coords.longitude;
+              status(`${lat}, ${lon}`);
+              window.location.hash = `lat=${lat}&lon=${lon}`;
+              locLoaded = true;
+            },
+          err => {
+            status(err ? 'Fehler: ' + err.message : 'Unerwarteter Fehler beim Lokalisieren');
+            locLoaded = true;
+            },
+            { timeout: 3000, maximumAge: 60000 }
+          );  
+        }
+        
       } catch(e) {
           status(err ? 'Fehler: ' + e.message : 'Unerwarteter Fehler beim Lokalisieren');
       }
@@ -203,10 +210,6 @@
         status(`Linz`);
         loadWithCoords(FALLBACK.lat, FALLBACK.lon);
       }
-      
-      //const {lat, lon } = randomLinzCoords();
-      //status(`Random loc: ${lat}, ${lon}`);
-      //loadWithCoords(lat, lon);
     };
     
     const parseHashCoords = () => {
@@ -220,7 +223,7 @@
   
     window.addEventListener('load', () => {
       locLoaded = false;
-      reqLoc();
+      reqLoc(true);
     });
 
     init();
