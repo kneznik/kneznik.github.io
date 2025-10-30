@@ -174,11 +174,12 @@
     const reqLoc = (fake = false) => {
       try {
         if(fake){
+          status('Fake Loc requested');
           const {lat, lon } = randomLinzCoords();
           window.location.hash = `lat=${lat}&lon=${lon}`;
           locLoaded = true;
         } else {
-          status('Loc requested');
+          status('Real Loc requested');
           navigator.geolocation.getCurrentPosition(
             pos => {
               const lat = pos.coords.latitude;
