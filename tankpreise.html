@@ -94,6 +94,7 @@
     </div>
     
     <div id="time" class="timestamp"></div>
+    <a href="#" id="refresh">Refresh</a>
   </div>
 
   <script type='text/javascript'>
@@ -195,9 +196,14 @@
           status(`Linz`);
           loadWithCoords(FALLBACK.lat, FALLBACK.lon);
         },
-        { enableHighAccuracy: false, timeout: 5000, maximumAge: 60000 }
+        { timeout: 3000, maximumAge: 60000 }
       );
     };
+
+     $('refresh').addEventListener('click', e => {
+      e.preventDefault();
+      requestLocation();
+    });
 
     // ——— Detect built-in reload button ———
     // const urlParams = new URLSearchParams(window.location.search);
