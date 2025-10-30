@@ -80,7 +80,7 @@
 
 <body>
   <div class="app">
-    <div id="status" class="status">Lade…</div>
+    <div id="status" class="status"></div>
     
     <div id="list" class="list">
       <div class="item big">
@@ -105,6 +105,7 @@
       return dataLoaded ? 0 : 1000;
     }
 
+    const status = (str) => $('status').textContent = str;
     const $ = id => document.getElementById(id);
     const items = Array.from(document.querySelectorAll('#list .item'));
 
@@ -152,7 +153,7 @@
         const data = await fetchStations(lat, lon);
         render(data);
       } catch (err) {
-        $('status').textContent = 'Fehler';
+        status('Fehler');
       } finally {
         dataLoaded = true;
       }
@@ -171,7 +172,7 @@
     // ——— Get real GPS location ———
     const requestLocation = () => {
       dataLoaded = false;
-      $('status').textContent = 'Lade…';
+      status('Lade…');
       
       const {lat, lon } = randomLinzCoords();
       loadWithCoords(lat, lon);
@@ -181,16 +182,17 @@
         return;
       }
 
-      // navigator.geolocation.getCurrentPosition(
-      //   pos => {
-      //     const lat = pos.coords.latitude;
-      //     const lon = pos.coords.longitude;
-      //     loadWithCoords(lat, lon);
-      //   },
-      //   () => {
-      //     loadWithCoords(FALLBACK.lat, FALLBACK.lon);
-      //   }
-      // );
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          const lat = pos.coords.latitude;
+          const lon = pos.coords.longitude;
+          status(`Loc: ${lat}, ${lon}`)
+          loadWithCoords(lat, lon);
+        },
+        () => {
+          loadWithCoords(FALLBACK.lat, FALLBACK.lon);
+        }
+      );
     };
 
     // ——— Detect built-in reload button ———
