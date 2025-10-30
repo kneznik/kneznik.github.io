@@ -94,7 +94,6 @@
     </div>
     
     <div id="time" class="timestamp"></div>
-    <a href="#" id="refresh">Refresh</a>
   </div>
 
   <script type='text/javascript'>
@@ -207,12 +206,8 @@
         { timeout: 3000, maximumAge: 60000 }
       );
     };
-
-     $('refresh').addEventListener('click', e => {
-      requestLocation();
-    });
     
-  const parseHashCoords = () => {
+    const parseHashCoords = () => {
       const hash = window.location.hash.replace('#', '');
       const params = new URLSearchParams(hash);
       const lat = parseFloat(params.get('lat'));
