@@ -194,7 +194,7 @@
 
       const hashCoords = parseHashCoords();
       if (hashCoords) {
-        status(`Koordinaten aus URL: ${hashCoords.lat}, ${hashCoords.lon}`);
+        status(`URL: ${hashCoords.lat}, ${hashCoords.lon}`);
         loadWithCoords(hashCoords.lat, hashCoords.lon);
       } else {
         status(`Linz`);
