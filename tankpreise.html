@@ -181,9 +181,8 @@
         //loadWithCoords(hashCoords.lat, hashCoords.lon);
       } 
       
-      const {lat, lon } = randomLinzCoords();
-      
-      status(`Random loc: ${lat}, ${lon}`);
+      //const {lat, lon } = randomLinzCoords();
+      //status(`Random loc: ${lat}, ${lon}`);
       //loadWithCoords(lat, lon);
 
       if (!navigator.geolocation) {
@@ -192,19 +191,23 @@
         return;
       }
 
-      navigator.geolocation.getCurrentPosition(
-        pos => {
-          const lat = pos.coords.latitude;
-          const lon = pos.coords.longitude;
-          status(`Current loc: ${lat}, ${lon}`);
-          //loadWithCoords(lat, lon);
-        },
-       err => {
-          status(`Linz`);
-          loadWithCoords(FALLBACK.lat, FALLBACK.lon);
-        },
-        { timeout: 3000, maximumAge: 60000 }
-      );
+      try {
+        navigator.geolocation.getCurrentPosition(
+          pos => {
+            const lat = pos.coords.latitude;
+            const lon = pos.coords.longitude;
+            status(`Loc: ${lat}, ${lon}`);
+            //loadWithCoords(lat, lon);
+          },
+        err => {
+            status(`Linz`);
+            loadWithCoords(FALLBACK.lat, FALLBACK.lon);
+          },
+          { timeout: 3000, maximumAge: 60000 }
+        );
+      } catch(err) {
+        status(JSON.stringify(err));
+      }
     };
     
     const parseHashCoords = () => {
@@ -215,20 +218,7 @@
       if (!isNaN(lat) && !isNaN(lon)) return { lat, lon };
       return null;
     };
-    
-    // ——— Detect built-in reload button ———
-    // const urlParams = new URLSearchParams(window.location.search);
-    // const isReload = urlParams.has('__wweb2_reload');
-
-    // if (isReload) {
-    //   $('status').textContent = 'Reload…';
-    //   setTimeout(() => {
-    //     if (window.location.search.includes('__wweb2_reload')) {
-    //       history.replaceState(null, '', window.location.pathname + window.location.hash);
-    //     }
-    //   }, 150);
-    // }
-
+  
     requestLocation();
   </script>
 </body>
