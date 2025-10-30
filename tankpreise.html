@@ -100,9 +100,10 @@
     const FUEL_TYPE = 'DIE';
     const FALLBACK = { lat: 48.3069, lon: 14.2858 }; // Linz center
     let dataLoaded = false;
+    let locLoaded = false;
 
     function __wweb2WaitMillisecondsToWidgetIsReady(currentDelayMs) {
-      return dataLoaded ? 0 : 1000;
+      return dataLoaded && locLoaded ? 0 : 1000;
     }
 
     const status = (str) => $('status').textContent = str;
@@ -178,10 +179,12 @@
             const lat = pos.coords.latitude;
             const lon = pos.coords.longitude;
             status(`${lat}, ${lon}`);
-            window.location.hash = `lat=${lat}&lon=${lon}`
+            window.location.hash = `lat=${lat}&lon=${lon}`;
+            locLoaded = true;
           },
         err => {
           status(err ? 'Fehler: ' + err.message : 'Unerwarteter Fehler beim Lokalisieren');
+          locLoaded = true;
           },
           { timeout: 3000, maximumAge: 60000 }
         );
@@ -189,10 +192,9 @@
           status(err ? 'Fehler: ' + e.message : 'Unerwarteter Fehler beim Lokalisieren');
       }
     }
-    // ——— Get real GPS location ———
+    
     const init = () => {
       dataLoaded = false;
-
       const hashCoords = parseHashCoords();
       if (hashCoords) {
         status(`URL: ${hashCoords.lat}, ${hashCoords.lon}`);
@@ -217,7 +219,8 @@
     };
   
     window.addEventListener('load', () => {
-      getLoc();
+      locLoaded = false;
+      reqLoc();
     });
 
     init();
