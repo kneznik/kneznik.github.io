@@ -177,7 +177,8 @@
         if(fake){
           status('Fake Loc requested');
           const {lat, lon } = randomLinzCoords();
-          window.location.hash = `lat=${lat}&lon=${lon}`;
+          //window.location.hash = `lat=${lat}&lon=${lon}`;
+          updateQueryCoords(lat, lon);
           locLoaded = true;
         } else {
           status('Real Loc requested');
@@ -186,7 +187,8 @@
               const lat = pos.coords.latitude;
               const lon = pos.coords.longitude;
               status(`${lat}, ${lon}`);
-              window.location.hash = `lat=${lat}&lon=${lon}`;
+              //window.location.hash = `lat=${lat}&lon=${lon}`;
+              updateQueryCoords(lat, lon);
               locLoaded = true;
             },
           err => {
@@ -207,7 +209,7 @@
       dataLoaded = false;
       locLoaded = false;
       let coords = FALLBACK;
-      const hashCoords = parseHashCoords();
+      const hashCoords = parseQueryCoords();
       if (hashCoords) {
         status(`URL: ${hashCoords.lat}, ${hashCoords.lon}`);
         coords = hashCoords;
@@ -225,6 +227,22 @@
       const lon = parseFloat(params.get('lon'));
       if (!isNaN(lat) && !isNaN(lon)) return { lat, lon };
       return null;
+    };
+
+    const parseQueryCoords = () => {
+      const params = new URLSearchParams(window.location.search);
+      const lat = parseFloat(params.get('lat'));
+      const lon = parseFloat(params.get('lon'));
+      if (!isNaN(lat) && !isNaN(lon)) return { lat, lon };
+      return null;
+    };
+
+    const updateQueryCoords = (lat, lon) => {
+      const params = new URLSearchParams(window.location.search);
+      params.set('lat', lat);
+      params.set('lon', lon);
+      const newUrl = `${window.location.pathname}?${params.toString()}`;
+      window.history.replaceState({}, '', newUrl);
     };
   
     init();
