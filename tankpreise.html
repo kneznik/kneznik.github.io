@@ -170,13 +170,13 @@
       return { lat: +(centerLat + latOff).toFixed(4), lon: +(centerLon + lonOff).toFixed(4) };
     };
     
-    const getLoc = () => {
+    const reqLoc = () => {
       try {
         navigator.geolocation.getCurrentPosition(
           pos => {
             const lat = pos.coords.latitude;
             const lon = pos.coords.longitude;
-            status(`Currloc: ${lat}, ${lon}`);
+            status(`${lat}, ${lon}`);
             window.location.hash = `lat=${lat}&lon=${lon}`
           },
         err => {
@@ -185,7 +185,7 @@
           { timeout: 3000, maximumAge: 60000 }
         );
       } catch(e) {
-        status(JSON.stringify(e));
+          status(err ? 'Fehler: ' + e.message : 'Unerwarteter Fehler beim Lokalisieren');
       }
     }
     // ——— Get real GPS location ———
