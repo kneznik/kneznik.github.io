@@ -174,36 +174,37 @@
       $('status').textContent = 'Lade…';
       
       const {lat, lon } = randomLinzCoords();
+      loadWithCoords(lat, lon);
 
       if (!navigator.geolocation) {
         loadWithCoords(FALLBACK.lat, FALLBACK.lon);
         return;
       }
 
-      navigator.geolocation.getCurrentPosition(
-        pos => {
-          //const lat = pos.coords.latitude;
-          //const lon = pos.coords.longitude;
-          loadWithCoords(lat, lon);
-        },
-        () => {
-          loadWithCoords(FALLBACK.lat, FALLBACK.lon);
-        }
-      );
+      // navigator.geolocation.getCurrentPosition(
+      //   pos => {
+      //     const lat = pos.coords.latitude;
+      //     const lon = pos.coords.longitude;
+      //     loadWithCoords(lat, lon);
+      //   },
+      //   () => {
+      //     loadWithCoords(FALLBACK.lat, FALLBACK.lon);
+      //   }
+      // );
     };
 
     // ——— Detect built-in reload button ———
-    const urlParams = new URLSearchParams(window.location.search);
-    const isReload = urlParams.has('__wweb2_reload');
+    // const urlParams = new URLSearchParams(window.location.search);
+    // const isReload = urlParams.has('__wweb2_reload');
 
-    if (isReload) {
-      $('status').textContent = 'Reload…';
-      setTimeout(() => {
-        if (window.location.search.includes('__wweb2_reload')) {
-          history.replaceState(null, '', window.location.pathname + window.location.hash);
-        }
-      }, 150);
-    }
+    // if (isReload) {
+    //   $('status').textContent = 'Reload…';
+    //   setTimeout(() => {
+    //     if (window.location.search.includes('__wweb2_reload')) {
+    //       history.replaceState(null, '', window.location.pathname + window.location.hash);
+    //     }
+    //   }, 150);
+    // }
 
     // ——— Always fetch fresh data ———
     requestLocation();
