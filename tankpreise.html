@@ -153,6 +153,8 @@
       try {
         const data = await fetchStations(lat, lon);
         render(data);
+        // update hash with coordinates
+        window.location.hash = `lat=${lat}&lon=${lon}`
       } catch (err) {
         status('Fehler');
       } finally {
@@ -173,6 +175,12 @@
     // ——— Get real GPS location ———
     const requestLocation = () => {
       dataLoaded = false;
+
+      const hashCoords = parseHashCoords();
+      if (hashCoords) {
+        status(`Koordinaten aus URL: ${hashCoords.lat}, ${hashCoords.lon}`);
+        //loadWithCoords(hashCoords.lat, hashCoords.lon);
+      } 
       
       const {lat, lon } = randomLinzCoords();
       
@@ -190,7 +198,7 @@
           const lat = pos.coords.latitude;
           const lon = pos.coords.longitude;
           status(`Current loc: ${lat}, ${lon}`);
-          loadWithCoords(lat, lon);
+          //loadWithCoords(lat, lon);
         },
        err => {
           status(`Linz`);
@@ -203,7 +211,16 @@
      $('refresh').addEventListener('click', e => {
       requestLocation();
     });
-
+    
+  const parseHashCoords = () => {
+      const hash = window.location.hash.replace('#', '');
+      const params = new URLSearchParams(hash);
+      const lat = parseFloat(params.get('lat'));
+      const lon = parseFloat(params.get('lon'));
+      if (!isNaN(lat) && !isNaN(lon)) return { lat, lon };
+      return null;
+    };
+    
     // ——— Detect built-in reload button ———
     // const urlParams = new URLSearchParams(window.location.search);
     // const isReload = urlParams.has('__wweb2_reload');
@@ -217,7 +234,6 @@
     //   }, 150);
     // }
 
-    // ——— Always fetch fresh data ———
     requestLocation();
   </script>
 </body>
