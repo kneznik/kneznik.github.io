@@ -79,7 +79,6 @@
 
   <script type="text/javascript">
     const FUEL_TYPE = 'DIE';
-    const FALLBACK = { lat: 48.3069, lon: 14.2858 };
     let dataLoaded = false;
     let locLoaded = false;
     
@@ -93,9 +92,7 @@
 
     const openMaps = (lat, lon) => {
       const appUrl = `comgooglemaps://?q=${lat},${lon}`;
-      const webUrl = `https://www.google.com/maps/search/?api=1&query=${lat},${lon}`;
       window.location.href = appUrl;
-      //setTimeout(() => window.open(webUrl, '_blank'), 300);
     };
 
     const render = data => {
