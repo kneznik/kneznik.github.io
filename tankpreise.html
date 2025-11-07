@@ -120,7 +120,7 @@
       items.forEach((it, i) => {
         const s = list[i];
         const p = s?.prices?.[0]?.amount;
-        const d = s?.distance?.toFixed(2) || '';
+        const d = s?.distance?.toFixed(1) || '';
         if (d) s.distance = d;
         if (s?.name) s.name = s.name.replaceAll('ss', 'ß');
         if (s?.location?.address) s.location.address = s.location.address.replaceAll('ss', 'ß');
