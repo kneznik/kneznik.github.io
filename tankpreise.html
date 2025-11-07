@@ -191,9 +191,13 @@
             pos => {
               const lat = pos.coords.latitude.toFixed(3);
               const lon = pos.coords.longitude.toFixed(3);
-              //status(`Real: ${lat}, ${lon}`);
-              updateCookieCoords(lat, lon);
               locLoaded = true;
+              //status(`Real: ${lat}, ${lon}`);
+              
+              //updateCookieCoords(lat, lon);
+
+              loadWithCoords(lat, lon);
+          
             },
             err => {
               status(err ? 'Fehler: ' + err.message : 'Unerwarteter Fehler beim Lokalisieren');
@@ -224,7 +228,7 @@
     const init = () => {
       dataLoaded = false;
       locLoaded = false;
-      let coords = FALLBACK;
+      //let coords = FALLBACK;
 
       //const cookieCoords = getCookieCoords();
       //if (cookieCoords) {
@@ -236,8 +240,7 @@
 
       //loadWithCoords(coords.lat, coords.lon);
       reqLoc();
-      const cookieCoords = getCookieCoords();
-      loadWithCoords(coords.lat, coords.lon);
+      
     };
 
     init();
