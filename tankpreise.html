@@ -13,65 +13,44 @@
     @media (prefers-color-scheme: dark) {
       :root { --text: #ededed; }
     }
-    
     * { box-sizing: border-box; }
-    
     html, body { margin: 0; height: 100%; color: var(--text); }
-    
     .app {
       max-width: 480px;
       margin: 2px auto;
       padding: 8px;
     }
-    
-    .status {
-      text-align: center;
-      font-size: 10px;
-      font-weight: 500;
-    }
-    
-    .list {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: 5px;
-    }
-    
+    .status { text-align: center; font-size: 10px; font-weight: 500; }
+    .list { display: flex; flex-direction: column; gap: 10px; margin-top: 5px; }
     .item {
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 0 10px;
+      cursor: pointer;
     }
-    
     .item.big {
       flex-direction: column;
       align-items: center;
       text-align: center;
       padding: 5px;
     }
-    
     .price {
       font-family: Menlo, Monaco, Consolas, monospace;
       font-size: 26px;
       font-weight: 700;
     }
-    
     .smallPrice {
       font-family: Menlo, monospace;
       font-size: 13px;
-      color: var(--text);
       min-width: 48px;
       text-align: right;
     }
-    
     .name { font-weight: 600; font-size: 18px; }
-    .addr { font-size: 14px; color: var(--text); margin-top: 1px; }
-    
+    .addr { font-size: 14px; margin-top: 1px; }
     .timestamp {
       text-align: center;
       font-size: 12px;
-      color: var(--text);
       margin-top: 12px;
       font-variant: tabular-nums;
     }
@@ -98,7 +77,7 @@
 
   <script type="text/javascript">
     const FUEL_TYPE = 'DIE';
-    const FALLBACK = { lat: 48.3069, lon: 14.2858 }; // Linz center
+    const FALLBACK = { lat: 48.3069, lon: 14.2858 };
     let dataLoaded = false;
     let locLoaded = false;
     
@@ -106,16 +85,21 @@
     const status = str => $('status').textContent = str;
     const items = Array.from(document.querySelectorAll('#list .item'));
 
-    // ——— Formatting ———
     const fmt = v => v != null ? v + '€' : '';
     const addr = l => l ? [l.address, l.postalCode, l.city].filter(Boolean).join(', ') : '';
     const remSub = (n, add) => (n && add ? n.split(add).join('') : n);
 
-    // ——— Render ———
+    const openMaps = (lat, lon) => {
+      const appUrl = `comgooglemaps://?q=${lat},${lon}`;
+      const webUrl = `https://www.google.com/maps/search/?api=1&query=${lat},${lon}`;
+      window.location.href = appUrl;
+      setTimeout(() => window.open(webUrl, '_blank'), 300);
+    };
+
     const render = data => {
       const list = data?.filter(s => s.prices?.length)
-                     ?.sort((a,b) => a.distance - b.distance)
-                     ?.slice(0, items.length) || [];
+                       ?.sort((a,b) => a.distance - b.distance)
+                       ?.slice(0, items.length) || [];
 
       items.forEach((it, i) => {
         const s = list[i];
@@ -124,11 +108,18 @@
         if (d) s.distance = d;
         if (s?.name) s.name = s.name.replaceAll('ss', 'ß');
         if (s?.location?.address) s.location.address = s.location.address.replaceAll('ss', 'ß');
-        
+
         const addy = addr(s?.location);
+
         it.querySelector(i === 0 ? '.price' : '.smallPrice').textContent = fmt(p);
         it.querySelector('.name').textContent = remSub(s?.name || '', s?.location?.address || '') + (d ? ', ' + d + 'km' : '');
         it.querySelector('.addr').textContent = addy;
+
+        it.onclick = () => {
+          if (s?.location?.latitude && s?.location?.longitude) {
+            openMaps(s.location.latitude, s.location.longitude);
+          }
+        };
       });
 
       const now = new Date();
@@ -136,7 +127,6 @@
                               now.toLocaleTimeString('de-AT', { hour: '2-digit', minute: '2-digit' });
     };
 
-    // ——— API ———
     const fetchStations = async (lat, lon) => {
       const url = `https://api.e-control.at/sprit/1.0/search/gas-stations/by-address?latitude=${lat}&longitude=${lon}&fuelType=${FUEL_TYPE}&includeClosed=false`;
       const res = await fetch(url);
@@ -155,92 +145,30 @@
       }
     };
 
-    // ——— Cookie helpers (30 min lifetime) ———
-    const setCookie = (name, value, minutes = 30) => {
-      const expires = new Date(Date.now() + minutes * 60 * 1000).toUTCString();
-      document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/`;
-    };
-
-    const getCookie = name => {
-      return document.cookie.split('; ').reduce((r, v) => {
-        const parts = v.split('=');
-        return parts[0] === name ? decodeURIComponent(parts[1]) : r;
-      }, null);
-    };
-
-    // ——— Location ———
-    const randomLinzCoords = () => {
-      const centerLat = 48.3069, centerLon = 14.2858;
-      const earthR = 6371;
-      const dist = Math.sqrt(Math.random()) * 5;
-      const bearing = Math.random() * 2 * Math.PI;
-      const latOff = (dist / earthR) * (180 / Math.PI) * Math.cos(bearing);
-      const lonOff = (dist / earthR) * (180 / Math.PI) * Math.sin(bearing) / Math.cos(centerLat * Math.PI / 180);
-      return { lat: +(centerLat + latOff).toFixed(3), lon: +(centerLon + lonOff).toFixed(3) };
-    };
-
-    const reqLoc = (fake = false) => {
+    const reqLoc = () => {
       try {
-        if (fake) {
-          status('Fake');
-          const { lat, lon } = randomLinzCoords();
-          updateCookieCoords(lat, lon);
-          locLoaded = true;
-        } else {
-          navigator.geolocation.getCurrentPosition(
-            pos => {
-              const lat = pos.coords.latitude.toFixed(3);
-              const lon = pos.coords.longitude.toFixed(3);
-              locLoaded = true;
-              //status(`Real: ${lat}, ${lon}`);
-              
-              //updateCookieCoords(lat, lon);
-
-              loadWithCoords(lat, lon);
-          
-            },
-            err => {
-              status(err ? 'Fehler: ' + err.message : 'Unerwarteter Fehler beim Lokalisieren');
-              locLoaded = true;
-            },
-            { timeout: 3000, maximumAge: 60000 }
-          );
-        }
+        navigator.geolocation.getCurrentPosition(
+          pos => {
+            const lat = pos.coords.latitude.toFixed(3);
+            const lon = pos.coords.longitude.toFixed(3);
+            locLoaded = true;
+            loadWithCoords(lat, lon);
+          },
+          err => {
+            status(err ? 'Fehler: ' + err.message : 'Unerwarteter Fehler beim Lokalisieren');
+            locLoaded = true;
+          },
+          { timeout: 3000, maximumAge: 60000 }
+        );
       } catch (e) {
         status('Fehler: ' + e.message);
       }
     };
 
-    // ——— Cookie coordinate handling ———
-    const getCookieCoords = () => {
-      const lat = parseFloat(getCookie('lat'));
-      const lon = parseFloat(getCookie('lon'));
-      if (!isNaN(lat) && !isNaN(lon)) return { lat, lon };
-      return null;
-    };
-
-    const updateCookieCoords = (lat, lon) => {
-      setCookie('lat', lat);
-      setCookie('lon', lon);
-    };
-
-    // ——— Init ———
     const init = () => {
       dataLoaded = false;
       locLoaded = false;
-      //let coords = FALLBACK;
-
-      //const cookieCoords = getCookieCoords();
-      //if (cookieCoords) {
-      //  status(`Cookie: ${cookieCoords.lat}, ${cookieCoords.lon}`);
-      //  coords = cookieCoords;
-      //} else {
-      //  status(`Linz`);
-      //}
-
-      //loadWithCoords(coords.lat, coords.lon);
       reqLoc();
-      
     };
 
     init();
