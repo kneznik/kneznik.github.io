@@ -102,10 +102,6 @@
     let dataLoaded = false;
     let locLoaded = false;
     
-    function  __wweb2WaitMillisecondsToWidgetIsReady(currentDelayMs) {
-        return  dataLoaded && locLoaded ? 0 : 1000;
-    }
-    
     const $ = id => document.getElementById(id);
     const status = str => $('status').textContent = str;
     const items = Array.from(document.querySelectorAll('#list .item'));
@@ -230,16 +226,18 @@
       locLoaded = false;
       let coords = FALLBACK;
 
-      const cookieCoords = getCookieCoords();
-      if (cookieCoords) {
-        status(`Cookie: ${cookieCoords.lat}, ${cookieCoords.lon}`);
-        coords = cookieCoords;
-      } else {
-        status(`Linz`);
-      }
+      //const cookieCoords = getCookieCoords();
+      //if (cookieCoords) {
+      //  status(`Cookie: ${cookieCoords.lat}, ${cookieCoords.lon}`);
+      //  coords = cookieCoords;
+      //} else {
+      //  status(`Linz`);
+      //}
 
-      loadWithCoords(coords.lat, coords.lon);
+      //loadWithCoords(coords.lat, coords.lon);
       reqLoc();
+      const cookieCoords = getCookieCoords();
+      loadWithCoords(coords.lat, coords.lon);
     };
 
     init();
