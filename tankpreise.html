@@ -166,32 +166,6 @@
       }
     };
 
-   const askPriceTrend = async currentPrice => {
-      status("Analysiere Markt...");
-    
-      const prompt = `
-        Der aktuelle Dieselpreis beträgt ${currentPrice} € pro Liter.
-        Sage in einem kurzen Satz:
-        Wird der Preis in den nächsten 5 Tagen eher steigen, fallen oder stabil bleiben?
-        Antworte in genau einem dieser Formate:
-        "Preis steigt" / "Preis fällt" / "Preis bleibt stabil"
-      `;
-    
-      try {
-        const res = await fetch("https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ inputs: prompt })
-        });
-    
-        const json = await res.json();
-        const reply = json[0]?.generated_text?.trim() || "";
-        const clean = reply.replace(/.*:/, "").trim();
-        status(clean);
-      } catch (e) {
-        status("Keine kostenlose KI erreichbar");
-      }
-    };
     
     const init = () => {
       dataLoaded = false;
