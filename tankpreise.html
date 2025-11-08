@@ -100,8 +100,6 @@
                        ?.sort((a,b) => a.distance - b.distance)
                        ?.slice(0, items.length) || [];
 
-      const firstPrice = list?.[0]?.prices?.[0]?.amount;
-      if (firstPrice) askPriceTrend(firstPrice);
       items.forEach((it, i) => {
         const s = list?.[i];
         const p = s?.prices?.[0]?.amount;
