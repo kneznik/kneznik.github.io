@@ -176,7 +176,8 @@
        const { latitude, longitude } = await reqLoc();
        await getData(latitude, longitude);
       }catch(err){
-        status(err ? 'Fehler: ' + (err?.message ?? err) : 'Unerwarteter Fehler!');
+        //status(err ? 'Fehler: ' + (err?.message ?? err) : 'Unerwarteter Fehler!');
+        status('Linz')
         await getData(FALLBACK_LOCATION.latitude.toFixed(3), FALLBACK_LOCATION.longitude.toFixed(3));
       }
     });
