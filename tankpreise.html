@@ -43,6 +43,7 @@
       flex-direction: column;
       align-items: center;
       text-align: center;
+      border-bottom: 1px solid lightgray;
       padding: 5px;
     }
     .price {
@@ -122,10 +123,13 @@
     };
 
     superscriptLastDigit = (str) => {
-      const last = str?.slice(-1);
-      const prefix = str?.slice(0, -1);
+      if(str.length > 4) {
+        const last = str?.slice(-1);
+        const prefix = str?.slice(0, -1);
 
-      return prefix + (superscriptMap[last] || last);
+        return prefix + (superscriptMap[last] || last);
+      }
+      return str;
     }
 
     const render = data => {
