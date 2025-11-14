@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="js-widget-title" content="Tankpreise">
+  <meta name="js-widget-title" content="TankpreiseAT">
   
   <style type="text/css">
     :root {
@@ -82,6 +82,10 @@
     let dataLoaded = false;
     let locLoaded = false;
     
+    function  __wweb2WaitMillisecondsToWidgetIsReady(currentDelayMs) {
+        return  dataLoaded && locLoaded ? 0 : 1000;
+    }
+
     const $ = id => document.getElementById(id);
     const status = str => $('status').textContent = str;
     const items = Array.from(document.querySelectorAll('#list .item'));
