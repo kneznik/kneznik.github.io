@@ -176,17 +176,14 @@
       }
     };
 
-    
-    const init = async () => {
+    window.addEventListener('DOMContentLoaded', async () => {
+      try{
        const { latitude, longitude } = await reqLoc();
        await getData(latitude, longitude);
-    };
-
-    try{
-      await init();
-    }catch(err){
+      }catch(err){
         await getData(FALLBACK_LOCATION.latitude.toFixed(3), FALLBACK_LOCATION.longitude.toFixed(3));
-    }
+      }
+    });
   </script>
 </body>
 </html>
