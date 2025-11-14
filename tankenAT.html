@@ -152,7 +152,7 @@
         const { latitude, longitude } = await getCurrentPosition();
         await getData(latitude, longitude);
       } catch (err) {
-        showStatus("Linz");
+        showStatus(err.message);
         await getData(FALLBACK_LOCATION.latitude.toFixed(3), FALLBACK_LOCATION.longitude.toFixed(3));
       }
     }
