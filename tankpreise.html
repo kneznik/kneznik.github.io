@@ -58,7 +58,7 @@
     }
     .name {
       font-weight: 600;
-      font-size: 18px;
+      font-size: 20px;
     }
     .addr {
       font-size: 14px;
@@ -66,7 +66,7 @@
     }
     .timestamp {
       text-align: center;
-      font-size: 12px;
+      font-size: 10px;
       margin-top: 12px;
       font-variant: tabular-nums;
     }
@@ -100,7 +100,7 @@
     const items = Array.from(document.querySelectorAll('#list .item'));
 
     const fmt = v => v != null ? v + '€' : '';
-    const addr = l => l ? [l.address, l.postalCode, l.city].filter(Boolean).join(', ') : '';
+    const addr = l => l ? [l.address, l.city].filter(Boolean).join(', ') : '';
     const remSub = (n, add) => (n && add ? n.split(add).join('') : n);
 
     const openMaps = (lat, lon) => {
