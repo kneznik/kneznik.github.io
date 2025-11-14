@@ -4,40 +4,27 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="js-widget-title" content="TankenAT" />
-  <style>
+  <style type="text/css">
     :root {
       --text: #000;
-      --muted: #666;
-      font-family: Inter, system-ui, -apple-system;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
     @media (prefers-color-scheme: dark) {
-      :root {
-        --text: #ededed;
-        --muted: #bbb;
-      }
+      :root { --text: #ededed; }
     }
-    html, body {
-      margin: 0;
-      height: 100%;
-      color: var(--text);
-    }
+    
+    * { box-sizing: border-box; }
+    
+    html, body { margin: 0; height: 100%; color: var(--text); }
     .app {
-      display: flex;
-      flex-direction: column;
-      max-width: 400px;
-      margin: 8px auto;
-      border-radius: 12px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.03), transparent);
-      padding: 10px;
+      max-width: 480px;
+      margin: 2px auto;
+      padding: 8px;
     }
     .status {
       text-align: center;
-    }
-    .timestamp {
-      font-size: 11px;
-      color: var(--muted);
-      text-align: center;
-      margin-top: 20px;
+      font-size: 10px;
+      font-weight: 500;
     }
     .list {
       display: flex;
@@ -49,52 +36,62 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-radius: 10px;
-      padding: 5px;
+      padding: 0 10px;
+      cursor: pointer;
     }
     .item.big {
       flex-direction: column;
       align-items: center;
-      padding: 7px;
+      text-align: center;
+      padding: 5px;
     }
     .price {
-      font-family: Menlo, monospace;
-      font-size: 22px;
+      font-family: Menlo, Monaco, Consolas, monospace;
+      font-size: 26px;
+      font-weight: 700;
     }
     .smallPrice {
       font-family: Menlo, monospace;
-      font-size: 12px;
-      color: var(--muted);
+      font-size: 16px;
+      min-width: 48px;
+      text-align: right;
     }
     .name {
       font-weight: 600;
+      font-size: 18px;
     }
     .addr {
-      font-size: 12px; color: var(--muted);
+      font-size: 14px;
+      margin-top: 1px;
+    }
+    .timestamp {
+      text-align: center;
+      font-size: 12px;
+      margin-top: 12px;
+      font-variant: tabular-nums;
     }
   </style>
 </head>
+
 <body>
   <div class="app">
     <div id="status" class="status"></div>
-
+    
     <div id="list" class="list">
       <div class="item big">
         <div class="price"></div>
-        <div class="meta">
-          <div class="name"></div>
-          <div class="addr"></div>
-        </div>
+        <div class="meta"><div class="name"></div><div class="addr"></div></div>
       </div>
-      <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:18px;"><div class="name"></div><div class="addr"></div></div></div>
-      <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:18px;"><div class="name"></div><div class="addr"></div></div></div>
-      <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:18px;"><div class="name"></div><div class="addr"></div></div></div>
-      <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:18px;"><div class="name"></div><div class="addr"></div></div></div>
+      <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:16px"><div class="name"></div><div class="addr"></div></div></div>
+      <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:16px"><div class="name"></div><div class="addr"></div></div></div>
+      <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:16px"><div class="name"></div><div class="addr"></div></div></div>
+      <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:16px"><div class="name"></div><div class="addr"></div></div></div>
     </div>
+    
     <div id="time" class="timestamp"></div>
   </div>
-
-  <script>
+  
+  <script type="text/javascript">
     const FUEL_TYPE = 'DIE';
     const FALLBACK_LOCATION = { latitude: 48.265, longitude: 14.287 };
 
@@ -129,7 +126,6 @@
         const response = await fetch(url);
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const json = await response.json();
-        showStatus('');
         renderStations(json);
       } catch (err) {
         showStatus("Fehler beim Laden der Daten");
@@ -152,12 +148,11 @@
     }
 
     async function loadStations() {
-      showStatus('Lade...');
       try {
         const { latitude, longitude } = await getCurrentPosition();
         await getData(latitude, longitude);
       } catch (err) {
-        showStatus("Linz (Fallback)");
+        showStatus("Linz");
         await getData(FALLBACK_LOCATION.latitude.toFixed(3), FALLBACK_LOCATION.longitude.toFixed(3));
       }
     }
