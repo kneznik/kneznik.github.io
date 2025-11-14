@@ -108,6 +108,26 @@
       window.location.href = appUrl;
     };
 
+    const superscriptMap = {
+      "0": "⁰",
+      "1": "¹",
+      "2": "²",
+      "3": "³",
+      "4": "⁴",
+      "5": "⁵",
+      "6": "⁶",
+      "7": "⁷",
+      "8": "⁸",
+      "9": "⁹"
+    };
+
+    superscriptLastDigit = (str) => {
+      const last = str?.slice(-1);
+      const prefix = str?.slice(0, -1);
+
+      return prefix + (superscriptMap[last] || last);
+    }
+
     const render = data => {
       const list = data?.filter(s => s.prices?.length)
                        ?.sort((a,b) => a.distance - b.distance)
@@ -115,7 +135,7 @@
 
       items.forEach((it, i) => {
         const s = list?.[i];
-        const p = s?.prices?.[0]?.amount;
+        const p = superscriptLastDigit('' + s?.prices?.[0]?.amount);
         const d = s?.distance?.toFixed(1) || '';
         if (d) s.distance = d;
         if (s?.name) s.name = s.name.replaceAll('ss', 'ß');
