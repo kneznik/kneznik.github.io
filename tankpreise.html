@@ -151,7 +151,7 @@
         const data = await fetchStations(lat, lon);
         render(data);
       } catch (err) {
-        status(err ? 'Fehler: ' + err.message : 'Unerwarteter Fehler beim Laden');
+        status(err ? 'Fehler: ' + err.message : 'Unerwarteter Fehler!');
       }
     };
 
@@ -176,7 +176,7 @@
        const { latitude, longitude } = await reqLoc();
        await getData(latitude, longitude);
       }catch(err){
-        status(err.message);
+        status(err ? 'Fehler: ' + err.message : 'Unerwarteter Fehler!');
         await getData(FALLBACK_LOCATION.latitude.toFixed(3), FALLBACK_LOCATION.longitude.toFixed(3));
       }
     });
