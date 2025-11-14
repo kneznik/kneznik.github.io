@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  
   <style type="text/css">
     :root {
       --text: #000;
@@ -20,8 +21,17 @@
       margin: 2px auto;
       padding: 8px;
     }
-    .status { text-align: center; font-size: 10px; font-weight: 500; }
-    .list { display: flex; flex-direction: column; gap: 10px; margin-top: 5px; }
+    .status {
+      text-align: center;
+      font-size: 10px;
+      font-weight: 500;
+    }
+    .list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 5px;
+    }
     .item {
       display: flex;
       align-items: center;
@@ -42,12 +52,18 @@
     }
     .smallPrice {
       font-family: Menlo, monospace;
-      font-size: 16px;
+      font-size: 13px;
       min-width: 48px;
       text-align: right;
     }
-    .name { font-weight: 600; font-size: 18px; }
-    .addr { font-size: 14px; margin-top: 1px; }
+    .name {
+      font-weight: 600;
+      font-size: 18px;
+    }
+    .addr {
+      font-size: 14px;
+      margin-top: 1px;
+    }
     .timestamp {
       text-align: center;
       font-size: 12px;
@@ -77,9 +93,7 @@
 
   <script type="text/javascript">
     const FUEL_TYPE = 'DIE';
-    let dataLoaded = false;
-    let locLoaded = false;
-    
+    const FALLBACK_LOCATION = { latitude: 48.265, longitude: 14.287 };
 
     const $ = id => document.getElementById(id);
     const status = str => $('status').textContent = str;
@@ -132,29 +146,28 @@
       return await res.json();
     };
 
-    const loadWithCoords = async (lat, lon) => {
+    const getData = async (lat, lon) => {
       try {
         const data = await fetchStations(lat, lon);
         render(data);
       } catch (err) {
         status(err ? 'Fehler: ' + err.message : 'Unerwarteter Fehler beim Laden');
-      } finally {
-        dataLoaded = true;
       }
     };
 
-    const reqLoc = () => {
+    const reqLoc = async () => {
       try {
-        navigator.geolocation.getCurrentPosition(
+        await navigator.geolocation.getCurrentPosition(
           pos => {
             const lat = pos.coords.latitude.toFixed(3);
             const lon = pos.coords.longitude.toFixed(3);
-            locLoaded = true;
-            loadWithCoords(lat, lon);
+            return {
+              latitude: pos.coords.latitude.toFixed(3),
+              longitude: pos.coords.longitude.toFixed(3)
+            }
           },
           err => {
             status(err ? 'Fehler: ' + err.message : 'Unerwarteter Fehler beim Lokalisieren');
-            locLoaded = true;
           },
           { timeout: 3000, maximumAge: 60000 }
         );
@@ -164,13 +177,16 @@
     };
 
     
-    const init = () => {
-      dataLoaded = false;
-      locLoaded = false;
-      reqLoc();
+    const init = async () => {
+       const { latitude, longitude } = await reqLoc();
+       await getData(latitude, longitude);
     };
 
-    init();
+    try{
+      await init();
+    }catch(err){
+        await getData(FALLBACK_LOCATION.latitude.toFixed(3), FALLBACK_LOCATION.longitude.toFixed(3));
+    }
   </script>
 </body>
 </html>
