@@ -23,7 +23,7 @@
     }
     .status {
       text-align: center;
-      font-size: 10px;
+      font-size: 12px;
       font-weight: 500;
     }
     .list {
@@ -87,9 +87,8 @@
       <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:16px"><div class="name"></div><div class="addr"></div></div></div>
       <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:16px"><div class="name"></div><div class="addr"></div></div></div>
       <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:16px"><div class="name"></div><div class="addr"></div></div></div>
-      <!--
       <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:16px"><div class="name"></div><div class="addr"></div></div></div>
-      -->
+      
     </div>
   </div>
 
@@ -203,7 +202,7 @@
       try{
        const { latitude, longitude } = await reqLoc();
        await getData(latitude, longitude);
-       status(`${latitude}, ${longitude}`);
+       //status(`${latitude}, ${longitude}`);
       }catch(err){
         //status(err ? 'Fehler: ' + (err?.message ?? err) : 'Unerwarteter Fehler!');
         status('Linz')
