@@ -53,21 +53,21 @@
     }
     .smallPrice {
       font-family: Menlo, monospace;
-      font-size: 20px;
+      font-size: 22px;
       min-width: 55px;
       text-align: right;
     }
     .name {
       font-weight: 600;
-      font-size: 22px;
+      font-size: 24px;
     }
     .addr {
-      font-size: 18px;
+      font-size: 20px;
       margin-top: 1px;
     }
     .timestamp {
       text-align: center;
-      font-size: 10px;
+      font-size: 12px;
       margin-top: 15px;
       font-variant: tabular-nums;
     }
@@ -76,6 +76,7 @@
 
 <body>
   <div class="app">
+     <div id="time" class="timestamp"></div>
     <div id="status" class="status"></div>
     
     <div id="list" class="list">
@@ -86,10 +87,10 @@
       <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:16px"><div class="name"></div><div class="addr"></div></div></div>
       <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:16px"><div class="name"></div><div class="addr"></div></div></div>
       <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:16px"><div class="name"></div><div class="addr"></div></div></div>
+      <!--
       <div class="item"><div class="smallPrice"></div><div style="flex:1;margin-left:16px"><div class="name"></div><div class="addr"></div></div></div>
+      -->
     </div>
-    
-    <div id="time" class="timestamp"></div>
   </div>
 
   <script type="text/javascript">
