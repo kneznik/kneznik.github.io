@@ -201,8 +201,9 @@
 
     window.addEventListener('DOMContentLoaded', async () => {
       try{
-       const { latitude, longitude } = await reqLoc();
-       await getData(latitude, longitude);
+       const { lat, long } = await reqLoc();
+       await getData(lat, long);
+       status(`${lat}, ${long}`);
       }catch(err){
         //status(err ? 'Fehler: ' + (err?.message ?? err) : 'Unerwarteter Fehler!');
         status('Linz')
