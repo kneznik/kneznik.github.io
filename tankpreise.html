@@ -205,8 +205,8 @@
        await getData(lat, long);
        status(`${lat}, ${long}`);
       }catch(err){
-        //status(err ? 'Fehler: ' + (err?.message ?? err) : 'Unerwarteter Fehler!');
-        status('Linz')
+        status(err ? 'Fehler: ' + (err?.message ?? err) : 'Unerwarteter Fehler!');
+        //status('Linz')
         await getData(FALLBACK_LOCATION.latitude.toFixed(3), FALLBACK_LOCATION.longitude.toFixed(3));
       }
     });
