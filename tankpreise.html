@@ -43,7 +43,6 @@
       flex-direction: column;
       align-items: center;
       text-align: center;
-      border-bottom: 1px solid lightgray;
       padding: 5px;
     }
     .price {
@@ -155,7 +154,9 @@
           it.querySelector(i === 0 ? '.price' : '.smallPrice').textContent = fmt(p);
           it.querySelector('.name').textContent = remSub(s?.name || '', s?.location?.address || '') + (d ? ', ' + d + 'km' : '');
           it.querySelector('.addr').textContent = addy;
-
+          if (it.classList.contains('big')) {
+              it.style.border-bottom = '1px solid lightgray';
+          }
           it.onclick = () => {
             if (s?.location?.latitude && s?.location?.longitude) {
               openMaps(s.location.latitude, s.location.longitude);
