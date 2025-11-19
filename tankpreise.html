@@ -144,21 +144,27 @@
         const s = list?.[i];
         const p = superscriptLastDigit('' + s?.prices?.[0]?.amount);
         const d = s?.distance?.toFixed(1) || '';
-        if (d) s.distance = d;
-        if (s?.name) s.name = s.name.replaceAll('ss', 'ß');
-        if (s?.location?.address) s.location.address = s.location.address.replaceAll('ss', 'ß');
+        
+        if(s && p && d){
+          if (d) s.distance = d;
+          if (s?.name) s.name = s.name.replaceAll('ss', 'ß');
+          if (s?.location?.address) s.location.address = s.location.address.replaceAll('ss', 'ß');
 
-        const addy = addr(s?.location);
+          const addy = addr(s?.location);
 
-        it.querySelector(i === 0 ? '.price' : '.smallPrice').textContent = fmt(p);
-        it.querySelector('.name').textContent = remSub(s?.name || '', s?.location?.address || '') + (d ? ', ' + d + 'km' : '');
-        it.querySelector('.addr').textContent = addy;
+          it.querySelector(i === 0 ? '.price' : '.smallPrice').textContent = fmt(p);
+          it.querySelector('.name').textContent = remSub(s?.name || '', s?.location?.address || '') + (d ? ', ' + d + 'km' : '');
+          it.querySelector('.addr').textContent = addy;
 
-        it.onclick = () => {
-          if (s?.location?.latitude && s?.location?.longitude) {
-            openMaps(s.location.latitude, s.location.longitude);
-          }
-        };
+          it.onclick = () => {
+            if (s?.location?.latitude && s?.location?.longitude) {
+              openMaps(s.location.latitude, s.location.longitude);
+            }
+          };
+        } else {
+          status('Unerwarteter Fehler!');
+          break;
+        }
       });
 
       const now = new Date();
