@@ -155,7 +155,7 @@
           it.querySelector('.name').textContent = remSub(s?.name || '', s?.location?.address || '') + (d ? ', ' + d + 'km' : '');
           it.querySelector('.addr').textContent = addy;
           if (it.classList.contains('big')) {
-              it.style.border-bottom = '1px solid lightgray';
+              it.style.borderBottom = '1px solid lightgray';
           }
           it.onclick = () => {
             if (s?.location?.latitude && s?.location?.longitude) {
