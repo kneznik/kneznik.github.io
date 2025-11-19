@@ -130,7 +130,6 @@
       if(str?.length > 4) {
         const last = str?.slice(-1);
         const prefix = str?.slice(0, -1);
-
         return prefix + (superscriptMap[last] || last);
       }
       return str;
@@ -138,7 +137,7 @@
 
     const render = data => {
       const list = data?.filter(s => s.prices?.length)
-                       ?.sort((a,b) => a.distance - b.distance)
+                       ?.sort((a, b) => a?.distance - b?.distance)
                        ?.slice(0, items.length) || [];
 
       items.forEach((it, i) => {
@@ -170,7 +169,17 @@
     const fetchStations = async (lat, lon) => {
       const url = `https://api.e-control.at/sprit/1.0/search/gas-stations/by-address?latitude=${lat}&longitude=${lon}&fuelType=${FUEL_TYPE}&includeClosed=false`;
       const res = await fetch(url);
-      if (!res.ok) throw new Error('' + res.status);
+      if (!res.ok) {
+        let message = '';
+        try {
+          const errorJson = await res.json();
+          message = errorJson.message || JSON.stringify(errorJson);
+        } catch {
+          message = await res.text();
+        }
+
+        throw new Error(message);
+      }
       return await res.json();
     };
 
