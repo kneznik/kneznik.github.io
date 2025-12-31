@@ -143,9 +143,7 @@
         const s = list?.[i];
         const p = superscriptLastDigit('' + s?.prices?.[0]?.amount);
         const d = s?.distance?.toFixed(1) || '';
-        status(s);
-        status(p);
-        status(d);
+        status(s + p + d)
         if(s && p && d){
           if (d) s.distance = d;
           if (s?.name) s.name = s.name.replaceAll('ss', 'ß');
@@ -165,7 +163,7 @@
             }
           };
         } else {
-          status('Unerwarteter Fehler!');
+          //status('Unerwarteter Fehler!');
           return;
         }
       });
