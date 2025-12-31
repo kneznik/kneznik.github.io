@@ -143,7 +143,7 @@
         const s = list?.[i];
         const p = superscriptLastDigit('' + s?.prices?.[0]?.amount);
         const d = s?.distance?.toFixed(1) || '';
-        status(JSON.stringify(list))
+        
         if(s && p && d){
           if (d) s.distance = d;
           if (s?.name) s.name = s.name.replaceAll('ss', 'ß');
@@ -164,7 +164,7 @@
           };
         } else {
           //status('Unerwarteter Fehler!');
-          return;
+          throw new Error('Unerwarteter Fehler!');
         }
       });
 
