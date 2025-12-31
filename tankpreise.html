@@ -191,12 +191,9 @@
     };
 
     const getData = async (lat, lon) => {
-      try {
-        const data = await fetchStations(lat, lon);
-        render(data);
-      } catch (err) {
-        status(err ? 'Fehler: ' + (err?.message ?? err) : 'Unerwarteter Fehler!');
-      }
+      const data = await fetchStations(lat, lon);
+      render(data);
+      
     };
 
     const reqLoc = async () => {
